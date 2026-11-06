@@ -1,6 +1,6 @@
 # NyayaMitra (न्यायमित्र) — AI Legal Companion Solution Document
-**Candidate Name:** [Your Name] | **Roll No:** [Your Roll No] | **Branch:** [Your Branch]  
-**Problem Statement:** Problem 2: Build an AI Lawyer | **Repository / App Link:** [Streamlit App / GitHub Link]
+**Candidate Name:** Sainath Nilewad | **Roll No:** [Your Roll No] | **Branch:** [Your Branch]  
+**Problem Statement:** Problem 2: Build an AI Lawyer | **Repository / App Link:** https://github.com/SainathNilewad/AI_Lawyer_Kuku_FM
 
 ---
 
