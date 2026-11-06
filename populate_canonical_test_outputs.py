@@ -1,6 +1,6 @@
 """
 populate_canonical_test_outputs.py - Generates rich, complete, high-fidelity canonical test case outputs
-for the 3 core everyday Indian legal disputes required by Kuku Problem 2.
+for the 3 core everyday Indian legal disputes for Problem 2 (AI Lawyer).
 """
 
 import os

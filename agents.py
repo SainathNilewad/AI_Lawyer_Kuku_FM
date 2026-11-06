@@ -1,6 +1,6 @@
 """
 agents.py - Specialized Multi-Agent Legal Workflow for NyayaMitra
-Implements the 4 core capabilities required by the Kuku brief:
+Implements the 4 core capabilities for Problem 2 (AI Lawyer):
 1. CaseBuilderAgent: Messy story -> Facts, Timeline, Evidence Checklist
 2. RightsAdvisorAgent: Plain-language legal standing, grounded in verified Indian statutes
 3. DocumentDrafterAgent: Formal ready-to-send Legal Demand Notices & Complaints
