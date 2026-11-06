@@ -20,13 +20,22 @@ def clean_json_string(raw_text: str) -> str:
     match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", raw_text)
     if match:
         return match.group(1).strip()
+    # Outermost JSON object or array match fallback
+    json_match = re.search(r"(\{[\s\S]*\}|\[[\s\S]*\])", raw_text)
+    if json_match:
+        return json_match.group(1).strip()
     return raw_text
 
 class LegalLLMEngine:
     def __init__(self, provider: str = "gemini", model_name: str = "gemini-3.5-flash", api_key: Optional[str] = None):
         self.provider = provider.lower()
         self.model_name = model_name
-        self.api_key = api_key or os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY") or os.getenv("GROQ_API_KEY")
+        if self.provider == "gemini":
+            self.api_key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+        elif self.provider == "groq":
+            self.api_key = api_key or os.getenv("GROQ_API_KEY")
+        else:
+            self.api_key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GROQ_API_KEY") or os.getenv("GOOGLE_API_KEY")
 
     def generate(self, system_prompt: str, user_prompt: str, temperature: float = 0.2) -> str:
         """Generates a text completion using Gemini or Groq."""
@@ -63,8 +72,6 @@ class LegalLLMEngine:
                     )
                     if response and response.text:
                         return response.text
-                except Exception as e2:
-                    return f"[Gemini Error: {e2}. Please check your Gemini API key.]"
                 except Exception as e2:
                     return f"[Gemini Error: {e2}. Please check your Gemini API key.]"
 
@@ -104,11 +111,18 @@ class LegalLLMEngine:
 
     def generate_json(self, system_prompt: str, user_prompt: str) -> Dict[str, Any]:
         """Ensures structured JSON output from LLM."""
-        raw = self.generate(system_prompt + "\nReturn ONLY valid JSON format.", user_prompt, temperature=0.1)
+        raw = self.generate(system_prompt + "\nReturn ONLY valid JSON format. Do not include markdown preamble.", user_prompt, temperature=0.1)
         cleaned = clean_json_string(raw)
         try:
             return json.loads(cleaned)
         except Exception:
+            # Fallback regex extraction in case of partial wrapper
+            match = re.search(r"(\{[\s\S]*\})", cleaned)
+            if match:
+                try:
+                    return json.loads(match.group(1))
+                except Exception:
+                    pass
             # Fallback parsing
             return {
                 "raw_text": raw,

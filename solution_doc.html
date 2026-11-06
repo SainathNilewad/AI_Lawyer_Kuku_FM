@@ -80,21 +80,27 @@
 </head>
 <body>
     <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
-    <p><h1>NyayaMitra (न्यायमित्र) — AI Legal Companion Solution Document</h1>
+    <h1>NyayaMitra (न्यायमित्र) — AI Legal Companion Solution Document</h1>
 <strong>Candidate Name:</strong> [Your Name] | <strong>Roll No:</strong> [Your Roll No] | <strong>Branch:</strong> [Your Branch]  
-<strong>Problem Statement:</strong> Problem 2: Build an AI Lawyer | <strong>Repository / App Link:</strong> [Streamlit App / GitHub Link]</p><p>---</p><p><h2>1. Problem Choice & Framing</h2>
+<strong>Problem Statement:</strong> Problem 2: Build an AI Lawyer | <strong>Repository / App Link:</strong> [Streamlit App / GitHub Link]
+<hr style='border:none; border-top:1px solid #e0e0e0; margin:10px 0;'/>
+<h2>1. Problem Choice & Framing</h2>
 <h3>Why Problem 2?</h3>
-Every year in India, millions of ordinary citizens abandon legitimate claims—unreturned rental security deposits (₹30,000–₹80,000), e-commerce refund refusals (₹5,000–₹40,000), and withheld salaries upon resignation (₹50,000–₹2,00,000). People give up because hiring an advocate feels cost-prohibitive (₹15,000+), legal drafting is intimidating, and the procedural paperwork seems overwhelming.</p><p><h3>The True Conversational Solution</h3>
+Every year in India, millions of ordinary citizens abandon legitimate claims—unreturned rental security deposits (₹30,000–₹80,000), e-commerce refund refusals (₹5,000–₹40,000), and withheld salaries upon resignation (₹50,000–₹2,00,000). People give up because hiring an advocate feels cost-prohibitive (₹15,000+), legal drafting is intimidating, and the procedural paperwork seems overwhelming.
+<h3>The True Conversational Solution</h3>
 Rather than a rigid, static web form or offline batch report generator, <strong>NyayaMitra is designed as a genuine, empathetic Conversational AI Legal Partner</strong>:
 1. <strong>Pan-India Multimodal Intake (Voice + Text across 11+ Languages):</strong> Takes voice input via browser microphone (transcribed via Whisper Large v3 Turbo) or text across <em>Hindi (हिन्दी), Hinglish, Tamil (தமிழ்), Telugu (తెలుగు), Kannada (ಕನ್ನಡ), Bengali (বাংলা), Marathi (मराठी), Gujarati (ગુજરાતી), Malayalam (മലയാളം), Punjabi (ਪੰਜਾਬੀ), and English</em>.
 2. <strong>Empathetic Dialogue:</strong> Listens to the user's messy story, extracts key facts organically, and reassures them.
 3. <strong>Live Case Intelligence Sidecar:</strong> As the conversation progresses, a real-time side panel continuously updates the <strong>Case Dossier, Chronological Timeline, and Evidence Strength Score (1–10)</strong>.
-4. <strong>Actionable Outputs:</strong> Generates a ready-to-serve 15-day <strong>Formal Legal Demand Notice</strong> and provides a <strong>Dispute Practice Arena</strong> where the user can roleplay against the opposing party.</p><p><h3>Scoping the Problem (Depth over Superficial Breadth)</h3>
+4. <strong>Actionable Outputs:</strong> Generates a ready-to-serve 15-day <strong>Formal Legal Demand Notice</strong> and provides a <strong>Dispute Practice Arena</strong> where the user can roleplay against the opposing party.
+<h3>Scoping the Problem (Depth over Superficial Breadth)</h3>
 We explicitly scope NyayaMitra to the top 3 everyday civil and consumer disputes in India:
 <em> <strong>Tenancy & Rental Disputes</strong> (</em>Model Tenancy Act 2021, Transfer of Property Act Sec 108*)
 <em> <strong>Consumer & E-Commerce Disputes</strong> (</em>Consumer Protection Act 2019, e-Daakhil*)
-<em> <strong>Employment & Full-and-Final Dues</strong> (</em>Payment of Wages Act 1936, State Shops & Establishments Acts*)</p><p>---</p><p><h2>2. Approach, Architecture & Real-World Scale</h2></p><p>```
-[Voice Microphone / Text (Hindi, Hinglish, English)]
+<em> <strong>Employment & Full-and-Final Dues</strong> (</em>Payment of Wages Act 1936, State Shops & Establishments Acts*)
+<hr style='border:none; border-top:1px solid #e0e0e0; margin:10px 0;'/>
+<h2>2. Approach, Architecture & Real-World Scale</h2>
+<pre style='background:#f4f6f8; border:1px solid #d1d5db; padding:8px 12px; border-radius:6px; font-family:Consolas, monospace; font-size:8.5pt; line-height:1.2; overflow-x:auto;'>[Voice Microphone / Text (Hindi, Hinglish, English)]
                       │
                       ▼
 ┌──────────────────────────────────────────────┐
@@ -113,8 +119,8 @@ We explicitly scope NyayaMitra to the top 3 everyday civil and consumer disputes
 │ • Chronological Timeline  │ │ • Plain Language Rights              │
 │ • Evidence Strength (1-10)│ │ • Grounded in CPA 2019, MTA, Wages   │
 │ • 1-Click Legal Notice    │ │ • Roleplay Negotiation Practice      │
-└───────────────────────────┘ └──────────────────────────────────────┘
-```</p><p><h3>What We Gave to AI vs. What We Kept as Deterministic Rules</h3>
+└───────────────────────────┘ └──────────────────────────────────────┘</pre>
+<h3>What We Gave to AI vs. What We Kept as Deterministic Rules</h3>
 <li><strong>Kept as Code / Deterministic Rules:</strong></li>
   - <strong>Escalation Boundary Filter:</strong> Regex and keyword checks for physical violence, arrest, bail, and matrimonial disputes. If triggered, the AI immediately flags a warning and connects the user to the <em>District Legal Services Authority (DLSA Helpline: 15100)</em>.
   - <strong>Statute Retrieval (Closed RAG):</strong> Direct retrieval from curated, verified statutory text (<em>Model Tenancy Act</em>, <em>Consumer Protection Act 2019</em>, <em>Payment of Wages Act</em>) to ensure zero hallucinations.
@@ -123,25 +129,34 @@ We explicitly scope NyayaMitra to the top 3 everyday civil and consumer disputes
   - Parsing messy unstructured voice transcripts and Hinglish prose into chronological events.
   - Translating legal doctrine into compassionate, empowering advice.
   - Generating formal legal notices with structured prayer and demand clauses.
-  - Dynamic opponent roleplay with tactical negotiation coaching.</p><p><h3>Economics & Token Cost at Scale</h3>
+  - Dynamic opponent roleplay with tactical negotiation coaching.
+<h3>Economics & Token Cost at Scale</h3>
 <li><strong>Voice Transcription (Whisper Large v3 Turbo):</strong> ~$0.0004 per minute.</li>
 <li><strong>LLM Reasoning (Gemini 3.5 Flash / Groq Qwen):</strong> ~2,400 tokens per full dispute intake ($\approx$ <strong>< ₹0.10 / $0.0012</strong>).</li>
-<li>Compared to a traditional advocate consultation (₹1,500–₹5,000), NyayaMitra achieves a <strong>99.9% cost reduction</strong>, running easily on standard free tiers.</li></p><p>---</p><p><h2>3. Quality Checking & Hallucination Defense</h2></p><p><h3>How Legal Models Hallucinate</h3>
+<li>Compared to a traditional advocate consultation (₹1,500–₹5,000), NyayaMitra achieves a <strong>99.9% cost reduction</strong>, running easily on standard free tiers.</li>
+<hr style='border:none; border-top:1px solid #e0e0e0; margin:10px 0;'/>
+<h2>3. Quality Checking & Hallucination Defense</h2>
+<h3>How Legal Models Hallucinate</h3>
 Standard LLMs hallucinate in two dangerous ways:
 1. <strong>Inventing Fake Sections:</strong> E.g., quoting <em>"IPC Section 73 for Breach of Contract"</em> (IPC 73 is solitary confinement; breach of contract is Contract Act Sec 73).
-2. <strong>Fabricating High Court Case Laws:</strong> Manufacturing plausible-sounding bench citations that do not exist.</p><p><h3>NyayaMitra's 3-Layer Hallucination Defense</h3>
+2. <strong>Fabricating High Court Case Laws:</strong> Manufacturing plausible-sounding bench citations that do not exist.
+<h3>NyayaMitra's 3-Layer Hallucination Defense</h3>
 1. <strong>Constrained Statutory Grounding (Closed RAG):</strong> The Legal Advisor is bound to verified Indian enactments (<em>Model Tenancy Act, Consumer Protection Act 2019, Payment of Wages Act</em>).
 2. <strong>Negative Constraint System Prompts:</strong> Agents are explicitly instructed: <em>"Never invent an Act or Section number. If a specific section is not confirmed in the verified context, state the legal principle in plain English without manufacturing a section."</em>
-3. <strong>Civil vs. Criminal Separation:</strong> Prevents users from making frivolous criminal cheating (IPC 420 / BNS 318) threats for civil breaches, following Supreme Court precedent (<em>Dalip Kaur v. Jagnar Singh</em>).</p><p>---</p><p><h2>4. The Prototype & Verification</h2>
+3. <strong>Civil vs. Criminal Separation:</strong> Prevents users from making frivolous criminal cheating (IPC 420 / BNS 318) threats for civil breaches, following Supreme Court precedent (<em>Dalip Kaur v. Jagnar Singh</em>).
+<hr style='border:none; border-top:1px solid #e0e0e0; margin:10px 0;'/>
+<h2>4. The Prototype & Verification</h2>
 <li><strong>Voice & Text Ingestion:</strong> Tested on native microphone voice input in Hinglish and English.</li>
-<li><strong>Action Center:</strong> Generates a ready-to-serve 15-day formal Legal Demand Notice with 1-click `.txt` download.</li>
-<li><strong>Practice Arena:</strong> Tested live with counter-arguments against simulated landlords and customer support agents, receiving real-time coach feedback.</li></p><p><h3>Real Test Cases Executed (Saved in `test_cases/`):</h3>
+<li><strong>Action Center:</strong> Generates a ready-to-serve 15-day formal Legal Demand Notice with 1-click <code>.txt</code> download.</li>
+<li><strong>Practice Arena:</strong> Tested live with counter-arguments against simulated landlords and customer support agents, receiving real-time coach feedback.</li>
+<h3>Real Test Cases Executed (Saved in <code>test_cases/</code>):</h3>
 1. <strong>TC-01 (Tenancy):</strong> Bengaluru landlord withholding ₹45,000 deposit for painting. <em>Applied Sec 108 TPA (wear & tear doctrine); notice drafted; landlord roleplay offered 66% refund.</em>
 2. <strong>TC-02 (Consumer):</strong> E-commerce platform refusing refund on day-old defective smartphone (₹26,999). <em>Invoked CPA 2019 Sec 2(11) Deficiency in Service; roleplay escalated to senior operations manager.</em>
-3. <strong>TC-03 (Employment):</strong> Gurugram IT firm withholding ₹1.65L salary and relieving letter for 50 days. <em>Grounded in Payment of Wages Act & Delhi HC Art. 21 livelihood precedent; notice drafted.</em></p><p>---</p><p><h2>5. Honest Limitations & Where the Solution Fails</h2>
+3. <strong>TC-03 (Employment):</strong> Gurugram IT firm withholding ₹1.65L salary and relieving letter for 50 days. <em>Grounded in Payment of Wages Act & Delhi HC Art. 21 livelihood precedent; notice drafted.</em>
+<hr style='border:none; border-top:1px solid #e0e0e0; margin:10px 0;'/>
+<h2>5. Honest Limitations & Where the Solution Fails</h2>
 <li><strong>State-Specific Rent Laws:</strong> While the Model Tenancy Act provides national guidance, legacy rent control acts (e.g., Maharashtra Rent Control Act 1999) have localized procedural quirks.</li>
 <li><strong>Disputed Verbal Agreements:</strong> When a user has zero written proof, rent agreement, or chat history, the AI can only recommend issuing an exploratory demand notice; it cannot manufacture proof.</li>
 <li><strong>Criminal Matters:</strong> The AI will not assist in criminal bail, cross-examinations, or courtroom trials; it strictly enforces handoff to a human advocate.</li>
-</p>
 </body>
 </html>

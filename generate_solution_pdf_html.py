@@ -7,8 +7,14 @@ import os
 import re
 
 def markdown_to_html(md_text: str) -> str:
-    # Basic markdown parsing
-    html = md_text
+    # Code blocks (ASCII diagrams, etc.)
+    def replace_code_block(match):
+        code_content = match.group(1).replace("<", "&lt;").replace(">", "&gt;")
+        return f"<pre style='background:#f4f6f8; border:1px solid #d1d5db; padding:8px 12px; border-radius:6px; font-family:Consolas, monospace; font-size:8.5pt; line-height:1.2; overflow-x:auto;'>{code_content}</pre>"
+    
+    html = re.sub(r"```(?:[a-zA-Z0-9_-]+)?\s*([\s\S]*?)\s*```", replace_code_block, md_text)
+    # Inline code
+    html = re.sub(r"`([^`]+)`", r"<code>\1</code>", html)
     # Headers
     html = re.sub(r"^### (.*)$", r"<h3>\1</h3>", html, flags=re.MULTILINE)
     html = re.sub(r"^## (.*)$", r"<h2>\1</h2>", html, flags=re.MULTILINE)
@@ -19,10 +25,21 @@ def markdown_to_html(md_text: str) -> str:
     # Lists
     html = re.sub(r"^\* (.*)$", r"<li>\1</li>", html, flags=re.MULTILINE)
     html = re.sub(r"^- (.*)$", r"<li>\1</li>", html, flags=re.MULTILINE)
-    # Paragraphs / Newlines
-    html = html.replace("\n\n", "</p><p>")
-    html = f"<p>{html}</p>"
-    return html
+    # Horizontal rules
+    html = re.sub(r"^---$", r"<hr style='border:none; border-top:1px solid #e0e0e0; margin:10px 0;'/>", html, flags=re.MULTILINE)
+    
+    # Clean Paragraph separation
+    parts = html.split("\n\n")
+    processed_parts = []
+    for part in parts:
+        p_strip = part.strip()
+        if not p_strip:
+            continue
+        if p_strip.startswith("<h") or p_strip.startswith("<pre") or p_strip.startswith("<hr") or p_strip.startswith("<li>"):
+            processed_parts.append(p_strip)
+        else:
+            processed_parts.append(f"<p>{p_strip}</p>")
+    return "\n".join(processed_parts)
 
 def build_print_ready_html():
     base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -126,3 +143,4 @@ def build_print_ready_html():
 
 if __name__ == "__main__":
     build_print_ready_html()
+

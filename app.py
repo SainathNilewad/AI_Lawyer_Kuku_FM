@@ -225,6 +225,8 @@ with col_chat:
                 voice_transcribed_text = transcribe_audio_file(audio_bytes, whisper_key, lang_code=whisper_code)
                 if voice_transcribed_text and not voice_transcribed_text.startswith("[Voice Transcription Error"):
                     st.success(f"🗣️ Heard: *\"{voice_transcribed_text}\"*")
+                elif voice_transcribed_text:
+                    st.warning(voice_transcribed_text)
 
     # Render Chat History
     for msg in st.session_state.chat_history:
@@ -236,11 +238,11 @@ with col_chat:
     
     incoming_message = None
     if voice_transcribed_text and not voice_transcribed_text.startswith("[Voice Transcription Error"):
-        incoming_message = voice_transcribed_text
-    elif chat_text_input:
-        incoming_message = chat_text_input
+        incoming_message = voice_transcribed_text.strip()
+    elif chat_text_input and chat_text_input.strip():
+        incoming_message = chat_text_input.strip()
     elif "pending_user_text" in st.session_state and st.session_state.pending_user_text:
-        incoming_message = st.session_state.pending_user_text
+        incoming_message = st.session_state.pending_user_text.strip()
         del st.session_state.pending_user_text
 
     # Handle incoming user message
@@ -339,9 +341,14 @@ with col_chat:
                             entry_name = f"Additional mentioned proof: {ev.capitalize()}"
                             if entry_name not in st.session_state.case_dossier["evidence_held"]:
                                 st.session_state.case_dossier["evidence_held"].append(entry_name)
-                                # Increment score slightly if below 10
-                                if st.session_state.case_dossier.get("evidence_strength_score", 7) < 10:
-                                    st.session_state.case_dossier["evidence_strength_score"] += 1
+                                # Increment score safely if below 10
+                                curr_score = st.session_state.case_dossier.get("evidence_strength_score", 7)
+                                try:
+                                    curr_score = int(curr_score)
+                                except Exception:
+                                    curr_score = 7
+                                if curr_score < 10:
+                                    st.session_state.case_dossier["evidence_strength_score"] = curr_score + 1
 
                     st.session_state.chat_history.append({"role": "assistant", "content": answer})
                     st.rerun()
@@ -364,10 +371,16 @@ with col_side:
         </div>
         """, unsafe_allow_html=True)
 
-        # Evidence Strength Meter
-        score = dossier.get("evidence_strength_score", 7)
+        # Evidence Strength Meter (Bounded 1-10)
+        raw_score = dossier.get("evidence_strength_score", 7)
+        try:
+            score = int(raw_score)
+        except Exception:
+            score = 7
+        score = max(1, min(10, score))
+        
         st.markdown(f"**🛡️ Evidence Strength: `{score}/10`**")
-        st.progress(score / 10)
+        st.progress(float(score) / 10.0)
         st.caption(dossier.get("evidence_strength_explanation", ""))
 
         # Tabs for Details
@@ -375,24 +388,40 @@ with col_side:
         
         with st_tab1:
             timeline = dossier.get("timeline", [])
-            if timeline:
+            if isinstance(timeline, list) and timeline:
                 for t in timeline:
-                    st.markdown(f"- **{t.get('date_or_period')}:** {t.get('event')}")
+                    if isinstance(t, dict):
+                        st.markdown(f"- **{t.get('date_or_period', 'Event')}:** {t.get('event', '')}")
+                    else:
+                        st.markdown(f"- {t}")
             else:
                 st.caption("Tell me the dates to build your timeline.")
 
         with st_tab2:
             st.markdown("**Proof You Have:**")
-            for h in dossier.get("evidence_held", []):
+            held = dossier.get("evidence_held", [])
+            if isinstance(held, str):
+                held = [held]
+            for h in held:
                 st.markdown(f"- ✅ {h}")
+                
             st.markdown("**Proof You Still Need:**")
-            for n in dossier.get("evidence_needed", []):
+            needed = dossier.get("evidence_needed", [])
+            if isinstance(needed, str):
+                needed = [needed]
+            for n in needed:
                 st.markdown(f"- ⚠️ {n}")
 
         with st_tab3:
             laws = rights.get("governing_laws", [])
-            for l in laws:
-                st.markdown(f"- **{l.get('act_name')}** ({l.get('section')}): {l.get('relevance')}")
+            if isinstance(laws, list) and laws:
+                for l in laws:
+                    if isinstance(l, dict):
+                        st.markdown(f"- **{l.get('act_name', 'Statute')}** ({l.get('section', 'General Provisions')}): {l.get('relevance', '')}")
+                    else:
+                        st.markdown(f"- {l}")
+            else:
+                st.caption("Statutory provisions will be listed here.")
 
         st.markdown("---")
         st.markdown("### ⚡ Action Center")
