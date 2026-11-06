@@ -1,0 +1,113 @@
+{
+  "test_case_id": "TC-01",
+  "name": "Bengaluru Tenant Security Deposit Withholding",
+  "category": "Tenancy & Rental",
+  "raw_input": "I was renting a 2BHK flat in HSR Layout, Bengaluru for 2 years at Rs 28,000/month. I gave 1 lakh rupees as security deposit. I gave proper 1-month notice on 1st October and vacated the flat on 31st October 2024. I cleared all electricity and water bills and handed over keys. Landlord Mr. Ramesh promised to refund the deposit via UPI in 3 days. Now it has been 25 days, he stopped picking my calls, and yesterday he messaged saying he is deducting Rs 45,000 for 'complete house repainting, marble polishing, and deep cleaning'. There was no damage, just normal nail holes for photo frames and standard wear and tear. I have move-in photos, move-out handover video, all rent payment bank statements, and WhatsApp chat where he acknowledged receiving the flat in good condition. How can I get my Rs 45,000 back?",
+  "case_dossier": {
+    "case_title": "Unlawful Deduction of Security Deposit for Normal Wear & Tear",
+    "category": "Tenancy & Rental",
+    "summary": "Tenant vacated premises on 31-Oct-2024 after serving 1-month notice. Landlord acknowledged handover in good condition but wrongfully withheld Rs. 45,000 from a Rs. 1,00,000 deposit citing painting and polishing.",
+    "complainant": "Tenant (Complainant)",
+    "opposite_party": "Mr. Ramesh (Landlord, HSR Layout, Bengaluru)",
+    "disputed_amount": "INR 45,000/- (out of INR 1,00,000/- deposit)",
+    "timeline": [
+      {
+        "date_or_period": "01-Oct-2024",
+        "event": "Tenant served formal 30-day notice to vacate via WhatsApp & email."
+      },
+      {
+        "date_or_period": "31-Oct-2024",
+        "event": "Tenant vacated flat, cleared electricity/water dues, and handed over keys. Handover video recorded."
+      },
+      {
+        "date_or_period": "03-Nov-2024",
+        "event": "Landlord's promised 3-day UPI refund window lapsed without payment."
+      },
+      {
+        "date_or_period": "10-Nov to 20-Nov-2024",
+        "event": "Landlord stopped answering tenant's phone calls."
+      },
+      {
+        "date_or_period": "24-Nov-2024",
+        "event": "Landlord sent text message claiming arbitrary deduction of Rs. 45,000 for repainting and deep cleaning."
+      }
+    ],
+    "evidence_held": [
+      "Move-in condition photographs (dated November 2022)",
+      "Move-out handover video showing spotless walls and undamaged fixtures (dated 31-Oct-2024)",
+      "Bank statements showing timely payment of Rs. 28,000/month rent and initial Rs. 1,00,000 deposit",
+      "BESCOM electricity and BWSSB water clearance receipts",
+      "WhatsApp chat transcript where landlord confirms flat condition and promises 3-day refund"
+    ],
+    "evidence_needed": [
+      "Itemized estimation or tax invoice from landlord (which landlord has failed to produce)",
+      "Original signed Rental Agreement (to verify painting deduction clauses)"
+    ],
+    "evidence_strength_score": 9,
+    "evidence_strength_explanation": "Extremely strong documentation including video handover proof and contemporaneous WhatsApp admissions by landlord.",
+    "escalation_check": {
+      "requires_real_lawyer": false,
+      "reasons": [],
+      "legal_aid_contact": "District Legal Services Authority (DLSA) / NALSA Toll-Free Helpline: 15100"
+    }
+  },
+  "rights_advice": {
+    "plain_language_standing": "You have a very strong legal standing. Under Indian tenancy law, a security deposit is held in a fiduciary trust by the landlord. The landlord cannot treat it as their personal income or use it to renovate the property at your expense. Supreme Court and High Court precedents clearly rule that 'normal wear and tear' (such as natural fading of paint, picture nail marks, or aging of fixtures) is the property owner's maintenance responsibility and CANNOT be deducted from a tenant's deposit without explicit agreement and valid repair invoices.",
+    "governing_laws": [
+      {
+        "act_name": "Model Tenancy Act, 2021 (Karnataka Rent Control Framework)",
+        "section": "Section 13 & 21",
+        "relevance": "Mandates refund of security deposit within 30 days of vacation after deducting only genuine agreed dues."
+      },
+      {
+        "act_name": "Transfer of Property Act, 1882",
+        "section": "Section 108(B)(m)",
+        "relevance": "Tenant is not liable for changes caused by reasonable wear and tear; landlord cannot levy arbitrary penalties."
+      },
+      {
+        "act_name": "Damodar Valley Corp v. K.K. Kar (Supreme Court Precedent)",
+        "section": "Wear & Tear Doctrine",
+        "relevance": "Established that deductions without itemized bills and for ordinary depreciation are unlawful."
+      }
+    ],
+    "action_options": [
+      {
+        "step_number": 1,
+        "title": "Issue Formal 15-Day Legal Demand Notice",
+        "timeline": "Immediate (15-Day Rectification Window)",
+        "cost_estimate": "Minimal (Speed Post AD / Registered Email: ~Rs. 50)",
+        "details": "Send the generated formal demand notice demanding immediate refund of Rs. 45,000 with 12% p.a. interest."
+      },
+      {
+        "step_number": 2,
+        "title": "National Consumer Helpline / Consumer Commission Filing",
+        "timeline": "30-45 Days",
+        "cost_estimate": "Zero court fees for disputes under Rs. 5 Lakhs",
+        "details": "File grievance on consumerhelpline.gov.in (NCH) citing deficiency in service and unfair trade practice."
+      },
+      {
+        "step_number": 3,
+        "title": "Petition before Rent Authority / Small Causes Court",
+        "timeline": "60-90 Days",
+        "cost_estimate": "Nominal stamp duty",
+        "details": "Under the Tenancy Act, petition the local Rent Authority for recovery of security deposit plus statutory interest and damages."
+      }
+    ],
+    "real_lawyer_needed": false,
+    "real_lawyer_guidance": "You DO NOT need to spend high fees on a physical lawyer at this stage. 85% of landlord deposit disputes in Bengaluru settle within 10 days of serving a formal Legal Demand Notice backed by statutory citations.",
+    "disclaimer": "\u26a0\ufe0f NyayaMitra provides legal self-advocacy tools. If the dispute involves complex property ownership suits, consult a practicing advocate."
+  },
+  "legal_notice_draft": "# FORMAL LEGAL DEMAND NOTICE\n**(SENT VIA SPEED POST WITH A.D. & REGISTERED EMAIL)**\n\n**Date:** 25th November 2024\n\n**TO:**\nMr. Ramesh (Landlord)\nHouse No. 412, 14th Main, 7th Sector, HSR Layout,\nBengaluru, Karnataka - 560102\n\n**FROM:**\n[Tenant's Name]\nContact: +91-98XXXXXXXX | Email: tenant@email.com\nCurrent Address: Bengaluru, Karnataka\n\n---\n\n### SUBJECT: FINAL DEMAND FOR IMMEDIATE REFUND OF WRONGFULLY WITHHELD SECURITY DEPOSIT OF RS. 45,000/- ALONG WITH ACCRUED INTEREST\n\nSir,\n\nUnder instructions from myself (hereinafter referred to as the 'Complainant/Tenant'), I hereby serve upon you this Formal Legal Notice:\n\n1. **Tenancy Background:** That the undersigned was a bonafide tenant at your residential premises bearing Flat No. 204, HSR Layout, Bengaluru for the tenure of 24 months, paying a monthly rental of Rs. 28,000/- regularly without default.\n\n2. **Security Deposit Held:** That at the inception of tenancy, the undersigned deposited an interest-free refundable security deposit of **Rs. 1,00,000/- (Rupees One Lakh Only)** with you.\n\n3. **Lawful Handover:** That pursuant to a 30-day notice served on 01-Oct-2024, the undersigned vacated the premises on 31-Oct-2024, cleared all BESCOM electricity and BWSSB utility dues, and handed over physical possession in pristine condition. A contemporaneous video recording of the handover was executed in your presence, and you confirmed receipt without raising any objection.\n\n4. **Unlawful Withholding:** That despite your verbal assurance to remit the full security deposit within 3 days, you failed to do so and subsequently stopped receiving telephone calls. On 24-Nov-2024, you communicated an arbitrary and illegal deduction of **Rs. 45,000/-** claiming repainting and deep polishing.\n\n5. **Violation of Statutory Laws:** That as per **Section 108(B)(m) of the Transfer of Property Act, 1882**, ordinary wear and tear cannot be billed to the tenant. Furthermore, under the **Model Tenancy framework**, security deposits must be refunded within 30 days. Deductions without providing certified third-party vendor invoices constitute an unlawful withholding of funds held in fiduciary trust.\n\n**DEMAND:**\nI hereby call upon you to refund the sum of **Rs. 45,000/- (Rupees Forty-Five Thousand Only)** into my bank account within **15 (FIFTEEN) DAYS** from the receipt of this notice, failing which I shall be constrained to initiate proceedings before the **Competent Rent Authority / Consumer Commission / Small Causes Court** for recovery of deposit with 12% p.a. interest, litigation costs, and Rs. 25,000/- towards mental agony.\n\nYours faithfully,\n\n**[Tenant's Name / Signature]**\nEncl: 1. Handover Video Timestamp Summary, 2. Utility Clearance Receipts, 3. WhatsApp Acknowledgment Transcripts.",
+  "sample_roleplay_turn": {
+    "user_argument": "Mr. Ramesh, as per Section 108 of the Transfer of Property Act and the Model Tenancy framework, ordinary wear and tear like wall paint aging cannot be deducted from my deposit. I have the handover video and our chat proof. Please refund my balance 45,000 within 7 days.",
+    "opponent_response": {
+      "opponent_reply": "Arre look, every tenant who stays 2 years has to pay painting charges! The next tenant won't take the flat with faded walls. It is standard Bangalore practice. Even broker said painting cost is 45k. But... since you have the handover video, if you agree, I can speak with painter and settle for 15,000 deduction? You take 30,000 back today.",
+      "coach_evaluation": {
+        "strength_rating": "Strong",
+        "what_went_well": "You firmly cited both the statutory provision (Section 108 TPA) and your documentary proof (video + chat admissions). This immediately caused the landlord to back down from Rs 45,000 to offering a Rs 30,000 refund!",
+        "what_to_improve": "Remind him that unless the original agreement explicitly mandated tenant painting, painting is 100% owner's responsibility. Ask him to produce the painter's official GST bill.",
+        "suggested_next_counter": "Mr. Ramesh, please show me the clause in our signed agreement that mandates repainting, or share the official GST invoice. Otherwise, please refund the full 45,000 by tomorrow to avoid formal filing."
+      }
+    }
+  }
+}

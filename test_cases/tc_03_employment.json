@@ -1,0 +1,112 @@
+{
+  "test_case_id": "TC-03",
+  "name": "Gurugram Tech Employee Unpaid Salary & Relieving Letter Withheld",
+  "category": "Employment & Salary",
+  "raw_input": "I worked as a frontend developer at an IT consultancy firm in Cyber City, Gurugram for 18 months at Rs 70,000/month. I submitted my resignation on 1st August 2024 and completed my full 60-day notice period till 30th September 2024. All project handovers and company assets (MacBook, ID card) were handed over and I received an asset clearance certificate from IT. My August salary was delayed, and my September salary plus 15 days encashable leave (total Rs 1,65,000) has not been paid. It has been 50 days since my last working day. Whenever I email HR, they say 'finance team is facing client payment delays'. More importantly, they are withholding my Relieving Letter and Experience Certificate. My new employer is threatening to cancel my job offer if I don't submit my relieving letter by end of this week. I have my appointment letter, resignation acceptance email, and signed clearance form.",
+  "case_dossier": {
+    "case_title": "Unlawful Withholding of Earned Salary and Relieving Certificate",
+    "category": "Employment & Salary",
+    "summary": "Software engineer completed full 60-day contractual notice period with asset clearance. Employer has withheld Rs. 1,65,000 in salary and refused relieving documents citing internal company cashflow problems.",
+    "complainant": "Ex-Employee (Frontend Engineer)",
+    "opposite_party": "IT Consultancy Firm (Cyber City, Gurugram)",
+    "disputed_amount": "INR 1,65,000/- (Earned wages + leave encashment)",
+    "timeline": [
+      {
+        "date_or_period": "01-Aug-2024",
+        "event": "Formal resignation email submitted giving 60 days notice."
+      },
+      {
+        "date_or_period": "30-Sep-2024",
+        "event": "Last working day completed. Project transition and hardware assets handed over; signed clearance received."
+      },
+      {
+        "date_or_period": "10-Oct-2024",
+        "event": "Statutory 7-10 day Full & Final settlement deadline elapsed without salary credit."
+      },
+      {
+        "date_or_period": "05-Nov-2024",
+        "event": "HR sent delay email blaming client billing."
+      },
+      {
+        "date_or_period": "20-Nov-2024",
+        "event": "Company refused to issue Relieving Letter until client clears invoices, threatening employee's new job."
+      }
+    ],
+    "evidence_held": [
+      "Original Employment Contract / Offer Letter",
+      "Resignation submission email and manager's written acceptance",
+      "IT & HR Asset Clearance Form signed by department heads",
+      "Salary bank credit statements for prior 16 months",
+      "Email trail with HR acknowledging pending Rs. 1,65,000 dues and client delay excuses"
+    ],
+    "evidence_needed": [
+      "New employer's joining ultimatum email (vital to claim career disruption damages)"
+    ],
+    "evidence_strength_score": 10,
+    "evidence_strength_explanation": "Undisputed liability. Company has in writing admitted the dues and acknowledged complete handover.",
+    "escalation_check": {
+      "requires_real_lawyer": false,
+      "reasons": [],
+      "legal_aid_contact": "District Labor Commissioner Office, Gurugram"
+    }
+  },
+  "rights_advice": {
+    "plain_language_standing": "The company's conduct is completely illegal under Indian labor laws. An employee's earned wages and statutory relieving documents CANNOT be contingent upon whether the employer's third-party clients have paid them. The Delhi and Punjab & Haryana High Courts have repeatedly held that withholding an experience or relieving certificate impairs the employee's fundamental Right to Livelihood under Article 21 of the Constitution. The employer can be prosecuted before the Labor Commissioner for unauthorized deductions.",
+    "governing_laws": [
+      {
+        "act_name": "Payment of Wages Act, 1936",
+        "section": "Section 5 & Section 15",
+        "relevance": "Mandates payment of wages within statutory timelines and provides for recovery of withheld wages with up to 10x penalty."
+      },
+      {
+        "act_name": "Haryana Shops and Commercial Establishments Act, 1958",
+        "section": "Section 21 (Accumulated Wages)",
+        "relevance": "Requires all accumulated settlements to be cleared within 3 working days of employment termination."
+      },
+      {
+        "act_name": "Milan Sharma v. State (Delhi High Court)",
+        "section": "Right to Livelihood Precedent",
+        "relevance": "Employer has no legal right to withhold service certificates after notice period is served."
+      }
+    ],
+    "action_options": [
+      {
+        "step_number": 1,
+        "title": "Serve Formal 7-Day Pre-Litigation Legal Demand Notice",
+        "timeline": "7 Days (Urgent)",
+        "cost_estimate": "Speed Post / Email (Rs. 50)",
+        "details": "Serve legal notice directly to Board of Directors and Managing Director highlighting personal liability under the Companies Act and Labor Code."
+      },
+      {
+        "step_number": 2,
+        "title": "File Petition with District Labor Commissioner (DLC)",
+        "timeline": "15-20 Days",
+        "cost_estimate": "Free",
+        "details": "Lodge complaint for non-payment of wages and withholding of relieving documents. DLC will issue summons to company directors."
+      },
+      {
+        "step_number": 3,
+        "title": "Commercial Court Suit for Career Damages",
+        "timeline": "60 Days",
+        "cost_estimate": "Nominal",
+        "details": "Claim damages for loss of subsequent employment opportunity caused by bad faith withholding of certificates."
+      }
+    ],
+    "real_lawyer_needed": false,
+    "real_lawyer_guidance": "Complaints before the District Labor Commissioner do not require an advocate. Employees can represent themselves directly before the Conciliation Officer.",
+    "disclaimer": "\u26a0\ufe0f Legal advisory tool. For complex stock option / ESOP disputes, consult an employment lawyer."
+  },
+  "legal_notice_draft": "# FORMAL LEGAL NOTICE UNDER PAYMENT OF WAGES ACT & SHOPS ACT\n**(SENT VIA REGISTERED EMAIL & SPEED POST)**\n\n**Date:** 25th November 2024\n\n**TO:**\nThe Board of Directors & Head of HR,\n[IT Consultancy Private Limited]\nBuilding 10, DLF Cyber City, Gurugram, Haryana - 122002\n\n**FROM:**\n[Ex-Employee Name], Resident of Gurugram, Haryana\nContact: +91-98XXXXXXXX | Email: dev@email.com\n\n---\n\n### SUBJECT: DEMAND NOTICE FOR RELEASE OF PENDING SALARY OF RS. 1,65,000/- AND IMMEDIATE ISSUANCE OF RELIEVING & EXPERIENCE CERTIFICATES\n\nSir/Madam,\n\nI, the Complainant, served as Frontend Developer with your organization from March 2023 until 30-Sep-2024.\n\n1. **Full Notice Served:** Resignation was tendered on 01-Aug-2024 and full 60-day notice served until 30-Sep-2024. All assets and projects were duly handed over and clearance approved.\n\n2. **Unlawful Withholding of Wages:** An aggregate amount of **Rs. 1,65,000/-** towards September salary and earned leave remains unpaid for over 50 days, in direct violation of **Section 5 of the Payment of Wages Act, 1936**.\n\n3. **Malafide Withholding of Relieving Letter:** Your refusal to issue relieving documentation due to internal client cashflow disputes is an actionable tort and violates my constitutional right to livelihood under Article 21, as affirmed in *Milan Sharma v. State*.\n\n**FINAL DEMAND:**\nYou are called upon to credit the outstanding **Rs. 1,65,000/-** and transmit signed Relieving and Experience Certificates within **7 (SEVEN) DAYS**, failing which I shall initiate proceedings before the **District Labor Commissioner, Gurugram** and seek penal damages for malicious career disruption.\n\n**[Ex-Employee Signature]**",
+  "sample_roleplay_turn": {
+    "user_argument": "Under the Payment of Wages Act and Delhi/Haryana Shops and Commercial Establishments rules, full and final dues must be cleared within 30 days of exit, and withholding my relieving letter violates my right to livelihood under Article 21. If my Rs 1,65,000 and relieving letter are not issued within 3 days, I will file a formal complaint with the District Labor Commissioner.",
+    "opponent_response": {
+      "opponent_reply": "Listen, please don't threaten us with Labor Commissioner. We are a startup and our US client hasn't released the milestone invoice. You know how business works. We are not saying we won't pay. But look, if you really need the relieving letter immediately for your new job, I can request the Managing Director to issue a provisional relieving letter by tomorrow, and your salary will come in two tranches next month. Can we agree on that?",
+      "coach_evaluation": {
+        "strength_rating": "Strong",
+        "what_went_well": "You cited the exact labor statute and High Court Article 21 precedent, which created urgent personal and regulatory risk for the HR/Director. They immediately offered to break company deadlock and issue the critical relieving letter tomorrow!",
+        "what_to_improve": "Get the salary payment dates locked in writing in the provisional letter.",
+        "suggested_next_counter": "I will accept the Relieving Letter tomorrow, provided it contains a legally binding written schedule specifying the exact dates in December for both salary tranches."
+      }
+    }
+  }
+}
