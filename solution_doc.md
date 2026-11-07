@@ -1,6 +1,5 @@
 # NyayaMitra (न्यायमित्र) — AI Legal Companion Solution Document
-**Candidate Name:** Sainath Nilewad | **Problem Statement:** Problem 2: Build an AI Lawyer  
-**Repository Link:** https://github.com/SainathNilewad/AI_Lawyer_Kuku_FM
+**Problem Statement:** Problem 2: Build an AI Lawyer  
 
 ---
 
@@ -70,7 +69,7 @@ To maintain legal integrity, NyayaMitra is explicitly restricted to three everyd
 1. **No Invented Precedents:** Judicial case citations were intentionally eliminated from the database to prevent manufactured citations.
 2. **Code-Level Section Guard:** Verifies every statutory section cited against a whitelist extracted from the local knowledge base.
 3. **Repealed Statute Removal:** The repealed Payment of Wages Act, 1936 was replaced with the Code on Wages, 2019 (Sections 17(2), 17(4), 18(1), 18(3)).
-4. **Automated Verification Suite (`verify_test_suite.py`):** Runs 14 benchmark test cases (10 core domain scenarios + 4 adversarial queries covering invented sections, repealed statutes, criminal threats, and out-of-scope topics), achieving 100% pass rate with zero unverified sections.
+4. **Automated Verification Suite (`verify_test_suite.py`):** Runs 17 benchmark test cases (10 core civil scenarios + 7 adversarial queries covering invented sections, repealed statutes, criminal threats, and out-of-scope overrides), achieving a pass count of 17/17 passed (0 failed), logged to `test_cases/verification_run.txt`. In raw model outputs across TC-01 to TC-03, unverified section references were reduced from before fix: 16 unverified sections (5 in TC-01, 4 in TC-02, 7 in TC-03) to after fix: 0 unverified sections.
 
 ---
 

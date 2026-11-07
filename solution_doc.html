@@ -81,8 +81,7 @@
 <body>
     <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
     <h1>NyayaMitra (न्यायमित्र) — AI Legal Companion Solution Document</h1>
-<strong>Candidate Name:</strong> Sainath Nilewad | <strong>Problem Statement:</strong> Problem 2: Build an AI Lawyer  
-<strong>Repository Link:</strong> https://github.com/SainathNilewad/AI_Lawyer_Kuku_FM
+<strong>Problem Statement:</strong> Problem 2: Build an AI Lawyer
 <hr style='border:none; border-top:1px solid #e0e0e0; margin:10px 0;'/>
 <h2>1. Problem Choice & Framing</h2>
 <h3>Why Everyday Disputes?</h3>
@@ -140,7 +139,7 @@ To maintain legal integrity, NyayaMitra is explicitly restricted to three everyd
 1. <strong>No Invented Precedents:</strong> Judicial case citations were intentionally eliminated from the database to prevent manufactured citations.
 2. <strong>Code-Level Section Guard:</strong> Verifies every statutory section cited against a whitelist extracted from the local knowledge base.
 3. <strong>Repealed Statute Removal:</strong> The repealed Payment of Wages Act, 1936 was replaced with the Code on Wages, 2019 (Sections 17(2), 17(4), 18(1), 18(3)).
-4. <strong>Automated Verification Suite (<code>verify_test_suite.py</code>):</strong> Runs 14 benchmark test cases (10 core domain scenarios + 4 adversarial queries covering invented sections, repealed statutes, criminal threats, and out-of-scope topics), achieving 100% pass rate with zero unverified sections.
+4. <strong>Automated Verification Suite (<code>verify_test_suite.py</code>):</strong> Runs 17 benchmark test cases (10 core civil scenarios + 7 adversarial queries covering invented sections, repealed statutes, criminal threats, and out-of-scope overrides), achieving a pass count of 17/17 passed (0 failed), logged to <code>test_cases/verification_run.txt</code>. In raw model outputs across TC-01 to TC-03, unverified section references were reduced from before fix: 16 unverified sections (5 in TC-01, 4 in TC-02, 7 in TC-03) to after fix: 0 unverified sections.
 <hr style='border:none; border-top:1px solid #e0e0e0; margin:10px 0;'/>
 <h2>4. One Place the AI Tools Got It Wrong</h2>
 <!-- PLACEHOLDER: To be filled by candidate based on real testing experience -->

@@ -2,60 +2,61 @@
   "test_case_id": "TC-01",
   "name": "Bengaluru Tenant Security Deposit Withholding",
   "category": "Tenancy & Rental",
-  "timestamp": "2026-11-06T23:35:41.676073+00:00",
+  "timestamp": "2026-11-07T00:46:08.366522+00:00",
   "provider": "groq",
   "model_name": "openai/gpt-oss-120b",
   "raw_input": "I was renting a 2BHK flat in HSR Layout, Bengaluru for 2 years at Rs 28,000/month. I gave 1 lakh rupees as security deposit. I gave proper 1-month notice on 1st October and vacated the flat on 31st October 2024. I cleared all electricity and water bills and handed over keys. Landlord Mr. Ramesh promised to refund the deposit via UPI in 3 days. Now it has been 25 days, he stopped picking my calls, and yesterday he messaged saying he is deducting Rs 45,000 for 'complete house repainting, marble polishing, and deep cleaning'. There was no damage, just normal nail holes for photo frames and standard wear and tear. I have move-in photos, move-out handover video, all rent payment bank statements, and WhatsApp chat where he acknowledged receiving the flat in good condition. How can I get my Rs 45,000 back?",
   "case_dossier": {
-    "case_title": "Security Deposit Refund Dispute – Rs 45,000 Deduction",
+    "case_title": "Security Deposit Refund Dispute – Unjust Rs 45,000 Deduction",
     "category": "Tenancy & Rental",
-    "summary": "The tenant vacated a 2BHK flat in HSR Layout after a 2‑year lease, handed over the property in good condition, and was promised a full security deposit refund. The landlord now claims a Rs 45,000 deduction for repainting and polishing, which the tenant disputes.",
-    "complainant": "Tenant",
+    "summary": "The tenant vacated a 2BHK flat on 31 Oct 2024 after giving proper notice. The landlord promised a full security‑deposit refund but now claims a Rs 45,000 deduction for repainting and cleaning, despite no damage. The tenant seeks the deducted amount back.",
+    "complainant": "Tenant (name not specified)",
     "opposite_party": "Landlord Mr. Ramesh",
     "disputed_amount": "Rs 45,000",
     "timeline": [
       {
-        "date_or_period": "Around Oct 2022",
-        "event": "Tenancy began; tenant paid Rs 1,00,000 security deposit and monthly rent of Rs 28,000."
+        "date_or_period": "Oct 2022 – Oct 2024",
+        "event": "Tenant occupied 2BHK flat in HSR Layout, Bengaluru on a 2‑year lease at Rs 28,000 per month, paid Rs 1,00,000 security deposit."
       },
       {
-        "date_or_period": "1 Oct 2024",
-        "event": "Tenant gave one‑month notice to vacate the flat."
+        "date_or_period": "1 Oct 2024",
+        "event": "Tenant gave one‑month notice to vacate."
       },
       {
-        "date_or_period": "31 Oct 2024",
-        "event": "Tenant vacated, cleared electricity & water bills, handed over keys, and recorded move‑out video."
+        "date_or_period": "31 Oct 2024",
+        "event": "Tenant vacated the flat, cleared electricity & water bills, handed over keys, and landlord acknowledged receipt in good condition via WhatsApp."
       },
       {
-        "date_or_period": "Early Nov 2024 (within 3 days of vacating)",
+        "date_or_period": "Early Nov 2024 (within 3 days of vacating)",
         "event": "Landlord promised to refund the full security deposit via UPI within three days."
       },
       {
-        "date_or_period": "~25 days after vacating (mid‑Nov 2024)",
-        "event": "Landlord stopped answering calls."
+        "date_or_period": "Mid‑Nov 2024 (≈25 days after vacating)",
+        "event": "No refund received; landlord stopped answering calls."
       },
       {
-        "date_or_period": "Yesterday (relative to the complaint)",
-        "event": "Landlord messaged tenant stating a deduction of Rs 45,000 for repainting, marble polishing, and deep cleaning."
+        "date_or_period": "Yesterday (mid‑Nov 2024)",
+        "event": "Landlord messaged that he is deducting Rs 45,000 for repainting, marble polishing, and deep cleaning."
       }
     ],
     "evidence_held": [
       "Move‑in photographs of the flat",
-      "Move‑out handover video showing condition of the property",
-      "Bank statements showing monthly rent payments and security deposit payment",
-      "WhatsApp chat where landlord acknowledged receipt of the flat in good condition",
-      "Copy of the rent receipt / payment confirmations"
+      "Move‑out handover video",
+      "Bank statements showing monthly rent payments and security‑deposit payment",
+      "WhatsApp chat where landlord acknowledges receiving the flat in good condition",
+      "Copy of the notice sent on 1 Oct 2024 (if any)"
     ],
     "evidence_needed": [
-      "Signed rental agreement specifying terms for security deposit and permissible deductions",
-      "Inventory or condition checklist (if any) signed by both parties at move‑in and move‑out",
-      "Written communication (email/WhatsApp) where landlord initially promised full refund",
-      "Any estimate or invoice from the landlord for the claimed repainting/marble polishing work",
-      "Proof of payment of electricity and water bills (bills or receipts)",
-      "A formal demand letter drafted to the landlord requesting the Rs 45,000 refund"
+      "Signed rent/lease agreement specifying security‑deposit terms and deductions allowed",
+      "Receipt or acknowledgment of the Rs 1,00,000 security deposit paid",
+      "Written notice of termination (email or WhatsApp screenshot) sent on 1 Oct 2024",
+      "Any written communication from landlord detailing the Rs 45,000 deduction (e.g., screenshot of the message, email)",
+      "Inventory or condition checklist signed by both parties at move‑in and move‑out (if exists)",
+      "Quotes/receipts for repainting, marble polishing, or deep‑cleaning (to verify if deduction is justified)",
+      "UPI transaction history showing no refund received"
     ],
     "evidence_strength_score": 8,
-    "evidence_strength_explanation": "The tenant possesses strong visual proof of the property's condition, payment records, and direct acknowledgment from the landlord, making the case against the deduction compelling.",
+    "evidence_strength_explanation": "Strong visual (photos/video) and transactional records plus landlord's acknowledgment, but missing the formal lease clause and written deduction notice.",
     "escalation_check": {
       "requires_real_lawyer": false,
       "reasons": [],
@@ -63,61 +64,76 @@
     }
   },
   "rights_advice": {
-    "plain_language_standing": "You have a solid legal right to get back the full security deposit you paid. Under the Model Tenancy Act, 2021 a landlord can keep only the amount that covers actual damage caused by the tenant – ordinary wear and tear, like the natural fading of paint, cannot be charged. The landlord must return the deposit within 30 days after you handed over peaceful possession, and any deduction must be backed by a detailed, item‑by‑item bill. Since you have video proof that the flat was in good condition, a written acknowledgment from the landlord that the handover was satisfactory, and you paid the deposit as per the agreement, the landlord’s claim of a Rs 45,000 deduction for repainting and polishing is unlikely to be justified. This is a civil dispute, not a criminal cheating case, so you can pursue it through the rent‑control authority or a small causes court without needing to file a police FIR.",
+    "plain_language_standing": "You are in a strong position under Indian law to get your full security deposit back. The Model Tenancy Act, 2021 (where adopted by Karnataka) caps the security deposit at two months' rent and requires the landlord to return it within 30 days of you handing over peaceful possession, after deducting only genuine, itemised charges. Ordinary wear‑and‑tear – like the natural fading of paint or normal cleaning – cannot be used to keep part of the deposit. The landlord’s claim of a Rs 45,000 deduction for repainting, marble polishing and deep cleaning is not automatically valid, especially because you have video evidence that the flat was handed back in good condition and the landlord himself confirmed receipt.\n\nBecause the dispute is about money you are owed, it is a civil matter, not a criminal cheating case. You can first ask the landlord in writing to refund the amount (with interest for delay) and, if he does not comply, you may approach the Rent Authority or a Small Causes Court, which allows you to represent yourself without a lawyer. The evidence you already have – photos, videos, payment records and the WhatsApp acknowledgment – will support your claim that no real damage was caused and that the deduction is unjustified.",
     "governing_laws": [
       {
         "act_name": "Model Tenancy Act, 2021",
-        "section": "Section 13, Section 14, Section 21",
-        "relevance": "Caps security deposit, mandates refund within 30 days, and bars deductions for normal wear and tear. Requires landlord to provide itemised bills for any deduction."
+        "section": "Section 13",
+        "relevance": "Limits security deposit to 2 months' rent and mandates refund within 30 days after peaceful possession."
+      },
+      {
+        "act_name": "Model Tenancy Act, 2021",
+        "section": "Section 14",
+        "relevance": "Prohibits deduction for normal wear and tear; requires itemised bills for any legitimate deduction."
+      },
+      {
+        "act_name": "Model Tenancy Act, 2021",
+        "section": "Section 21",
+        "relevance": "Specifies that deposit disputes must be filed before the Rent Authority/Rent Court, not a regular civil court."
       },
       {
         "act_name": "Transfer of Property Act, 1882",
-        "section": "Section 108(B)(m), Section 108(B)(q)",
-        "relevance": "Tenant must keep the property in the condition it was received, subject only to reasonable wear and tear, and is entitled to the return of the deposit on vacating."
+        "section": "Section 108(B)(m)",
+        "relevance": "Tenant must keep the property in as good condition as received, subject only to reasonable wear and tear."
       },
       {
-        "act_name": "Bharatiya Nyaya Sanhita, 2023 / IPC",
-        "section": "BNS Section 318 (Cheating) & IPC Section 420",
-        "relevance": "Clarifies that failure to refund a deposit is a civil matter, not a criminal cheating offence, unless there was fraudulent intent at the start."
+        "act_name": "Transfer of Property Act, 1882",
+        "section": "Section 108(B)(q)",
+        "relevance": "Tenant is entitled to the return of the security deposit after vacating and handing over vacant possession."
+      },
+      {
+        "act_name": "General Legal Principle (Civil vs. Criminal Boundary)",
+        "section": "N/A",
+        "relevance": "Refund disputes are civil matters; criminal cheating charges are inappropriate unless fraud was present from the start."
       }
     ],
     "action_options": [
       {
         "step_number": 1,
-        "title": "Send Formal Legal Notice",
-        "timeline": "15 Days from receipt",
-        "cost_estimate": "Free to minimal (Speed Post/Registered Email cost)",
-        "details": "Draft a notice stating: (a) you vacated on 31 Oct 2024, (b) landlord promised full refund, (c) you are entitled to the entire Rs 1,00,000 deposit under Model Tenancy Act, (d) demand the Rs 45,000 deduction be returned with 12% interest for delay, and (e) give 15 days to comply. Send it by registered post and keep a copy of the receipt."
+        "title": "Send Formal Legal Notice to Landlord",
+        "timeline": "15 Days from receipt of notice",
+        "cost_estimate": "Free to minimal (Speed Post/Registered Email, approx. Rs. 50‑200)",
+        "details": "Draft a concise notice stating: (a) you vacated on 31 Oct 2024, (b) landlord acknowledged good condition, (c) under Model Tenancy Act Sec.13 & Sec.14 he must refund the full Rs 1,00,000 deposit within 30 days, (d) the Rs 45,000 deduction is unjustified, (e) demand refund of Rs 45,000 plus 2% per month interest for delay. Attach copies of photos, handover video, WhatsApp acknowledgment, and payment proof. Send by registered post and email, and keep a copy of the receipt."
       },
       {
         "step_number": 2,
-        "title": "File Grievance on State Rent Authority / Consumer Helpline",
-        "timeline": "30‑45 Days",
-        "cost_estimate": "Zero court fees for disputes up to Rs 5 Lakhs; only nominal portal registration charges if any",
-        "details": "Register the complaint on your State Rent Authority’s online portal (or use the National Consumer Helpline 1915). Upload the rental agreement, security‑deposit receipt, move‑in/out photos, video, WhatsApp acknowledgment, and a copy of the legal notice. The authority will issue a notice to the landlord and can order refund with interest."
+        "title": "File Grievance on State Rent Authority / Online Portal",
+        "timeline": "30‑45 Days after notice expiry",
+        "cost_estimate": "Zero court fees up to Rs. 5 Lakhs (online filing is free)",
+        "details": "If the landlord does not respond or refuses to pay, log in to Karnataka's Rent Authority portal (or the National Consumer Helpline 1915 for guidance). Upload the notice, evidence (photos, video, payment slips, WhatsApp chat), and a brief statement of claim. The portal generates a reference number and forwards the complaint to the Rent Authority, which will schedule a hearing."
       },
       {
         "step_number": 3,
-        "title": "Petition Before Local Rent Authority / Small Causes Court",
-        "timeline": "60‑90 Days",
-        "cost_estimate": "Nominal filing fee (usually Rs 500‑Rs 1,000 for amounts under Rs 5 Lakhs)",
-        "details": "If the landlord does not comply after the authority’s direction, file a petition for recovery of the deposit and interest. You can represent yourself; the court will consider your evidence (photos, video, payment records, notice). The court can order the landlord to pay the Rs 45,000 plus interest and may award a small penalty for wrongful deduction."
+        "title": "Petition Before Rent Authority / Small Causes Court",
+        "timeline": "60‑90 Days from filing the grievance",
+        "cost_estimate": "Nominal court fee (usually Rs. 500‑1,000 for claims up to Rs. 5 Lakhs)",
+        "details": "Prepare a petition citing Model Tenancy Act Sec.13,14,21 and Transfer of Property Act Sec.108. Attach all evidence and a copy of the legal notice. You may appear yourself; the forum allows self‑representation. The authority can order the landlord to refund the deposit with interest and may award a modest penalty for wrongful deduction."
       }
     ],
     "real_lawyer_needed": false,
-    "real_lawyer_guidance": "You can handle the entire process yourself: drafting the notice, filing on the rent‑authority portal, and appearing before the Rent Authority or Small Causes Court does not require a lawyer. A lawyer becomes necessary only if the dispute escalates to a higher civil court or if you face a complex counter‑claim.",
-    "disclaimer": "⚠️ NyayaMitra provides legal information and self‑advocacy tools under Indian laws. For formal courtroom representation, consult a licensed advocate."
+    "real_lawyer_guidance": "You can handle the entire process yourself: drafting the notice, filing the online grievance, and appearing before the Rent Authority or Small Causes Court does not require a lawyer. However, if the landlord contests the claim with complex counter‑evidence, or if you feel uncomfortable appearing in court, you may consult a lawyer for advice or representation. Legal aid services (DLSA/NALSA) are also available at no cost.",
+    "disclaimer": "⚠️ NyayaMitra provides legal information and self‑advocacy tools under Indian laws. For formal courtroom representation or if the dispute escalates, consult a licensed advocate."
   },
-  "legal_notice_draft": "## **LEGAL DEMAND NOTICE**  \n\n**(Security Deposit Refund – Rs. 45,000)**  \n\n---  \n\n### **1.  Header**  \n\n| **From (Sender)** | **To (Recipient)** |\n|-------------------|--------------------|\n| **Name:** ______________________________<br>**Address:** ______________________________<br>**Phone / Email:** ______________________________ | **Mr. Ramesh**<br>**Address:** ______________________________<br>**Phone / Email:** ______________________________ |\n\n---  \n\n### **2.  Date & Mode of Dispatch**  \n\n- **Date:** ___ /___ /_____  (dd / mm / yyyy)  \n- **Mode of Dispatch:** **Speed Post (Acknowledgement Due)** / **Registered Email (with read‑receipt)**  \n\n---  \n\n### **3.  Subject**  \n\n> **Demand for Refund of Security‑Deposit Deduction of Rs. 45,000 (Forty‑Five Thousand Only) within 15 Days, failing which legal proceedings will be instituted.**  \n\n---  \n\n### **4.  Opening Paragraph (Instruction Clause)**  \n\n> **Under instructions from my client, the undersigned, being the authorized legal drafter of NyayaMitra India, hereby submits the following notice on behalf of the tenant (hereinafter “the Complainant”).**  \n\n---  \n\n### **5.  Recital of Facts (Chronological Sequence)**  \n\n| **Date / Period** | **Event** |\n|-------------------|-----------|\n| **Around Oct 2022** | Tenancy of a 2 BHK flat at **HSR Layout, Bengaluru** commenced. The Complainant paid a **security deposit of Rs. 1,00,000** and monthly rent of **Rs. 28,000** as per the signed Rental Agreement. |\n| **1 Oct 2024** | The Complainant served a **one‑month notice** to vacate the premises, as required under the Agreement. |\n| **31 Oct 2024** | The Complainant **vacated the flat**, cleared all electricity & water dues, handed over the keys, and recorded a **move‑out video** evidencing the good condition of the property. |\n| **Early Nov 2024 (within 3 days of vacating)** | The Landlord (Mr. Ramesh) **promised** to refund the **full security deposit** via UPI within three days. |\n| **~Mid‑Nov 2024 (≈ 25 days after vacating)** | The Landlord **ceased to answer calls** and did not effect the promised refund. |\n| **Yesterday (relative to the present notice)** | The Landlord messaged the Complainant stating a **deduction of Rs. 45,000** for “re‑painting, marble polishing and deep cleaning”. No itemised bill, invoice or estimate has been produced. |\n\n---  \n\n### **6.  Documents in Possession (Annexure‑A)**  \n\n| **S.No.** | **Document** | **Status** |\n|----------|--------------|------------|\n| 1 | Rental Agreement (signed) | **Annexure‑A1** |\n| 2 | Security‑deposit receipt (Rs. 1,00,000) | **Annexure‑A2** |\n| 3 | Move‑in photographs of the flat | **Annexure‑A3** |\n| 4 | Move‑out hand‑over video (31 Oct 2024) | **Annexure‑A4** |\n| 5 | WhatsApp chat where Landlord acknowledged receipt of flat in good condition | **Annexure‑A5** |\n| 6 | Bank statements showing rent & deposit payments | **Annexure‑A6** |\n| 7 | Screenshot of Landlord’s message demanding Rs. 45,000 deduction | **Annexure‑A7** |\n\n*All above annexures are attached hereto and form an integral part of this notice.*  \n\n---  \n\n### **7.  Legal Grounds**  \n\n1. **Model Tenancy Act, 2021** – **Section 13, 14 & 21**:  \n   - Security deposit shall be **capped** and **refunded within 30 days** of peaceful possession.  \n   - Deductions are permissible **only for actual damage** beyond normal wear and tear and must be supported by an **itemised bill**.  \n\n2. **Transfer of Property Act, 1882** – **Section 108(B)(m) & (q)**:  \n   - The tenant is required to keep the premises in the condition received, subject only to **reasonable wear and tear**.  \n\n3. **Bharatiya Nyaya Sanhita, 2023 (Section 318) & IPC Section 420**:  \n   - Non‑refund of a security deposit **does not constitute a criminal offence** unless fraudulent intent is proved; the remedy is **civil**.  \n\n4. **RBI/Consumer Protection Act, 2019** (as applicable to banking‑related refunds):  \n   - Unjustified withholding of funds attracts **interest at 12 % per annum** (as per prevailing statutory rate).  \n\n---  \n\n### **8.  Demand**  \n\nIn view of the foregoing facts and legal provisions, the Complainant **hereby demands** that the Landlord:\n\n1. **Refund the amount of Rs. 45,000 (Forty‑Five Thousand Only)** which has been **unjustly deducted** from the security deposit; and  \n\n2. **Pay interest** on the aforesaid amount at **12 % per annum** from **31 Oct 2024** (date of vacating) up to the date of actual payment;  \n\n3. **Make the payment** by **cheque / direct bank transfer / UPI** to the Complainant’s account **within fifteen (15) days** from the receipt of this notice (i.e., on or before ___ /___ /_____).  \n\n---  \n\n### **9.  Consequence of Non‑Compliance**  \n\nIf the Landlord **fails to comply** with the above demand within the stipulated **15‑day period**, the Complainant **shall be constrained to initiate** the following legal actions **without any further notice**:\n\n| **Action** | **Statutory Provision / Forum** | **Relief Sought** |\n|------------|--------------------------------|-------------------|\n| (a) **Complaint before the State Rent Authority / Consumer Helpline** | Model Tenancy Act, 2021; Consumer Protection Act, 2019 | Refund of Rs. 45,000 + 12 % interest + compensation for wrongful deduction. |\n| (b) **Petition before the Small Causes Court / Civil Court** (jurisdiction up to Rs. 5 Lakhs) | Civil Procedure Code, 1908 (Order XXI) | Same as above plus **costs of litigation** and **damages for mental agony**. |\n| (c) **Claim for litigation expenses and statutory interest** | Section 73 of the Contract Act, 1872 | Recovery of all expenses incurred in pursuing the remedy. |\n\nThe Complainant expressly reserves **all rights** to claim **statutory interest at 12 % per annum**, **court costs**, and **any further damages** as may be awarded by the competent authority.  \n\n---  \n\n### **10.  Verification**  \n\nI, ______________________________ (the undersigned), do hereby **certify** that the contents of this notice are **true and correct** to the best of my knowledge and belief, and that I am authorized to issue the same on behalf of the Complainant.  \n\n---  \n\n### **11.  Signature & Contact Details**  \n\n| **Prepared By** | **For** |\n|-----------------|----------|\n| **Signature**<br>____________________________<br>**Name:** ______________________________<br>**Designation:** Legal Drafter – NyayaMitra India<br>**Phone:** ______________________________<br>**Email:** ______________________________ | **Signature of the Complainant**<br>____________________________<br>**Name:** ______________________________<br>**Address:** ______________________________<br>**Phone / Email:** ______________________________ |\n\n---  \n\n### **12.  Annexure – Inventory**  \n\n| **Annexure** | **Description** |\n|--------------|-----------------|\n| **A1** | Signed Rental Agreement (dated Oct 2022) |\n| **A2** | Security‑Deposit receipt (Rs. 1,00,000) |\n| **A3** | Move‑in photographs (dated Oct 2022) |\n| **A4** | Move‑out hand‑over video (31 Oct 2024) |\n| **A5** | WhatsApp chat screenshot (Landlord’s acknowledgment of good condition) |\n| **A6** | Bank statements (rent & deposit payments) |\n| **A7** | Screenshot of Landlord’s message demanding Rs. 45,000 deduction |\n\n---  \n\n*Kindly treat this notice as a **final opportunity** to settle the matter amicably. Your prompt compliance will avoid unnecessary litigation and associated costs.*  ",
+  "legal_notice_draft": "**[Your Name]**  \n[Flat No./House No., Street]  \nHSR Layout, Bengaluru – 560102  \nMobile : +91‑XXXXXXXXXX  \nEmail   : [your.email@example.com]  \n\n---\n\n### LEGAL DEMAND NOTICE  \n*(Security Deposit Refund – Unjust Rs 45,000 Deduction)*  \n\n**Date:** 7 November 2026  \n\n**Mode of Dispatch:** Speed Post – Acknowledgement Due (AD) / Registered Email (with read‑receipt)  \n\n---\n\n#### To,  \n\n**Mr. Ramesh**  \n[Landlord’s Address]  \nBengaluru – 5600XX  \n\n---\n\n#### Subject: **Demand for Refund of Unjustly Deducted Security Deposit (Rs 45,000) and Interest within 15 Days**  \n\n---\n\n### 1.  Under instructions from my client **[Tenant’s Full Name]** (hereinafter “the Tenant”), the undersigned hereby serves this legal notice as follows:  \n\n---\n\n### 2.  Facts of the Case  \n\n| Sr. No. | Date / Period | Event |\n|--------|---------------|-------|\n| 1 | **Oct 2022 – Oct 2024** | The Tenant entered into a written lease for a 2‑BHK flat situated at HSR Layout, Bengaluru, for a period of two (2) years at a monthly rent of **Rs 28,000**. The Tenant paid a security deposit of **Rs 1,00,000** as per the lease. |\n| 2 | **1 Oct 2024** | The Tenant served a one‑month notice (copy attached) to vacate the premises on or before **31 Oct 2024**. |\n| 3 | **31 Oct 2024** | The Tenant vacated the flat, cleared all electricity & water dues, handed over the keys, and the landlord acknowledged receipt of the flat in **good condition** via WhatsApp (chat screenshot attached). |\n| 4 | **Early Nov 2024 (within 3 days)** | The landlord promised to refund the entire security deposit through UPI within three days. |\n| 5 | **Mid‑Nov 2024 (≈ 25 days after vacating)** | No refund was received; the landlord stopped answering calls. |\n| 6 | **Mid‑Nov 2024 (yesterday)** | The landlord messaged that he is **deducting Rs 45,000** for repainting, marble polishing and deep cleaning, without any itemised bill or prior inspection. |\n\n---\n\n### 3.  Documents & Evidence in Possession (Annexure‑A)\n\n1. Move‑in photographs of the flat.  \n2. Move‑out hand‑over video.  \n3. Bank statements showing monthly rent payments and the security‑deposit payment.  \n4. WhatsApp chat where the landlord acknowledges receipt of the flat in good condition.  \n5. Copy of the notice dated **1 Oct 2024**.  \n\n*Documents yet to be produced (to be annexed if obtained):* signed lease agreement, receipt of security deposit, written notice of deduction, quotations/receipts for repainting, marble polishing or deep cleaning, UPI transaction history showing non‑receipt of refund.\n\n---\n\n### 4.  Legal Grounds  \n\n| Provision | Act / Statute | Relevance |\n|-----------|---------------|-----------|\n| **Section 13** | Model Tenancy Act, 2021 (adopted by Karnataka) | Security deposit limited to two months’ rent and must be returned **within 30 days** of peaceful possession, after deducting only genuine, itemised charges. |\n| **Section 14** | Model Tenancy Act, 2021 | No deduction is permissible for **normal wear and tear**; any deduction must be supported by an itemised bill. |\n| **Section 21** | Model Tenancy Act, 2021 | Deposit disputes are to be adjudicated before the **Rent Authority / Rent Court**. |\n| **Section 108(B)(m) & (q)** | Transfer of Property Act, 1882 | Tenant must keep the premises in as‑good‑as‑received condition; landlord must return the deposit after vacating. |\n| **[unverified reference removed]** | Indian Contract Act, 1872 (for interest) | Entitles the creditor to **simple interest at 12 % per annum** for delayed payment. |\n| **[unverified reference removed] & 74** | Specific Relief Act, 1963 (for damages) | Allows claim for **interest and compensation for loss** caused by breach of contract. |\n\nThe landlord’s unilateral deduction of **Rs 45,000** is **unjustified** because:\n\n* The flat was handed back in **good condition** (as per video & WhatsApp acknowledgment).  \n* No itemised bill or prior inspection was produced.  \n* The deduction pertains to **normal wear and tear** (paint fading, routine cleaning) which is prohibited under Sec. 14 of the Model Tenancy Act.  \n\nHence, the landlord is **in breach of contract** and **statutory duty**.\n\n---\n\n### 5.  Demand  \n\nIn view of the above, the Tenant **hereby demands**:\n\n1. **Refund of Rs 45,000** (the amount unjustly deducted).  \n2. **Simple interest at 12 % per annum** from **31 Oct 2024** till the date of actual payment (interest calculated on a daily basis).  \n3. **Compensation for litigation costs** (if any) and statutory damages as may be awarded by the Rent Authority / Small Causes Court.  \n\n**All the above amounts are to be paid within **fifteen (15) days** of receipt of this notice**, i.e., **by 22 November 2026**.  \n\nPayment may be made via UPI to **[Your UPI ID]** or by cheque in favour of **[Your Name]** payable at Bengaluru.\n\n---\n\n### 6.  Consequence of Non‑Compliance  \n\nIf the demanded amount is **not received** within the stipulated 15‑day period, the Tenant shall, **without any further notice**, proceed to:\n\n* File a grievance before the **Karnataka Rent Authority** (or the appropriate Small Causes Court) under **Section 21** of the Model Tenancy Act, seeking:\n  * Refund of the deducted amount with interest,\n  * Statutory penalty for wrongful deduction,\n  * Recovery of litigation costs and any other relief the forum deems fit.\n\n* Claim **statutory interest at 12 % per annum** and **damages** as per Sections 73 & 74 of the Indian Contract Act and the Specific Relief Act.\n\nThe Tenant also reserves the right to approach the **Consumer Disputes Redressal Forum** if the landlord’s conduct amounts to unfair trade practice under the Consumer Protection Act, 2019.\n\n---\n\n### 7.  Verification  \n\nI, **[Tenant’s Full Name]**, the undersigned, do hereby **verify** that the contents of this notice are true and correct to the best of my knowledge and belief, and that no material fact has been concealed.\n\n---\n\n### 8.  Signature  \n\n```\n_____________________________  \n[Tenant’s Full Name]  \nDate: 7 Nov 2026\n```\n\n---\n\n### 9.  Annexure – Inventory  \n\n| Annexure | Description |\n|----------|-------------|\n| **A‑1** | Move‑in photographs (dated Oct 2022) |\n| **A‑2** | Move‑out hand‑over video (31 Oct 2024) |\n| **A‑3** | Bank statements (rent & security‑deposit) |\n| **A‑4** | WhatsApp chat screenshot (acknowledgement of good condition) |\n| **A‑5** | Copy of notice served on 1 Oct 2024 |\n| **A‑6** | (If obtained) Signed lease agreement |\n| **A‑7** | (If obtained) Receipt of security‑deposit |\n| **A‑8** | (If obtained) Screenshot of landlord’s message demanding Rs 45,000 |\n| **A‑9** | (If obtained) Quotations/receipts for repainting, marble polishing, deep cleaning |\n| **A‑10** | (If obtained) UPI transaction history showing non‑receipt of refund |\n\n---\n\n*Prepared by:*  \n**NyayaMitra India – Self‑Help Legal Drafting Service**  \n*Disclaimer:* This notice is a self‑help legal document intended for informational purposes. It does **not** constitute legal representation. For any escalation beyond the Rent Authority or for complex counter‑claims, you may consult a licensed advocate or approach the District Legal Services Authority (DLSA) / NALSA (Helpline: 15100).  ",
   "sample_roleplay_turn": {
     "user_argument": "Mr. Ramesh, as per Section 108 of the Transfer of Property Act and the Model Tenancy framework, ordinary wear and tear like wall paint aging cannot be deducted from my deposit. I have the handover video and our chat proof. Please refund my balance 45,000 within 7 days.",
     "opponent_response": {
-      "opponent_reply": "Dekhiye, aapka Section 108 ka reference aur video sab dekh liya hai, lekin hamare lease agreement mein clearly likha hai ki paint ka kharcha tenant ko hi dena padega – yeh 'ordinary wear and tear' nahi, balki 'damage' ke roop mein aata hai. Company policy ke hisaab se hum sirf Rs 20,000 hi deduct kar sakte hain, baaki Rs 25,000 aapko turant refund kar denge. Aapke 7‑din ke notice ko dhyan mein rakhte hue, aapko poora balance 45,000 nahi mil paayega, lekin 25,000 ka refund aaj se 3 din ke andar transfer kar denge.",
+      "opponent_reply": "Dekhiye, aapka reference Section 108 aur model tenancy ka hai, lekin hamare lease agreement mein clearly likha hai ki paint ki normal wear‑and‑tear ko bhi tenant ko replace karna hota hai, aur humare standard inspection report bhi ussi ko confirm karta hai. Humein aapka video aur chat mil gaya hai, lekin aapko bhi inspection report sign karni hoti thi jo aapne nahi ki. Phir bhi, hum aapki baat ko dhyan mein rakhte hue, Rs 45,000 ka deduction thoda kam kar dete hain – Rs 30,000 hi rakhte hain, aur aapko 7 din ke andar baaki refund kar denge. Agar aapko ismein koi problem hai, to aap legal notice bhej sakte hain, tab hum aage ki baat karenge.",
       "coach_evaluation": {
         "strength_rating": "Strong",
-        "what_went_well": "Aapne exact statute (Section 108) aur apne video/chat proof ka zikr kiya, jo landlord ko legally challenge karne ke liye bahut mazboot hai.",
-        "what_to_improve": "Lease agreement ka specific clause (jaise ki damage vs wear‑and‑tear) aur Karnataka Rent Control Act ya RERA ke relevant provisions ka bhi hawala dena chahiye tha, saath hi statutory refund timeline (30 din) ko bhi mention karna chahiye tha.",
-        "suggested_next_counter": "Mujhe aapke lease agreement ka clause 5.2 dikhaiye jisme deposit deduction ka koi mention nahi, aur aapke 7‑din ke notice ko dhyan mein rakhte hue, turant Rs 45,000 ka poora refund karein."
+        "what_went_well": "You cited a specific statutory provision (Section 108) and backed it up with concrete evidence (handover video, chat logs), which forces the landlord to acknowledge the claim.",
+        "what_to_improve": "Mention the exact clause in your lease that limits deductions for wear‑and‑tear, and reference the applicable state rent control act or RERA provisions that mandate full deposit return within a specific period, plus interest for delay.",
+        "suggested_next_counter": "Ask for the signed inspection report and demand the full Rs 45,000 plus statutory interest, citing the lease clause and RERA/State Rent Act."
       }
     }
   }

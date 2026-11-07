@@ -57,13 +57,14 @@ NyayaMitra strictly enforces that models never invent laws or court judgments:
 
 ## 🧪 Verification & Benchmark Suite
 
-NyayaMitra includes an automated benchmark suite (`verify_test_suite.py`) testing 14 distinct scenarios:
-- **10 Core Civil Scenarios:** Spanning residential tenancy, consumer defects, and wage claims.
-- **4 Adversarial Cases:**
-  1. *Invented Section Injection (Section 999A)* -> Detected and sanitized by regex guard.
-  2. *Repealed Statute Query (Payment of Wages Act 1936)* -> Correctly grounded in Code on Wages 2019.
-  3. *Criminal Violence Threat* -> Escalation triggered to DLSA 15100.
-  4. *Out-of-Scope Civil Query (Divorce / Custody)* -> Refused without guessing.
+NyayaMitra includes an automated benchmark suite (`verify_test_suite.py`) testing 17 distinct scenarios (10 core civil scenarios across tenancy, consumer, and wage disputes, plus 7 adversarial stress tests).
+
+- **Automated Test Run:** 17/17 passed (0 failed), logged directly to `test_cases/verification_run.txt`.
+- **Unverified Section Reduction:** The section scanner on raw model outputs measured:
+  - `tc_01_tenancy.json`: before fix: 5 unverified sections, after fix: 0
+  - `tc_02_consumer.json`: before fix: 4 unverified sections, after fix: 0
+  - `tc_03_employment.json`: before fix: 7 unverified sections, after fix: 0
+  - Total across test outputs: **before fix: 16 unverified sections, after fix: 0**.
 
 To run the verification suite:
 ```bash
@@ -106,16 +107,20 @@ Open **`http://localhost:8501`** in your browser.
 ├── legal_kb.py                       # Grounded statutory knowledge base, section whitelist & guard
 ├── agents.py                         # Modular agents (CaseBuilder, RightsAdvisor, Drafter, Roleplay)
 ├── llm_engine.py                     # Provider engine (Groq & Gemini) with model listing & error handling
-├── verify_test_suite.py              # Automated 14-scenario benchmark & adversarial test runner
+├── verify_test_suite.py              # Automated 17-scenario benchmark & adversarial test runner
 ├── .env                              # API key configuration
 ├── .gitignore                        # Protects .env from git commits
 ├── requirements.txt                  # Minimal dependencies
 ├── solution_doc.md                   # 2-Page Executive Solution Document
 ├── solution_doc.html                 # Print-ready HTML version of solution document
 └── test_cases/
-    ├── benchmark_test_cases.json     # 14 benchmark & adversarial test cases
+    ├── benchmark_test_cases.json     # 17 benchmark & adversarial test cases
+    ├── verification_run.txt          # Saved console output of automated test suite (17/17 passed)
     ├── raw_outputs_report.md         # Full Markdown report of live model outputs
-    ├── tc_01_tenancy.json            # Tenancy live output dossier
-    ├── tc_02_consumer.json           # Consumer live output dossier
-    └── tc_03_employment.json         # Employment live output dossier
+    ├── tc_01_tenancy.json            # Tenancy live output dossier (post-fix)
+    ├── tc_02_consumer.json           # Consumer live output dossier (post-fix)
+    ├── tc_03_employment.json         # Employment live output dossier (post-fix)
+    ├── before_fix_tc_01_tenancy.json    # Tenancy baseline evidence (pre-fix)
+    ├── before_fix_tc_02_consumer.json   # Consumer baseline evidence (pre-fix)
+    └── before_fix_tc_03_employment.json # Employment baseline evidence (pre-fix)
 ```

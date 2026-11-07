@@ -119,13 +119,17 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
     }
 ]
 
-# Real Lawyer Escalation Rules (Whole-word matching)
+# Real Lawyer Escalation Rules (Word-beginning matching, e.g. \barrest\w*, \bassault\w*)
 CRITICAL_ESCALATION_CRITERIA = [
     "cognizable violent crime",
     "arrest",
     "bail",
     "domestic violence",
     "physical harm",
+    "divorce",
+    "custody",
+    "maintenance",
+    "writ petition",
     "ndps",
     "arms act",
     "sexual harassment",
@@ -140,7 +144,16 @@ HIGH_RISK_WORDS = [
     "police custody",
     "bribe",
     "rape",
-    "weapon"
+    "weapon",
+    "threat"
+]
+
+# Overriding out-of-scope topics that must REFUSE even if a civil domain also matched
+OVERRIDING_OUT_OF_SCOPE_TOPICS = [
+    "divorce",
+    "custody",
+    "maintenance",
+    "writ petition"
 ]
 
 # Domain keyword lists (strictly whole-word matched, generic words removed)
@@ -152,13 +165,50 @@ def _matches_any_whole_word(text: str, keywords: List[str]) -> bool:
     """Matches keywords as whole words only to prevent false substring triggers."""
     return any(re.search(r'\b' + re.escape(kw) + r'\b', text, re.IGNORECASE) for kw in keywords)
 
+def _matches_word_beginning(pattern_phrase: str, text: str) -> bool:
+    """
+    Matches word beginnings using regex word boundary and word character extensions.
+    Example: 'arrest' matches 'arrest', 'arrested', 'arresting'.
+    Example: 'assault' matches 'assault', 'assaulted'.
+    Example: 'writ petition' matches 'writ petition', 'writ petitions'.
+    """
+    pattern_phrase = pattern_phrase.strip()
+    if not pattern_phrase:
+        return False
+    if " " in pattern_phrase:
+        parts = pattern_phrase.split()
+        regex_parts = [r'\b' + re.escape(p) + (r'\w*' if i == len(parts) - 1 else r'\w*\s+') for i, p in enumerate(parts)]
+        regex_str = "".join(regex_parts)
+    else:
+        regex_str = r'\b' + re.escape(pattern_phrase) + r'\w*'
+    return bool(re.search(regex_str, text, re.IGNORECASE))
+
 def retrieve_verified_legal_context(query: str, domain_filter: str = None) -> Dict[str, Any]:
     """
     Deterministically retrieves verified statutory provisions.
     Uses whole-word matching and excludes generic terms.
+    If overriding out-of-scope topics match, REFUSES even if a civil domain also matched.
     If no domain matches, returns an explicit out-of-scope fallback (no guessing).
     """
     query_str = str(query or "")
+
+    # Overriding out-of-scope check: REFUSE even if a civil domain also matched
+    for topic in OVERRIDING_OUT_OF_SCOPE_TOPICS:
+        if _matches_word_beginning(topic, query_str):
+            return {
+                "matched_count": 0,
+                "entries": [],
+                "out_of_scope": True,
+                "refusal_reason": f"Topic '{topic}' is outside covered everyday civil domains (family law / writ jurisdiction).",
+                "grounding_text": (
+                    "OUT_OF_SCOPE: This query touches upon matters outside NyayaMitra's verified statutory domains "
+                    "(Tenancy & Rental, Consumer Protection, or Code on Wages Employment). "
+                    "Do NOT guess, manufacture legal principles, or invent sections. "
+                    "Directly inform the user that this topic is outside what NyayaMitra covers and advise them "
+                    "to consult a practicing advocate or contact the free District Legal Services Authority (DLSA) / NALSA Helpline at 15100."
+                )
+            }
+
     matched_entries = []
     
     # Check domain keywords with whole-word matching
@@ -221,18 +271,17 @@ def check_immediate_advocate_escalation(text: str) -> Dict[str, Any]:
     """
     Evaluates whether the user's issue goes beyond an everyday advisory AI
     and strictly requires immediate representation by a licensed advocate.
-    Matches whole words only to prevent false triggers (e.g. 'bail' inside other words).
+    Matches word beginnings (e.g. \\barrest\\w*, \\bassault\\w*, \\bbribe\\w*, \\bthreat\\w*).
     """
     text_str = str(text or "")
     escalation_reasons = []
     
     for trigger in CRITICAL_ESCALATION_CRITERIA:
-        if re.search(r'\b' + re.escape(trigger) + r'\b', text_str, re.IGNORECASE):
+        if _matches_word_beginning(trigger, text_str):
             escalation_reasons.append(trigger)
             
-    # Whole-word check for high-risk words
     for w in HIGH_RISK_WORDS:
-        if re.search(r'\b' + re.escape(w) + r'\b', text_str, re.IGNORECASE):
+        if _matches_word_beginning(w, text_str):
             escalation_reasons.append(f"High-severity issue ({w})")
         
     return {
