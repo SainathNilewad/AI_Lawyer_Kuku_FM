@@ -46,13 +46,16 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
         "status": "verified",
         "sections": ["Section 108(B)(m)", "Section 108(B)(q)", "Section 108(B)(f)", "Section 108(A)(c)"],
         "key_provisions": (
-            "1. Reasonable Wear and Tear (Section 108(B)(m)): The lessee is bound to restore the property in as good condition "
-            "as when put into possession, 'subject only to the changes caused by reasonable wear and tear or irresistible force'. "
-            "Landlords cannot lawfully deduct security deposits for ordinary paint aging, minor nail marks, or routine weathering.\n"
-            "2. Handover of Possession (Section 108(B)(q)): Upon determination of the lease, the lessee is bound to put the lessor into possession.\n"
-            "3. Necessary Repairs (Section 108(B)(f)): If the lessor neglects to make required repairs after reasonable notice, "
-            "the lessee may carry out repairs and deduct costs with interest from the rent.\n"
-            "4. Quiet Enjoyment (Section 108(A)(c)): Tenant has the statutory right to peaceful possession without arbitrary interruption."
+            "1. Reasonable Wear and Tear (Section 108(B)(m)): The lessee is bound to keep, and on the determination of the lease to restore, "
+            "the property in as good condition as it was in at the time when he was put in possession, "
+            "'subject only to the changes caused by reasonable wear and tear or irresistible force'. "
+            "[Interpretation: Routine paint aging, minor nail holes, or normal weathering constitute reasonable wear and tear under this clause].\n"
+            "2. Handover of Possession (Section 108(B)(q)): On the determination of the lease, the lessee is bound to put the lessor into possession of the property.\n"
+            "3. Necessary Repairs (Section 108(B)(f)): Under Section 108(B) (rights of the lessee), if the lessor neglects to make, "
+            "within a reasonable time after notice, any repairs which he is bound to make to the property, "
+            "the lessee may make the same himself, and deduct the expense of such repairs with interest from the rent, or otherwise recover it from the lessor.\n"
+            "4. Quiet Enjoyment (Section 108(A)(c)): Under Section 108(A) (rights and liabilities of the lessor), the lessor shall be deemed to contract "
+            "with the lessee that, if the latter pays the rent reserved by the lease and performs lease contracts, he may hold the property during the lease term without interruption."
         ),
         "remedy_steps": [
             "Serve a 15-day formal Legal Demand Notice citing Section 108(B)(m) demanding full refund of unlawfully deducted deposit amounts.",
