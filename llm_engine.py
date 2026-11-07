@@ -1,15 +1,12 @@
 """
-llm_engine.py - Model Engine for NyayaMitra (Gemini & Groq)
-Supports:
-1. Google Gemini (via official google-genai SDK: gemini-2.5-flash / gemini-2.0-flash)
-2. Groq (via groq SDK: llama-3.3-70b-versatile)
-3. Offline Fallback Mock Mode (ensures the demo NEVER crashes during live evaluation)
+llm_engine.py - Model Engine for NyayaMitra (Groq & Gemini)
+Provides honest model connectivity, dynamic model listing, and transparent error handling.
 """
 
 import os
 import json
 import re
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -20,69 +17,77 @@ def clean_json_string(raw_text: str) -> str:
     match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", raw_text)
     if match:
         return match.group(1).strip()
-    # Outermost JSON object or array match fallback
     json_match = re.search(r"(\{[\s\S]*\}|\[[\s\S]*\])", raw_text)
     if json_match:
         return json_match.group(1).strip()
     return raw_text
 
+def list_groq_models(api_key: Optional[str] = None) -> List[str]:
+    """Fetches list of available models directly from Groq API."""
+    key = api_key or os.getenv("GROQ_API_KEY")
+    if not key:
+        return []
+    try:
+        from groq import Groq
+        client = Groq(api_key=key)
+        models = client.models.list()
+        return [m.id for m in models.data]
+    except Exception as e:
+        print(f"[Model List Error Groq]: {e}")
+        return []
+
+def list_gemini_models(api_key: Optional[str] = None) -> List[str]:
+    """Fetches list of available models directly from Google Gemini API."""
+    key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+    if not key:
+        return []
+    try:
+        from google import genai
+        client = genai.Client(api_key=key)
+        return [m.name for m in client.models.list()]
+    except Exception as e:
+        print(f"[Model List Error Gemini]: {e}")
+        return []
+
 class LegalLLMEngine:
-    def __init__(self, provider: str = "gemini", model_name: str = "gemini-3.5-flash", api_key: Optional[str] = None):
-        self.provider = provider.lower()
-        self.model_name = model_name
+    def __init__(self, provider: Optional[str] = None, model_name: Optional[str] = None, api_key: Optional[str] = None):
+        self.provider = (provider or os.getenv("LLM_PROVIDER", "groq")).lower()
         if self.provider == "gemini":
             self.api_key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+            self.model_name = model_name or os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
         elif self.provider == "groq":
             self.api_key = api_key or os.getenv("GROQ_API_KEY")
+            self.model_name = model_name or os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
         else:
-            self.api_key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GROQ_API_KEY") or os.getenv("GOOGLE_API_KEY")
+            self.api_key = api_key
+            self.model_name = model_name or os.getenv("LLM_MODEL", "")
+
+    def check_model_exists(self) -> tuple:
+        """Verifies if self.model_name exists in the provider's active model catalog."""
+        if not self.api_key:
+            return False, []
+        if self.provider == "groq":
+            models = list_groq_models(self.api_key)
+            return (self.model_name in models), models
+        elif self.provider == "gemini":
+            models = list_gemini_models(self.api_key)
+            clean = [m.replace("models/", "") for m in models]
+            exists = (self.model_name in clean) or (f"models/{self.model_name}" in models) or (self.model_name in models)
+            return exists, clean
+        return False, []
 
     def generate(self, system_prompt: str, user_prompt: str, temperature: float = 0.2) -> str:
-        """Generates a text completion using Gemini or Groq."""
-        # Provider 1: Google Gemini (default)
-        if self.provider == "gemini" and self.api_key:
-            try:
-                from google import genai
-                from google.genai import types
-                client = genai.Client(api_key=self.api_key)
-                model_to_use = self.model_name if "gemini" in self.model_name else "gemini-3.5-flash"
-                response = client.models.generate_content(
-                    model=model_to_use,
-                    contents=user_prompt,
-                    config=types.GenerateContentConfig(
-                        system_instruction=system_prompt,
-                        temperature=temperature,
-                    )
-                )
-                if response and response.text:
-                    return response.text
-            except Exception as e:
-                # Fallback to gemini-3.1-flash-lite
-                try:
-                    from google import genai
-                    from google.genai import types
-                    client = genai.Client(api_key=self.api_key)
-                    response = client.models.generate_content(
-                        model="gemini-3.1-flash-lite",
-                        contents=user_prompt,
-                        config=types.GenerateContentConfig(
-                            system_instruction=system_prompt,
-                            temperature=temperature,
-                        )
-                    )
-                    if response and response.text:
-                        return response.text
-                except Exception as e2:
-                    return f"[Gemini Error: {e2}. Please check your Gemini API key.]"
+        """Generates text completion without fake fallbacks or mock demo responses."""
+        if not self.api_key:
+            return "No model connected. Add an API key."
 
-        # Provider 2: Groq (Flagship 120B Reasoning)
-        if self.provider == "groq" and self.api_key:
+        # Provider 1: Groq
+        if self.provider == "groq":
             try:
                 from groq import Groq
                 client = Groq(api_key=self.api_key)
-                model_to_use = self.model_name if self.model_name and "llama" not in self.model_name else "openai/gpt-oss-120b"
                 response = client.chat.completions.create(
-                    model=model_to_use,
+                    model=self.model_name,
                     messages=[
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": user_prompt}
@@ -91,52 +96,49 @@ class LegalLLMEngine:
                 )
                 return response.choices[0].message.content
             except Exception as e:
-                try:
-                    from groq import Groq
-                    client = Groq(api_key=self.api_key)
-                    response = client.chat.completions.create(
-                        model="qwen/qwen3.8-27b",
-                        messages=[
-                            {"role": "system", "content": system_prompt},
-                            {"role": "user", "content": user_prompt}
-                        ],
-                        temperature=temperature
-                    )
-                    return response.choices[0].message.content
-                except Exception as e2:
-                    return f"[Groq Error: {e2}. Please check your Groq API key.]"
+                return f"ERROR: [Groq Error: {e}]"
 
-        # Deterministic Offline Fallback Mode
-        return self._offline_demo_response(system_prompt, user_prompt)
+        # Provider 2: Gemini
+        if self.provider == "gemini":
+            try:
+                from google import genai
+                from google.genai import types
+                client = genai.Client(api_key=self.api_key)
+                response = client.models.generate_content(
+                    model=self.model_name,
+                    contents=user_prompt,
+                    config=types.GenerateContentConfig(
+                        system_instruction=system_prompt,
+                        temperature=temperature,
+                    )
+                )
+                if response and response.text:
+                    return response.text
+                return "ERROR: [Gemini Error: Empty response received from model]"
+            except Exception as e:
+                return f"ERROR: [Gemini Error: {e}]"
+
+        return "ERROR: Unknown or unsupported provider configured."
 
     def generate_json(self, system_prompt: str, user_prompt: str) -> Dict[str, Any]:
         """Ensures structured JSON output from LLM."""
         raw = self.generate(system_prompt + "\nReturn ONLY valid JSON format. Do not include markdown preamble.", user_prompt, temperature=0.1)
+        if raw.startswith("ERROR:") or "No model connected" in raw:
+            return {
+                "error": raw,
+                "status": "error"
+            }
         cleaned = clean_json_string(raw)
         try:
             return json.loads(cleaned)
         except Exception:
-            # Fallback regex extraction in case of partial wrapper
             match = re.search(r"(\{[\s\S]*\})", cleaned)
             if match:
                 try:
                     return json.loads(match.group(1))
                 except Exception:
                     pass
-            # Fallback parsing
             return {
                 "raw_text": raw,
                 "status": "partial_json_parse_fallback"
             }
-
-    def _offline_demo_response(self, system_prompt: str, user_prompt: str) -> str:
-        """Deterministic offline mock response if no API key is supplied."""
-        return (
-            "⚠️ [DEMO MODE - Running without API Key]\n\n"
-            "NyayaMitra has analyzed your case using the local Indian Statutory Knowledge Base:\n\n"
-            "- **Domain:** Everyday Dispute (Tenancy / Consumer / Employment)\n"
-            "- **Governing Law:** Grounded via Model Tenancy Act & Consumer Protection Act 2019\n"
-            "- **Status:** Actionable with high probability of resolution through pre-litigation Legal Demand Notice.\n\n"
-            "Please configure a valid Google Gemini or Groq API key in the sidebar for live dynamic generation."
-        )
-

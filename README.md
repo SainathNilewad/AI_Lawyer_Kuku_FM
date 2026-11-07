@@ -1,63 +1,94 @@
-# ⚖️ NyayaMitra (न्यायमित्र) — AI Legal Partner for Everyday India
-
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.40+-FF4B4B.svg)](https://streamlit.io)
-[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://python.org)
-[![Gemini](https://img.shields.io/badge/Gemini-3.5%20Flash%20Lite-4285F4.svg)](https://deepmind.google/technologies/gemini/)
-[![Groq](https://img.shields.io/badge/Groq-Whisper%20%2B%20Qwen-F55036.svg)](https://groq.com/)
+# ⚖️ NyayaMitra (न्यायमित्र) — AI Legal Companion for Everyday India
 
 > **Problem 2: Build an AI Lawyer**  
-> *A genuine conversational AI that takes an ordinary person's legal dispute by voice or text, in the language they are comfortable with, and helps them act on it.*
+> *A conversational AI that takes an ordinary person's legal dispute by voice or text, in the language they are comfortable with, and helps them act on it.*
 
 ---
 
 ## 🌟 What Makes NyayaMitra Conversational?
 
-Instead of a rigid static form or batch report generator, **NyayaMitra** acts like a real legal counselor you can talk to directly:
+Instead of a rigid static form or batch report generator, **NyayaMitra** acts like an empathetic legal companion:
 
 1. **🎙️ Pan-India Multilingual (Voice & Text):**
-   - Speak directly into your microphone or type in **11+ Indian languages**:
+   - Speak directly into your microphone or type in **11 Indian languages**:
      - *Hindi (हिन्दी), Hinglish, Tamil (தமிழ்), Telugu (తెలుగు), Kannada (ಕನ್ನಡ), Bengali (বাংলা), Marathi (मराठी), Gujarati (ગુજરાતી), Malayalam (മലയാളം), Punjabi (ਪੰਜਾਬੀ), and English*.
-   - Transcribed in real-time using Groq's high-speed **Whisper Large v3 Turbo** engine.
-   - The AI responds authentically in your chosen mother tongue with culturally reassuring legal counsel.
-2. **💬 Empathetic Legal Dialogue:**
-   - The AI converses back in plain, accessible language without courtroom Latin jargon.
-   - Gathers facts naturally and reassures the citizen about their rights.
+   - Voice audio is transcribed using Groq's **Whisper Large v3 Turbo** engine.
+2. **💬 Empathetic Legal Dialogue & Fact Intake:**
+   - Listens to unstructured narratives, extracts chronological facts, and organizes claims.
 3. **📊 Live Case Intelligence Sidecar:**
-   - As you talk, a real-time side panel continuously updates your **Chronological Timeline**, **Case Dossier**, and **Evidence Strength Meter (1–10)**.
-4. **📝 Instant Legal Notice Generator:**
-   - With a single click, drafts a formal, ready-to-serve **15-Day Legal Demand Notice** or **Consumer Court (e-Daakhil) Complaint** with `.txt` download.
+   - Real-time side panel continuously tracking your **Chronological Timeline**, **Case Dossier**, and **Documentary Proofs**.
+4. **📝 15-Day Formal Legal Notice Generator:**
+   - Drafts a ready-to-serve **15-Day Legal Demand Notice** or consumer complaint with 1-click `.txt` download.
 5. **🥊 Opponent Practice Arena (Roleplay):**
-   - Toggle into roleplay mode right inside the chat! The AI plays the stubborn landlord or HR manager, lets you practice your arguments, and provides immediate **Coach Feedback** (rating, what worked, and a suggested counter-punch).
+   - Practice negotiating against a simulated opposing party with instant coach feedback (strength rating, critique, and counter-tactics).
 
 ---
 
-## 🛡️ Anti-Hallucination Guardrails
+## 🛡️ Anti-Hallucination Guardrails & Statutory Grounding
 
-AI models frequently invent fake laws and sections. NyayaMitra avoids this through a **3-Layer Defense**:
+NyayaMitra strictly enforces that models never invent laws or court judgments:
 
-1. **Closed Grounding Database (`legal_kb.py`):**
-   - *Model Tenancy Act, 2021 & Transfer of Property Act Sec 108* (wear-and-tear protection).
-   - *Consumer Protection Act, 2019 (Sections 2(7), 2(11), 35, 84 & e-Daakhil)*.
-   - *Payment of Wages Act, 1936 & State Shops & Commercial Establishments Acts*.
-2. **Negative Constraint Instructions:**
-   - Strictly bars the LLM from manufacturing section numbers or citing unverified court judgments.
-3. **Civil vs. Criminal Separation:**
-   - Enforces Supreme Court precedent (*Dalip Kaur v. Jagnar Singh*): monetary/deposit breaches are civil matters, not criminal cheating (IPC 420 / BNS 318).
-4. **Advocate Escalation Trigger:**
-   - Automatically detects criminal offenses, bail, domestic violence, or high-value litigation (> ₹50 Lakhs) and routes the user to the **District Legal Services Authority (DLSA Helpline: 15100)**.
+1. **Closed Statutory Grounding (`legal_kb.py`):**
+   - Grounded strictly in curated, verified Indian enactments:
+     - *Model Tenancy Act, 2021 & Transfer of Property Act Sec 108*
+     - *Consumer Protection Act, 2019*
+     - *Code on Wages, 2019 (Sections 17(2), 17(4), 18(1), 18(3))*
+   - Precedents were removed from the local knowledge base to eliminate fabricated court citations.
+2. **Code-Level Section Guard:**
+   - Deterministic regex engine that scans generated outputs for statutory section references and automatically strips unverified sections with a visible `[unverified reference removed]` flag.
+3. **Advocate Escalation Filter:**
+   - Whole-word regex checks immediately route criminal violence, assault, threats, and bodily harm to the **District Legal Services Authority (DLSA Helpline: 15100)**.
+4. **Honest Out-of-Scope Fallback:**
+   - Queries outside the 3 supported civil domains (such as divorce, child custody, property partition, or criminal defense) are refused honestly without guessing.
+
+---
+
+## ⚠️ Honest Limitations
+
+- **Only 3 Core Topics:** Scoped exclusively to Tenancy, Consumer Disputes, and Wage Settlement. All other legal matters are outside scope.
+- **Model Law Caveat:** The Model Tenancy Act, 2021 is a central model law binding only states that have formally adopted it. State-level rent control acts govern elsewhere.
+- **State Employment Rules:** Timelines for full-and-final settlement under state Shops & Establishments Acts vary across states.
+- **Crude Regex Scanner:** The section scanner uses regular expressions. It catches standard citations (e.g., "Section 17"), but does not parse spelled-out numbers, Roman numerals, or cross-act mismatches.
+- **No Live Case-Law Search:** NyayaMitra does not query live case databases.
+- **Small Hand-Checked Knowledge Base:** The statutory context is small and hand-checked with explicit `needs_my_verification` / `verified` statuses and source URLs.
+- **Legal Information Only:** NyayaMitra provides informational guidance and pre-litigation structuring; it is not a licensed lawyer and cannot represent parties in court.
+
+---
+
+## 🧪 Verification & Benchmark Suite
+
+NyayaMitra includes an automated benchmark suite (`verify_test_suite.py`) testing 14 distinct scenarios:
+- **10 Core Civil Scenarios:** Spanning residential tenancy, consumer defects, and wage claims.
+- **4 Adversarial Cases:**
+  1. *Invented Section Injection (Section 999A)* -> Detected and sanitized by regex guard.
+  2. *Repealed Statute Query (Payment of Wages Act 1936)* -> Correctly grounded in Code on Wages 2019.
+  3. *Criminal Violence Threat* -> Escalation triggered to DLSA 15100.
+  4. *Out-of-Scope Civil Query (Divorce / Custody)* -> Refused without guessing.
+
+To run the verification suite:
+```bash
+python verify_test_suite.py
+```
 
 ---
 
 ## 🚀 Quickstart Guide
 
-### 1. Navigate to Project
+### 1. Clone & Install Dependencies
 ```bash
-cd "D:\Project\AI Lawyer"
+git clone https://github.com/SainathNilewad/AI_Lawyer_Kuku_FM.git
+cd AI_Lawyer_Kuku_FM
+pip install -r requirements.txt
 ```
 
-### 2. Install Dependencies
-```bash
-pip install -r requirements.txt
+### 2. Configure Environment (`.env`)
+Create a `.env` file with your API keys:
+```env
+GROQ_API_KEY=your_groq_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
+LLM_PROVIDER=groq
+GROQ_MODEL=openai/gpt-oss-120b
+GEMINI_MODEL=gemini-3.5-flash
 ```
 
 ### 3. Run the Conversational App
@@ -71,18 +102,20 @@ Open **`http://localhost:8501`** in your browser.
 ## 📂 Repository Structure
 
 ```
-D:\Project\AI Lawyer\
 ├── app.py                            # Conversational UI with Voice input & Live Intelligence Sidecar
-├── legal_kb.py                       # Grounded Indian statutory knowledge base & escalation filter
-├── agents.py                         # Specialized agents (CaseBuilder, RightsAdvisor, Drafter, Roleplay)
-├── llm_engine.py                     # Model Engine supporting Gemini (3.5 Flash Lite) & Groq (Whisper + Qwen)
-├── .env                              # Safe local storage for GEMINI_API_KEY and GROQ_API_KEY
+├── legal_kb.py                       # Grounded statutory knowledge base, section whitelist & guard
+├── agents.py                         # Modular agents (CaseBuilder, RightsAdvisor, Drafter, Roleplay)
+├── llm_engine.py                     # Provider engine (Groq & Gemini) with model listing & error handling
+├── verify_test_suite.py              # Automated 14-scenario benchmark & adversarial test runner
+├── .env                              # API key configuration
 ├── .gitignore                        # Protects .env from git commits
-├── requirements.txt                  # Minimal dependencies (streamlit, google-genai, groq, python-dotenv)
+├── requirements.txt                  # Minimal dependencies
 ├── solution_doc.md                   # 2-Page Executive Solution Document
-└── test_cases/                       # Unedited raw test case outputs
-    ├── raw_outputs_report.md         # Full Markdown compilation of all raw test runs
-    ├── tc_01_tenancy.json            # Bengaluru Landlord Deposit Dispute
-    ├── tc_02_consumer.json           # Defective Smartphone Refund Denial
-    └── tc_03_employment.json         # Unpaid Resignation Salary & Relieving Letter
+├── solution_doc.html                 # Print-ready HTML version of solution document
+└── test_cases/
+    ├── benchmark_test_cases.json     # 14 benchmark & adversarial test cases
+    ├── raw_outputs_report.md         # Full Markdown report of live model outputs
+    ├── tc_01_tenancy.json            # Tenancy live output dossier
+    ├── tc_02_consumer.json           # Consumer live output dossier
+    └── tc_03_employment.json         # Employment live output dossier
 ```

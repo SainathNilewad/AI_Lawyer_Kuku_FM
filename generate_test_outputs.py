@@ -1,15 +1,15 @@
 """
-generate_test_outputs.py - Generates the official unedited raw test case outputs for NyayaMitra
-Saves:
-- test_cases/test_case_1_landlord_deposit.json
-- test_cases/test_case_2_ecommerce_refund.json
-- test_cases/test_case_3_unpaid_salary.json
-- test_cases/raw_outputs_report.md
+generate_test_outputs.py - Generates authentic, unedited raw test case outputs for NyayaMitra
+Calls the real multi-agent pipeline and records raw outputs, timestamps, and model metadata.
 """
 
 import os
 import json
-from legal_kb import retrieve_verified_legal_context
+import datetime
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from agents import CaseBuilderAgent, RightsAdvisorAgent, DocumentDrafterAgent, RoleplayOpponentAgent
 from llm_engine import LegalLLMEngine
 
@@ -56,13 +56,20 @@ TEST_SCENARIOS = [
             "More importantly, they are withholding my Relieving Letter and Experience Certificate. My new employer is threatening to cancel my job offer if I don't submit my relieving letter by end of this week. "
             "I have my appointment letter, resignation acceptance email, and signed clearance form."
         ),
-        "sample_roleplay_user_turn": "Under the Payment of Wages Act and Delhi/Haryana Shops and Commercial Establishments rules, full and final dues must be cleared within 30 days of exit, and withholding my relieving letter violates my right to livelihood under Article 21. If my Rs 1,65,000 and relieving letter are not issued within 3 days, I will file a formal complaint with the District Labor Commissioner."
+        "sample_roleplay_user_turn": "Under employment laws, full and final dues must be cleared timely and withholding my relieving letter violates my right to livelihood. If my Rs 1,65,000 and relieving letter are not issued within 3 days, I will file a formal complaint with the District Labor Commissioner."
     }
 ]
 
-def run_all_test_cases():
-    # Use Gemini or offline engine
-    engine = LegalLLMEngine()
+def run_real_test_cases():
+    # Prefer Groq Flagship or Gemini Flagship from environment
+    provider = os.getenv("LLM_PROVIDER", "groq").lower()
+    if provider == "groq" and os.getenv("GROQ_API_KEY"):
+        engine = LegalLLMEngine(provider="groq", model_name="openai/gpt-oss-120b")
+    elif os.getenv("GEMINI_API_KEY"):
+        engine = LegalLLMEngine(provider="gemini", model_name="gemini-3.5-flash")
+    else:
+        engine = LegalLLMEngine(provider="groq", model_name="openai/gpt-oss-120b")
+
     case_builder = CaseBuilderAgent(engine)
     rights_advisor = RightsAdvisorAgent(engine)
     doc_drafter = DocumentDrafterAgent(engine)
@@ -73,21 +80,24 @@ def run_all_test_cases():
     test_cases_dir = os.path.join(base_dir, "test_cases")
     os.makedirs(test_cases_dir, exist_ok=True)
 
+    print(f"Executing real test cases using Provider: {engine.provider}, Model: {engine.model_name}")
+
     for scenario in TEST_SCENARIOS:
-        print(f"Running {scenario['id']}: {scenario['name']}...")
-        
-        # 1. Build Case
+        print(f"\n--- Running {scenario['id']}: {scenario['name']} ---")
+        run_timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+        # 1. Build Case Dossier directly from real model call
         dossier = case_builder.run(scenario["raw_story"])
-        
-        # 2. Rights Advice
+
+        # 2. Rights Advice directly from real model call
         rights = rights_advisor.run(dossier)
-        
-        # 3. Document Draft
+
+        # 3. Document Draft directly from real model call
         notice_draft = doc_drafter.run(dossier, rights, doc_type="Legal Demand Notice")
-        
-        # 4. Roleplay Turn
+
+        # 4. Roleplay Turn directly from real model call
         roleplay_res = opponent_roleplay.run(
-            dossier, 
+            dossier,
             [{"role": "assistant", "content": "Look, as per company policy / house rules, deductions are final."}],
             scenario["sample_roleplay_user_turn"]
         )
@@ -95,6 +105,10 @@ def run_all_test_cases():
         full_output = {
             "test_case_id": scenario["id"],
             "name": scenario["name"],
+            "category": scenario["category"],
+            "timestamp": run_timestamp,
+            "provider": engine.provider,
+            "model_name": engine.model_name,
             "raw_input": scenario["raw_story"],
             "case_dossier": dossier,
             "rights_advice": rights,
@@ -105,42 +119,55 @@ def run_all_test_cases():
             }
         }
 
-        # Save individual JSON
-        filename = f"{scenario['id'].lower().replace('-', '_')}_{scenario['category'].lower().split()[0]}.json"
+        # Filename mapping
+        file_mapping = {
+            "TC-01": "tc_01_tenancy.json",
+            "TC-02": "tc_02_consumer.json",
+            "TC-03": "tc_03_employment.json"
+        }
+        filename = file_mapping.get(scenario["id"], f"{scenario['id'].lower().replace('-', '_')}.json")
         filepath = os.path.join(test_cases_dir, filename)
-        with open(filepath, "w", encoding="utf-8") as f:
-            json.dump(full_output, f, indent=2)
 
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(full_output, f, indent=2, ensure_ascii=False)
+
+        print(f"Saved real execution output to {filepath}")
         outputs.append(full_output)
 
-    # Write Markdown Report
+    # Write Markdown Report containing unedited raw outputs
     report_path = os.path.join(test_cases_dir, "raw_outputs_report.md")
     with open(report_path, "w", encoding="utf-8") as f:
-        f.write("# NyayaMitra - Unedited Raw Outputs for Problem 2 Test Cases\n\n")
-        f.write("> **Evaluation Deliverable:** Official raw test case execution logs showing Case Intake, Legal Standing, Document Draft, and Roleplay Arena.\n\n")
-        
+        f.write("# NyayaMitra - Official Unedited Raw Outputs for Test Cases\n\n")
+        f.write(f"> **Execution Metadata:** Generated on `{datetime.datetime.now(datetime.timezone.utc).isoformat()}` using Provider: `{engine.provider}`, Model: `{engine.model_name}`.\n")
+        f.write("> **Strict Ground Rule:** Real agent calls only. No post-editing, no mock datasets.\n\n")
+
         for out in outputs:
             f.write(f"## {out['test_case_id']}: {out['name']}\n\n")
+            f.write(f"- **Timestamp:** `{out['timestamp']}`\n")
+            f.write(f"- **Provider / Model:** `{out['provider']}` / `{out['model_name']}`\n")
+            f.write(f"- **Category:** `{out['category']}`\n\n")
+
             f.write("### 1. Raw User Input\n")
             f.write(f"```text\n{out['raw_input']}\n```\n\n")
-            
-            f.write("### 2. Extracted Case Dossier (Facts, Timeline & Evidence Checklist)\n")
-            f.write(f"```json\n{json.dumps(out['case_dossier'], indent=2)}\n```\n\n")
-            
-            f.write("### 3. Plain-Language Rights & Grounded Statutory Analysis\n")
-            f.write(f"```json\n{json.dumps(out['rights_advice'], indent=2)}\n```\n\n")
-            
-            f.write("### 4. Generated Legal Demand Notice\n")
+
+            f.write("### 2. Extracted Case Dossier (Direct Model Output)\n")
+            f.write(f"```json\n{json.dumps(out['case_dossier'], indent=2, ensure_ascii=False)}\n```\n\n")
+
+            f.write("### 3. Plain-Language Rights & Statutory Standing (Direct Model Output)\n")
+            f.write(f"```json\n{json.dumps(out['rights_advice'], indent=2, ensure_ascii=False)}\n```\n\n")
+
+            f.write("### 4. Generated Legal Demand Notice (Direct Model Output)\n")
             f.write(f"{out['legal_notice_draft']}\n\n")
-            
-            f.write("### 5. Roleplay Negotiation Arena\n")
+
+            f.write("### 5. Roleplay Negotiation Arena (Direct Model Output)\n")
             f.write(f"- **User Argument:** *\"{out['sample_roleplay_turn']['user_argument']}\"*\n")
-            f.write(f"- **Opponent Reaction:** {out['sample_roleplay_turn']['opponent_response'].get('opponent_reply', '')}\n")
-            f.write(f"- **Coach Feedback:** {json.dumps(out['sample_roleplay_turn']['opponent_response'].get('coach_evaluation', {}), indent=2)}\n\n")
+            opponent_reply = out['sample_roleplay_turn']['opponent_response'].get('opponent_reply', '')
+            f.write(f"- **Opponent Reaction:** {opponent_reply}\n")
+            coach_eval = out['sample_roleplay_turn']['opponent_response'].get('coach_evaluation', {})
+            f.write(f"- **Coach Feedback:**\n```json\n{json.dumps(coach_eval, indent=2, ensure_ascii=False)}\n```\n\n")
             f.write("---\n\n")
 
-    print(f"✅ Generated all test outputs and markdown report at {report_path}")
+    print(f"\n✅ All raw test outputs saved to {test_cases_dir} and {report_path}")
 
 if __name__ == "__main__":
-    run_all_test_cases()
-
+    run_real_test_cases()

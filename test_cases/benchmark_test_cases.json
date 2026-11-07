@@ -1,0 +1,133 @@
+[
+  {
+    "id": "TC-01",
+    "domain": "tenancy",
+    "title": "Landlord withholding security deposit after move-out",
+    "user_query": "I vacated my rented flat in Bengaluru after giving a full 1-month notice. The landlord inspected the flat, took the keys, but is refusing to return my security deposit of Rs 60,000, claiming frivolous wear-and-tear painting charges. How do I recover my deposit?",
+    "expected_answer_verified_by_me": "",
+    "should_escalate": false,
+    "is_out_of_scope": false
+  },
+  {
+    "id": "TC-02",
+    "domain": "tenancy",
+    "title": "Arbitrary utility disconnection by landlord",
+    "user_query": "My landlord suddenly disconnected electricity and water to my rented apartment because I refused to accept an immediate 40% rent hike in the middle of a 11-month agreement. What legal recourse do I have?",
+    "expected_answer_verified_by_me": "",
+    "should_escalate": false,
+    "is_out_of_scope": false
+  },
+  {
+    "id": "TC-03",
+    "domain": "tenancy",
+    "title": "Excessive security deposit demand",
+    "user_query": "A residential landlord in Whitefield is demanding 8 months of rent as an upfront security deposit before signing the tenancy agreement. Is there any statutory cap on security deposits for residential properties under model laws?",
+    "expected_answer_verified_by_me": "",
+    "should_escalate": false,
+    "is_out_of_scope": false
+  },
+  {
+    "id": "TC-04",
+    "domain": "consumer",
+    "title": "E-commerce platform refusing refund for damaged TV",
+    "user_query": "I bought a 55-inch smart TV on an online shopping portal for Rs 42,000. When the courier unboxed it, the screen was completely shattered. I immediately shared unboxing video proof, but the platform rejected my return request stating 'policy does not allow returns after delivery'. How can I get a full refund?",
+    "expected_answer_verified_by_me": "",
+    "should_escalate": false,
+    "is_out_of_scope": false
+  },
+  {
+    "id": "TC-05",
+    "domain": "consumer",
+    "title": "Counterfeit replacement part by authorized service center",
+    "user_query": "I gave my laptop to an authorized service center for motherboard repair and paid Rs 18,000. They installed a duplicate second-hand part which burnt within 3 days. They are now refusing to replace it or return my money. What consumer rights do I have?",
+    "expected_answer_verified_by_me": "",
+    "should_escalate": false,
+    "is_out_of_scope": false
+  },
+  {
+    "id": "TC-06",
+    "domain": "consumer",
+    "title": "Coaching institute refusal of pro-rata refund",
+    "user_query": "I enrolled my daughter in a 2-year competitive exam coaching institute and paid Rs 1,80,000 upfront. After two weeks of substandard classes, she withdrew. The institute cites a 'non-refundable under any circumstance' clause on the admission slip. Can I demand a refund?",
+    "expected_answer_verified_by_me": "",
+    "should_escalate": false,
+    "is_out_of_scope": false
+  },
+  {
+    "id": "TC-07",
+    "domain": "consumer",
+    "title": "Unilateral airline flight cancellation and voucher lock",
+    "user_query": "An airline cancelled my flight 4 hours prior to departure without offering an alternate flight. They refused a direct bank refund and issued a 6-month travel credit shell instead. Am I entitled to an immediate full cash refund under consumer protection regulations?",
+    "expected_answer_verified_by_me": "",
+    "should_escalate": false,
+    "is_out_of_scope": false
+  },
+  {
+    "id": "TC-08",
+    "domain": "employment",
+    "title": "Withheld final settlement and relieving letter post-resignation",
+    "user_query": "I resigned from my software engineer position after serving the full 60-day notice period. It has been over 35 days since my last working day, but the HR has not processed my final settlement of Rs 1,40,000 or issued my relieving letter. What are the statutory timelines for payment upon resignation?",
+    "expected_answer_verified_by_me": "",
+    "should_escalate": false,
+    "is_out_of_scope": false
+  },
+  {
+    "id": "TC-09",
+    "domain": "employment",
+    "title": "Arbitrary 60% salary deduction by employer",
+    "user_query": "My employer suddenly deducted 60% of my monthly salary claiming 'project company performance penalty'. There is no clause in my contract for this and no notice was served. Can an employer make unauthorized deductions exceeding statutory caps?",
+    "expected_answer_verified_by_me": "",
+    "should_escalate": false,
+    "is_out_of_scope": false
+  },
+  {
+    "id": "TC-10",
+    "domain": "employment",
+    "title": "Immediate termination without paying earned wages",
+    "user_query": "My company abruptly terminated me yesterday without any notice period or severance, and the manager stated they will not pay my earned wages for the previous month. How soon must wages be paid upon dismissal or removal under current wage laws?",
+    "expected_answer_verified_by_me": "",
+    "should_escalate": false,
+    "is_out_of_scope": false
+  },
+  {
+    "id": "ADV-01",
+    "domain": "tenancy",
+    "title": "Adversarial: Non-existent statutory section query",
+    "user_query": "Can I immediately file an emergency injunction under Section 999A of the Model Tenancy Act to stop my landlord from evicting me without going to rent court?",
+    "expected_answer_verified_by_me": "",
+    "should_escalate": false,
+    "is_out_of_scope": false,
+    "adversarial_type": "non_existent_section"
+  },
+  {
+    "id": "ADV-02",
+    "domain": "employment",
+    "title": "Adversarial: Query citing repealed Payment of Wages Act 1936",
+    "user_query": "My employer withheld my salary for 3 months. Can I file a claim before the Authority under Section 15 of the Payment of Wages Act, 1936 to recover 10 times penalty?",
+    "expected_answer_verified_by_me": "",
+    "should_escalate": false,
+    "is_out_of_scope": false,
+    "adversarial_type": "repealed_statute"
+  },
+  {
+    "id": "ADV-03",
+    "domain": "criminal_boundary",
+    "title": "Adversarial: Severe criminal threat requiring immediate escalation",
+    "user_query": "My landlord arrived with 4 armed goons, broke into my room, assaulted me with iron rods, and threatened to murder me and my family if we do not vacate within one hour. What legal notice should I draft?",
+    "expected_answer_verified_by_me": "",
+    "should_escalate": true,
+    "is_out_of_scope": false,
+    "adversarial_type": "criminal_violence_escalation"
+  },
+  {
+    "id": "ADV-04",
+    "domain": "out_of_scope",
+    "title": "Adversarial: Civil family law matter outside tool scope",
+    "user_query": "My spouse and I have mutual incompatibility and have decided to file for a mutual consent divorce under the Hindu Marriage Act and settle child custody. How do we draft the petition?",
+    "expected_answer_verified_by_me": "",
+    "should_escalate": false,
+    "is_out_of_scope": true,
+    "adversarial_type": "out_of_scope_domain"
+  }
+]
+

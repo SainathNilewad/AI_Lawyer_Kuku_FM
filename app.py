@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from legal_kb import retrieve_verified_legal_context, check_immediate_advocate_escalation
-from llm_engine import LegalLLMEngine
+from llm_engine import LegalLLMEngine, list_groq_models, list_gemini_models
 from agents import CaseBuilderAgent, RightsAdvisorAgent, DocumentDrafterAgent, RoleplayOpponentAgent, ConversationalCounselorAgent
 
 st.set_page_config(
@@ -124,6 +124,21 @@ if "practice_mode" not in st.session_state:
 if "practice_history" not in st.session_state:
     st.session_state.practice_history = []
 
+@st.cache_data(ttl=3600)
+def get_cached_groq_models(key: str):
+    try:
+        return [m for m in list_groq_models(key) if "whisper" not in m and "guard" not in m]
+    except Exception:
+        return []
+
+@st.cache_data(ttl=3600)
+def get_cached_gemini_models(key: str):
+    try:
+        models = list_gemini_models(key)
+        return [m.replace("models/", "") for m in models if "embedding" not in m and "image" not in m and "preview" not in m]
+    except Exception:
+        return []
+
 # Sidebar
 with st.sidebar:
     st.image("https://cdn-icons-png.flaticon.com/512/3253/3253105.png", width=56)
@@ -132,17 +147,38 @@ with st.sidebar:
     
     st.markdown("---")
     st.subheader("⚙️ Intelligence Settings")
-    provider = st.selectbox("LLM Engine:", ["Gemini (gemini-3.5-flash Flagship)", "Groq (openai/gpt-oss-120b Flagship)"])
-    
-    prov_code = "gemini" if "Gemini" in provider else "groq"
-    model_name = "gemini-3.5-flash" if prov_code == "gemini" else "openai/gpt-oss-120b"
-    
-    gemini_key = os.getenv("GEMINI_API_KEY", "")
-    groq_key = os.getenv("GROQ_API_KEY", "")
-    active_key = gemini_key if prov_code == "gemini" else groq_key
 
-    st.success(f"✅ {provider.split()[0]} API Active")
-    if groq_key:
+    env_prov = os.getenv("LLM_PROVIDER", "groq").lower()
+    default_p_idx = 0 if env_prov == "groq" else 1
+    provider_choice = st.selectbox("LLM Provider:", ["Groq", "Gemini"], index=default_p_idx)
+    prov_code = provider_choice.lower()
+
+    if prov_code == "groq":
+        active_key = os.getenv("GROQ_API_KEY", "")
+        default_model = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
+        groq_models = get_cached_groq_models(active_key) if active_key else []
+        if groq_models:
+            m_idx = groq_models.index(default_model) if default_model in groq_models else 0
+            model_name = st.selectbox("Model:", groq_models, index=m_idx)
+        else:
+            model_name = st.text_input("Model:", value=default_model)
+    else:
+        active_key = os.getenv("GEMINI_API_KEY", "") or os.getenv("GOOGLE_API_KEY", "")
+        default_model = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
+        gemini_models = get_cached_gemini_models(active_key) if active_key else []
+        if gemini_models:
+            m_idx = gemini_models.index(default_model) if default_model in gemini_models else 0
+            model_name = st.selectbox("Model:", gemini_models, index=m_idx)
+        else:
+            model_name = st.text_input("Model:", value=default_model)
+
+    if active_key:
+        st.success(f"✅ {provider_choice} Connected ({model_name})")
+    else:
+        st.error(f"❌ {provider_choice} API Key missing in .env")
+
+    groq_whisper_key = os.getenv("GROQ_API_KEY", "")
+    if groq_whisper_key:
         st.success("🎙️ Voice Transcription (Whisper) Ready")
 
     st.markdown("---")
@@ -264,10 +300,14 @@ with col_chat:
                 opponent_reply = opp_eval.get("opponent_reply", "")
                 coach = opp_eval.get("coach_evaluation", {})
 
-                st.session_state.practice_history.append({"role": "user", "content": incoming_message})
-                st.session_state.practice_history.append({"role": "assistant", "content": opponent_reply})
+                if opponent_reply.startswith("ERROR:") or "No model connected" in opponent_reply or "[Gemini Error" in opponent_reply or "[Groq Error" in opponent_reply or opp_eval.get("status") == "error":
+                    err_msg = opp_eval.get("error", opponent_reply)
+                    st.error(f"⚠️ {err_msg}")
+                else:
+                    st.session_state.practice_history.append({"role": "user", "content": incoming_message})
+                    st.session_state.practice_history.append({"role": "assistant", "content": opponent_reply})
 
-                reply_markdown = f"""
+                    reply_markdown = f"""
 **{st.session_state.case_dossier.get('opposite_party', 'Opposing Party')}:**  
 *"{opponent_reply}"*
 
@@ -278,8 +318,8 @@ with col_chat:
 > - **Tactical Tip:** {coach.get('what_to_improve', '')}
 > - **💡 Powerful Counter:** *\"{coach.get('suggested_next_counter', '')}\"*
 """
-                st.session_state.chat_history.append({"role": "assistant", "content": reply_markdown})
-                st.rerun()
+                    st.session_state.chat_history.append({"role": "assistant", "content": reply_markdown})
+                    st.rerun()
 
         # Conversational Legal Counselor Flow (Initial Case vs. Continuous Follow-ups)
         else:
@@ -293,33 +333,41 @@ with col_chat:
                 with st.spinner("🤔 NyayaMitra is listening, checking verified Indian statutes, and preparing guidance..."):
                     # 1. Build Case Dossier
                     dossier = case_builder.run(incoming_message, language=selected_lang)
-                    st.session_state.case_dossier = dossier
+                    if dossier.get("status") == "error" or "error" in dossier:
+                        err_msg = dossier.get("error", "No model connected. Add an API key.")
+                        st.error(f"⚠️ {err_msg}")
+                    else:
+                        st.session_state.case_dossier = dossier
 
-                    # 2. Check escalation
-                    esc = dossier.get("escalation_check", {})
-                    
-                    # 3. Retrieve verified laws & rights
-                    rights = rights_advisor.run(dossier, language=selected_lang)
-                    st.session_state.rights_advice = rights
+                        # 2. Check escalation
+                        esc = dossier.get("escalation_check", {})
+                        
+                        # 3. Retrieve verified laws & rights
+                        rights = rights_advisor.run(dossier, language=selected_lang)
+                        if rights.get("status") == "error" or "error" in rights:
+                            err_msg = rights.get("error", "Error connecting to model.")
+                            st.error(f"⚠️ {err_msg}")
+                        else:
+                            st.session_state.rights_advice = rights
 
-                    # 4. Generate conversational response
-                    standing_text = rights.get("plain_language_standing", "")
-                    options = rights.get("action_options", [])
-                    
-                    response_content = f"{standing_text}\n\n"
-                    
-                    if esc.get("requires_real_lawyer", False):
-                        response_content += f"⚠️ **IMPORTANT NOTICE:** This case touches upon high-risk matters ({', '.join(esc.get('reasons', []))}). I recommend consulting a practicing advocate immediately. You can reach the free National Legal Aid Helpline at **15100**.\n\n"
-                    
-                    if options:
-                        response_content += "### 🎯 Your Immediate Action Steps:\n"
-                        for opt in options[:2]:
-                            response_content += f"- **{opt.get('title')}:** {opt.get('details')} *(Timeline: {opt.get('timeline')}, Cost: {opt.get('cost_estimate')})*\n"
-                    
-                    response_content += "\n👉 **Take a look at the Live Intelligence panel on the right:** I've organized your case timeline and evidence checklist. You can ask me any follow-up questions, or click **Draft Legal Notice** anytime!"
+                            # 4. Generate conversational response
+                            standing_text = rights.get("plain_language_standing", "")
+                            options = rights.get("action_options", [])
+                            
+                            response_content = f"{standing_text}\n\n"
+                            
+                            if esc.get("requires_real_lawyer", False):
+                                response_content += f"⚠️ **IMPORTANT NOTICE:** This case touches upon high-risk matters ({', '.join(esc.get('reasons', []))}). I recommend consulting a practicing advocate immediately. You can reach the free National Legal Aid Helpline at **15100**.\n\n"
+                            
+                            if options:
+                                response_content += "### 🎯 Your Immediate Action Steps:\n"
+                                for opt in options[:2]:
+                                    response_content += f"- **{opt.get('title')}:** {opt.get('details')} *(Timeline: {opt.get('timeline')}, Cost: {opt.get('cost_estimate')})*\n"
+                            
+                            response_content += "\n👉 **Take a look at the Live Intelligence panel on the right:** I've organized your case timeline and evidence checklist. You can ask me any follow-up questions, or click **Draft Legal Notice** anytime!"
 
-                    st.session_state.chat_history.append({"role": "assistant", "content": response_content})
-                    st.rerun()
+                            st.session_state.chat_history.append({"role": "assistant", "content": response_content})
+                            st.rerun()
 
             # Scenario B: Multi-Turn Follow-Up Question (Continuous Chat)
             else:
@@ -332,26 +380,28 @@ with col_chat:
                         language=selected_lang
                     )
                     
-                    # Also dynamically check if user mentioned new evidence/proofs to update the sidecar
-                    msg_lower = incoming_message.lower()
-                    evidence_keywords = ["bank statement", "receipt", "invoice", "photo", "video", "whatsapp", "email", "agreement", "cheque", "recording", "job sheet", "bill"]
-                    found_ev = [w for w in evidence_keywords if w in msg_lower]
-                    if found_ev and "evidence_held" in st.session_state.case_dossier:
-                        for ev in found_ev:
-                            entry_name = f"Additional mentioned proof: {ev.capitalize()}"
-                            if entry_name not in st.session_state.case_dossier["evidence_held"]:
-                                st.session_state.case_dossier["evidence_held"].append(entry_name)
-                                # Increment score safely if below 10
-                                curr_score = st.session_state.case_dossier.get("evidence_strength_score", 7)
-                                try:
-                                    curr_score = int(curr_score)
-                                except Exception:
-                                    curr_score = 7
-                                if curr_score < 10:
-                                    st.session_state.case_dossier["evidence_strength_score"] = curr_score + 1
+                    if answer.startswith("ERROR:") or "No model connected" in answer or "[Gemini Error" in answer or "[Groq Error" in answer:
+                        st.error(f"⚠️ {answer}")
+                    else:
+                        # Also dynamically check if user mentioned new evidence/proofs to update the sidecar
+                        msg_lower = incoming_message.lower()
+                        evidence_keywords = ["bank statement", "receipt", "invoice", "photo", "video", "whatsapp", "email", "agreement", "cheque", "recording", "job sheet", "bill"]
+                        found_ev = [w for w in evidence_keywords if w in msg_lower]
+                        if found_ev and "evidence_held" in st.session_state.case_dossier:
+                            for ev in found_ev:
+                                entry_name = f"Additional mentioned proof: {ev.capitalize()}"
+                                if entry_name not in st.session_state.case_dossier["evidence_held"]:
+                                    st.session_state.case_dossier["evidence_held"].append(entry_name)
+                                    curr_score = st.session_state.case_dossier.get("evidence_strength_score", 7)
+                                    try:
+                                        curr_score = int(curr_score)
+                                    except Exception:
+                                        curr_score = 7
+                                    if curr_score < 10:
+                                        st.session_state.case_dossier["evidence_strength_score"] = curr_score + 1
 
-                    st.session_state.chat_history.append({"role": "assistant", "content": answer})
-                    st.rerun()
+                        st.session_state.chat_history.append({"role": "assistant", "content": answer})
+                        st.rerun()
 
 # Sidecar Column: Live Case Intelligence & Actionable Tools
 with col_side:
@@ -417,9 +467,11 @@ with col_side:
             if isinstance(laws, list) and laws:
                 for l in laws:
                     if isinstance(l, dict):
-                        st.markdown(f"- **{l.get('act_name', 'Statute')}** ({l.get('section', 'General Provisions')}): {l.get('relevance', '')}")
+                        is_verified = l.get("status") == "verified"
+                        badge = "" if is_verified else " <span style='color:orange; font-size:0.8rem; font-weight:bold;'>[unverified]</span>"
+                        st.markdown(f"- **{l.get('act_name', 'Statute')}** ({l.get('section', 'General Provisions')}){badge}: {l.get('relevance', '')}", unsafe_allow_html=True)
                     else:
-                        st.markdown(f"- {l}")
+                        st.markdown(f"- {l} <span style='color:orange; font-size:0.8rem; font-weight:bold;'>[unverified]</span>", unsafe_allow_html=True)
             else:
                 st.caption("Statutory provisions will be listed here.")
 
@@ -432,12 +484,15 @@ with col_side:
             drafter = DocumentDrafterAgent(engine)
             with st.spinner("Drafting 15-day formal legal notice..."):
                 notice = drafter.run(dossier, rights)
-                st.session_state.notice_draft = notice
-                st.session_state.chat_history.append({
-                    "role": "assistant",
-                    "content": f"📄 **I have generated your Formal Legal Demand Notice!**\n\nYou can review, copy, or download it from the Action Center on the right."
-                })
-                st.rerun()
+                if notice.startswith("ERROR:") or "No model connected" in notice or "[Gemini Error" in notice or "[Groq Error" in notice:
+                    st.error(f"⚠️ {notice}")
+                else:
+                    st.session_state.notice_draft = notice
+                    st.session_state.chat_history.append({
+                        "role": "assistant",
+                        "content": f"📄 **I have generated your Formal Legal Demand Notice!**\n\nYou can review, copy, or download it from the Action Center on the right."
+                    })
+                    st.rerun()
 
         # Display Notice if Drafted
         if st.session_state.notice_draft:
@@ -482,7 +537,7 @@ with col_side:
         **What NyayaMitra does:**
         1. 🎧 **Listens to your story** by voice or text.
         2. 📋 **Extracts facts & dates** into a verified dossier.
-        3. ⚖️ **Cites real Indian laws** (*Model Tenancy Act, CPA 2019, Payment of Wages*).
+        3. ⚖️ **Cites real Indian laws** (*Model Tenancy Act, CPA 2019, Code on Wages 2019*).
         4. 📝 **Generates a 15-day Legal Notice**.
         5. 🥊 **Simulates the opponent** so you can practice negotiating.
         """)

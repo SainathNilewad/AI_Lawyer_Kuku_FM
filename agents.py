@@ -9,7 +9,12 @@ Implements the 4 core capabilities for Problem 2 (AI Lawyer):
 
 from typing import Dict, Any, List
 import json
-from legal_kb import retrieve_verified_legal_context, check_immediate_advocate_escalation
+from legal_kb import (
+    retrieve_verified_legal_context,
+    check_immediate_advocate_escalation,
+    sanitize_unverified_sections,
+    scan_unverified_sections
+)
 from llm_engine import LegalLLMEngine
 
 class CaseBuilderAgent:
@@ -90,6 +95,31 @@ class RightsAdvisorAgent:
         
         # Grounding: Retrieve real Indian statutory context
         kb_result = retrieve_verified_legal_context(f"{category} {summary}")
+        
+        # FIX 5: Honest out-of-scope fallback (no guessing or inventing law)
+        if kb_result.get("out_of_scope"):
+            return {
+                "plain_language_standing": (
+                    "This legal matter falls outside the verified everyday domains currently covered by NyayaMitra "
+                    "(Tenancy & Rental, Consumer Protection, and Code on Wages Employment). "
+                    "NyayaMitra strictly avoids guessing or inventing law for uncovered domains. "
+                    "Please consult a practicing advocate or contact the free District Legal Services Authority (DLSA) / NALSA Helpline at 15100."
+                ),
+                "governing_laws": [],
+                "action_options": [
+                    {
+                        "step_number": 1,
+                        "title": "Consult a Licensed Advocate or DLSA",
+                        "timeline": "Immediate",
+                        "cost_estimate": "Free legal aid via DLSA",
+                        "details": "Contact your local District Legal Services Authority or call toll-free 15100 for official legal assistance."
+                    }
+                ],
+                "real_lawyer_needed": True,
+                "real_lawyer_guidance": "Matters outside NyayaMitra's verified domains require representation by a licensed advocate.",
+                "disclaimer": "⚠️ NyayaMitra provides self-advocacy information for verified civil domains only."
+            }
+
         grounding_text = kb_result["grounding_text"]
 
         system_prompt = f"""
@@ -165,6 +195,21 @@ Output format MUST be valid JSON with this structure:
                 "real_lawyer_guidance": "You can pursue pre-litigation notice and statutory portals yourself without an advocate.",
                 "disclaimer": "⚠️ NyayaMitra provides legal information and self-advocacy tools under Indian laws."
             }
+
+        # Code-level guard: Sanitize plain language standing for unverified section references
+        if isinstance(result, dict) and "plain_language_standing" in result:
+            result["plain_language_standing"] = sanitize_unverified_sections(result["plain_language_standing"])
+
+        # Code-level guard: Check governing laws list against allowed statutory sections
+        if isinstance(result, dict) and "governing_laws" in result and isinstance(result["governing_laws"], list):
+            for item in result["governing_laws"]:
+                if isinstance(item, dict):
+                    sec = str(item.get("section", ""))
+                    unv = scan_unverified_sections(sec)
+                    if unv:
+                        item["status"] = "unverified reference removed"
+                        item["section"] = f"[unverified reference removed: {', '.join(unv)}]"
+
         return result
 
 
@@ -200,7 +245,8 @@ Legal Standing & Grounded Laws:
 
 Please write the complete, unedited, ready-to-send document.
 """
-        return self.engine.generate(system_prompt, user_prompt, temperature=0.2)
+        raw_draft = self.engine.generate(system_prompt, user_prompt, temperature=0.2)
+        return sanitize_unverified_sections(raw_draft)
 
 
 class RoleplayOpponentAgent:
@@ -258,6 +304,16 @@ User's Latest Statement/Argument:
                     "suggested_next_counter": "Remind them that persistent refusal attracts 12% statutory interest in formal court proceedings."
                 }
             }
+
+        # Code-level guard: Sanitize opponent reply and coach feedback
+        if isinstance(res, dict):
+            if "opponent_reply" in res and isinstance(res["opponent_reply"], str):
+                res["opponent_reply"] = sanitize_unverified_sections(res["opponent_reply"])
+            if "coach_evaluation" in res and isinstance(res["coach_evaluation"], dict):
+                for k, v in res["coach_evaluation"].items():
+                    if isinstance(v, str):
+                        res["coach_evaluation"][k] = sanitize_unverified_sections(v)
+
         return res
 
 
@@ -271,6 +327,14 @@ class ConversationalCounselorAgent:
         summary = case_dossier.get("summary", "") if case_dossier else ""
         
         kb_result = retrieve_verified_legal_context(f"{category} {summary} {user_message}")
+        if kb_result.get("out_of_scope"):
+            return (
+                "This topic falls outside the verified everyday legal domains covered by NyayaMitra "
+                "(Tenancy & Rental, Consumer Protection, and Code on Wages Employment). "
+                "To ensure you receive accurate guidance, NyayaMitra does not answer queries outside verified domains. "
+                "Please consult a practicing advocate or call the free District Legal Services Authority (DLSA) / NALSA Helpline at 15100."
+            )
+
         grounding_text = kb_result["grounding_text"]
 
         system_prompt = f"""
@@ -316,5 +380,6 @@ Please respond naturally to the user's question with practical Indian legal coun
         ans = self.engine.generate(system_prompt, user_prompt, temperature=0.3)
         if not ans or not ans.strip():
             ans = "I understand your point. Based on the facts established in your case and relevant Indian statutes, you are legally entitled to press for your rightful refund or dues. Would you like me to generate your ready-to-send Legal Demand Notice now?"
-        return ans
+        # Code-level guard: Sanitize conversational follow-up response
+        return sanitize_unverified_sections(ans)
 
