@@ -18,6 +18,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Synchronize Streamlit Cloud secrets into os.environ if deployed
+try:
+    if hasattr(st, "secrets"):
+        for _sec_k, _sec_v in st.secrets.items():
+            if isinstance(_sec_v, str) and _sec_k not in os.environ:
+                os.environ[_sec_k] = _sec_v
+except Exception:
+    pass
+
 from legal_kb import (
     retrieve_verified_legal_context,
     check_immediate_advocate_escalation,
