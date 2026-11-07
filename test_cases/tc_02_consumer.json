@@ -2,16 +2,16 @@
   "test_case_id": "TC-02",
   "name": "E-Commerce Defective Smartphone Refund Denial",
   "category": "Consumer & E-Commerce",
-  "timestamp": "2026-11-07T08:18:53.340104+00:00",
+  "timestamp": "2026-11-07T19:35:00.493335+00:00",
   "provider": "groq",
   "model_name": "openai/gpt-oss-120b",
   "raw_input": "I ordered a Samsung Galaxy smartphone worth Rs 26,999 on an e-commerce app on 10th November 2024. It was delivered on 14th November. Within 24 hours of opening the box, the screen started flickering with green lines and touch stopped working. I raised a replacement request on 15th November. The app sent a technician for inspection on 21st November. The technician confirmed it is a manufacturing hardware defect and took sign on his job sheet. But on 23rd November, customer support cancelled my return request stating 'The 7-day return window expired on 21st November'. They are telling me to go to an authorized brand service center 40 km away. I paid for a brand new working phone, not a defective phone repaired on day one. I have the invoice, delivery receipt, technician inspection job sheet copy, and chat screenshots.",
   "case_dossier": {
-    "case_title": "Defective Samsung Galaxy smartphone – return denied after 7‑day window",
+    "case_title": "Defective Samsung Galaxy Phone Delivered by E-commerce Platform",
     "category": "Consumer & E-Commerce",
-    "summary": "The consumer purchased a Samsung Galaxy phone for Rs 26,999 on an e‑commerce app, received it on 14 Nov 2024, and discovered a hardware defect within a day. Although a technician confirmed the defect, the platform cancelled the return request citing an expired 7‑day window and directed the consumer to a distant service centre.",
-    "complainant": "Consumer",
-    "opposite_party": "E‑commerce Platform (app name not specified)",
+    "summary": "The consumer purchased a Samsung Galaxy smartphone for Rs 26,999 on an e‑commerce app. The phone malfunctioned within a day, a technician confirmed a hardware defect, but the platform denied a return citing an expired 7‑day window and directed the consumer to a distant service centre.",
+    "complainant": "Consumer (Buyer)",
+    "opposite_party": "E‑commerce platform (name not specified)",
     "disputed_amount": "Rs 26,999",
     "timeline": [
       {
@@ -24,32 +24,32 @@
       },
       {
         "date_or_period": "15 Nov 2024",
-        "event": "Within 24 hours of opening, screen flickered and touch stopped; consumer raised a replacement/return request."
+        "event": "Raised a replacement/return request after the screen flickered and touch stopped within 24 hours of opening."
       },
       {
         "date_or_period": "21 Nov 2024",
-        "event": "Technician visited, inspected the phone, confirmed manufacturing hardware defect, and signed the job sheet."
+        "event": "Technician visited, inspected the phone, confirmed manufacturing hardware defect, and signed a job sheet."
       },
       {
         "date_or_period": "23 Nov 2024",
-        "event": "Customer support cancelled the return request, stating the 7‑day return window expired on 21 Nov, and advised going to an authorized service centre 40 km away."
+        "event": "Customer support cancelled the return request, stating the 7‑day return window expired on 21 Nov and advised going to an authorized service centre 40 km away."
       }
     ],
     "evidence_held": [
       "Invoice showing purchase price of Rs 26,999",
       "Delivery receipt confirming receipt on 14 Nov 2024",
-      "Copy of technician inspection job sheet with technician’s signature",
+      "Copy of technician inspection job sheet with signature",
       "Chat screenshots with customer support regarding the return request and cancellation"
     ],
     "evidence_needed": [
-      "Original technician job sheet (if not already retained)",
-      "Timestamped proof of the initial return/replacement request submission (e.g., app screenshot or email)",
-      "Copy of the platform’s return policy showing the 7‑day window terms",
-      "Any communication from the platform confirming the cancellation decision",
-      "Video or photo evidence of the screen flickering and touch issue"
+      "Original signed technician job sheet (if copy is not sufficient)",
+      "Timestamped confirmation/email of the replacement/return request submitted on 15 Nov 2024",
+      "Record of the 7‑day return policy terms as displayed on the app at the time of purchase",
+      "Any email or SMS notification of the cancellation decision dated 23 Nov 2024",
+      "Proof of the authorized service centre’s distance and any additional costs that may be incurred"
     ],
     "evidence_strength_score": 8,
-    "evidence_strength_explanation": "Key documents (invoice, delivery receipt, signed technician sheet, chat logs) directly support the defect claim and timeline, giving a strong evidentiary basis.",
+    "evidence_strength_explanation": "Key documents (invoice, delivery receipt, signed job sheet, chat logs) directly support the claim, giving the evidence a strong but not perfect rating.",
     "escalation_check": {
       "requires_real_lawyer": false,
       "reasons": [],
@@ -57,71 +57,81 @@
     }
   },
   "rights_advice": {
-    "plain_language_standing": "You are a consumer as defined under the Consumer Protection Act, 2019 because you bought a Samsung Galaxy phone for personal use. The phone turned out to have a manufacturing defect, which the technician confirmed. Under the Act, a defect in a product is a \"deficiency in service\" and the seller (including the e‑commerce platform that facilitated the sale) must either replace the product, repair it, or refund you. The platform’s refusal to honour a return after only a few days, especially when the defect was proven, is an unfair trade practice. This is a civil matter – you are seeking a refund or replacement, not accusing anyone of criminal cheating. You have a strong legal right to get your money back or a new phone.",
+    "plain_language_standing": "You are a consumer as defined by the Consumer Protection Act, 2019 because you bought a Samsung Galaxy phone online for personal use. The phone turned out to be defective within a day, and a qualified technician confirmed a manufacturing fault. Under the Act, a defect in goods and a deficiency in the service (the e‑commerce platform’s refusal to honour a return despite the defect) give you a clear right to a replacement, repair, or refund. The platform’s claim that the 7‑day window has expired, even though the defect was reported within that period and the law requires a refund or replacement within 30 days of delivery for defective goods, is an unfair trade practice. This is a civil dispute, not a criminal offence, so you can seek redress through the consumer forum without needing to file a police FIR.",
     "governing_laws": [
       {
         "act_name": "Consumer Protection Act, 2019",
         "section": "Section 2(7)",
-        "relevance": "Defines you as a consumer who bought a goods for consideration, covering online purchases."
+        "relevance": "Defines you as a consumer because you purchased the phone online for personal use."
+      },
+      {
+        "act_name": "Consumer Protection Act, 2019",
+        "section": "Section 2(10)",
+        "relevance": "Covers the hardware defect in the phone as a \"defect in goods\"."
       },
       {
         "act_name": "Consumer Protection Act, 2019",
         "section": "Section 2(11)",
-        "relevance": "The hardware defect is a \"deficiency in service\" that the seller must remedy."
+        "relevance": "Treats the platform’s refusal to replace/repair the defective phone as a \"deficiency in service\"."
       },
       {
         "act_name": "Consumer Protection Act, 2019",
         "section": "Section 2(47)",
-        "relevance": "Refusing a refund for a defective product within a reasonable period is an unfair trade practice."
-      },
-      {
-        "act_name": "Consumer Protection Act, 2019",
-        "section": "Section 84",
-        "relevance": "Manufacturer liability for a product with a manufacturing defect, even without proof of negligence."
+        "relevance": "Identifies the platform’s denial of refund/replacement after a defect as an unfair trade practice."
       },
       {
         "act_name": "Consumer Protection Act, 2019",
         "section": "Section 35",
-        "relevance": "Allows you to file a consumer complaint electronically (e‑Daakhil) against the platform."
+        "relevance": "Allows you to file a consumer complaint electronically via e‑Daakhil."
+      },
+      {
+        "act_name": "Consumer Protection Act, 2019",
+        "section": "Section 84",
+        "relevance": "Makes the product manufacturer liable for manufacturing defects, supporting your claim for a refund or replacement."
+      },
+      {
+        "act_name": "General Legal Principle (Civil vs. Criminal)",
+        "section": "N/A",
+        "relevance": "Clarifies that this is a civil matter, not a criminal cheating case."
       }
     ],
     "action_options": [
       {
         "step_number": 1,
         "title": "Send a Formal Legal Demand Notice",
-        "timeline": "Within 15 days",
-        "cost_estimate": "Free to minimal (speed post or email)",
-        "details": "Draft a notice stating: (a) you are a consumer, (b) the phone has a manufacturing defect confirmed by a technician, (c) the platform’s refusal is an unfair trade practice, and (d) you demand a full refund of Rs 26,999 or a replacement within 7 days of receipt of the notice. Send it by registered post/e‑mail and keep a copy of the receipt."
+        "timeline": "Within 15 days from today",
+        "cost_estimate": "Free to minimal (postage or email cost)",
+        "details": "Draft a concise notice stating: (a) you are a consumer under CPA 2019, (b) the phone has a manufacturing defect confirmed by a technician, (c) the e‑commerce platform is violating Section 2(47) by refusing a refund/replacement, and (d) you demand a full refund of Rs 26,999 or a replacement within 7 days of receipt of the notice. Send it by registered post or email and keep a copy of the receipt."
       },
       {
         "step_number": 2,
-        "title": "File a Complaint on the Consumer Grievance Portal (e‑Daakhil / NCH)",
-        "timeline": "30‑45 days",
-        "cost_estimate": "Zero court fees for claims up to Rs 5 Lakhs",
-        "details": "Visit e‑Daakhil (edaakhil.nic.in) or call the National Consumer Helpline 1915. Upload the invoice, delivery receipt, technician’s signed job sheet, chat screenshots, and a copy of the platform’s return policy. Fill in the complaint form, select the District Consumer Disputes Redressal Commission (DCDRC) for your area, and submit. You will receive an acknowledgment and a case number."
+        "title": "File an Electronic Complaint on e‑Daakhil",
+        "timeline": "Within 30‑45 days",
+        "cost_estimate": "Zero court fee for claims up to Rs 5 Lakhs",
+        "details": "Register on edaakhil.nic.in. Upload the following documents: purchase invoice, delivery receipt, technician’s signed job sheet, chat screenshots, and a copy of the demand notice. Choose the District Consumer Disputes Redressal Commission (DCDRC) as the forum. Pay the nominal filing fee (if any) online and note the complaint number for future reference."
       },
       {
         "step_number": 3,
-        "title": "Attend the Consumer Commission Hearing",
-        "timeline": "60‑90 days from filing",
-        "cost_estimate": "Nominal filing fee (around Rs 100‑200) plus any travel costs",
-        "details": "The Commission will issue a notice to the e‑commerce platform. You can appear yourself – no advocate is required for claims up to Rs 5 Lakhs. Present your documents, explain the defect, and request an order for refund or replacement. If the platform does not comply, the Commission can pass an order directing payment and may impose a penalty for unfair trade practice."
+        "title": "Attend the Consumer Forum Hearing / Seek Enforcement",
+        "timeline": "Typically 60‑90 days after filing",
+        "cost_estimate": "Nominal (travel, copying documents)",
+        "details": "The forum will issue a notice to the e‑commerce platform. You can appear yourself (self‑representation is allowed) and present the evidence you have. If the forum orders a refund or replacement and the platform still does not comply, you can file for execution of the order through the district court."
       }
     ],
     "real_lawyer_needed": false,
-    "real_lawyer_guidance": "For consumer disputes under Rs 5 Lakhs you can represent yourself before the Consumer Commission. A lawyer becomes essential only if the claim exceeds that amount, if you need to enforce a Commission order through execution proceedings, or if the platform files a counter‑claim. In those cases, consult a licensed advocate.",
+    "real_lawyer_guidance": "The Consumer Disputes Redressal Commissions allow you to represent yourself, so a lawyer is not mandatory. You may consult a lawyer for advice on drafting the demand notice or if the platform files a counter‑claim, but you can comfortably handle the filing and hearing on your own.",
     "disclaimer": "⚠️ NyayaMitra provides legal information and self‑advocacy tools under Indian laws. For formal courtroom representation, consult a licensed advocate."
   },
-  "legal_notice_draft": "**NyayaMitra India**  \n*Legal Drafting & Consumer Advocacy*  \n\n---  \n\n## LEGAL DEMAND NOTICE  \n\n### 1.   Header  \n\n| **From (Consumer / Sender)** | **To (E‑Commerce Platform)** |\n|------------------------------|------------------------------|\n| **Name:** *[Your Full Name]*<br>**Address:** *[Your Complete Residential Address]*<br>**Phone:** *[Mobile No.]*<br>**E‑mail:** *[Your Email ID]* | **Name of Platform:** *[Exact Legal Name of the E‑Commerce Platform]*<br>**Registered Office:** *[Address as per website / GST registration]*<br>**Phone:** *[Customer Care No.]*<br>**E‑mail:** *[Official Support Email]* |\n\n### 2.   Date & Mode of Dispatch  \n\n- **Date:** *[DD] [Month] [Year]*  \n- **Mode of Dispatch:** Speed Post – **Acknowledgement Due (AD)** / Registered E‑mail (with read‑receipt)  \n\n---  \n\n### 3.   Subject  \n\n**Demand for Refund / Replacement of Defective Samsung Galaxy Smartphone (Order No. [XXXXXXXX]) within 15 days of receipt of this notice**  \n\n---  \n\n### 4.   Opening Paragraph  \n\n> **Under instructions from my client,** the undersigned hereby submits as under:  \n\n---  \n\n### 5.   Factual Matrix (Chronology)  \n\n| **Date / Period** | **Event** |\n|-------------------|-----------|\n| **10 Nov 2024** | Placed order for a *Samsung Galaxy* smartphone (Model: *[Exact Model]*, Price: **Rs 26,999**) on the e‑commerce app of the addressee (Order No. [XXXXXXXX]). |\n| **14 Nov 2024** | Phone delivered at the consumer’s residence (Delivery receipt attached). |\n| **15 Nov 2024** | Within 24 hours of unboxing, the screen began flickering and the touch panel stopped responding. Consumer immediately raised a replacement/return request through the app (screenshot attached). |\n| **21 Nov 2024** | Authorized technician visited, inspected the device, confirmed a **manufacturing hardware defect**, and signed the job‑sheet (copy attached). |\n| **23 Nov 2024** | Customer‑support cancelled the return request, stating that the 7‑day return window had expired on 21 Nov 2024, and directed the consumer to an authorized service centre located **≈ 40 km** away (chat screenshots attached). |\n\n---  \n\n### 6.   Documents Annexed (Evidence)  \n\n| **Annex‑No.** | **Document** |\n|--------------|--------------|\n| **Annex‑A** | Original Invoice showing purchase price of **Rs 26,999** |\n| **Annex‑B** | Delivery receipt confirming receipt on **14 Nov 2024** |\n| **Annex‑C** | Technician’s inspection job‑sheet with signature |\n| **Annex‑D** | Chat‑screen captures of the return request and its cancellation |\n| **Annex‑E** | Copy of the Platform’s “Return/Refund Policy” (showing 7‑day window) |\n| **Annex‑F** | Video/photograph of the screen‑flicker & touch‑failure (if available) |\n\n---  \n\n### 7.   Legal Grounds  \n\n1. **Consumer Protection Act, 2019**  \n   - **Section 2(7)** – The complainant is a *consumer* as he purchased a goods for consideration.  \n   - **Section 2(11)** – The hardware defect constitutes a *deficiency in service* of the seller.  \n   - **Section 2(47)** – Refusal to refund/replace a defective product within a reasonable period amounts to an *unfair trade practice*.  \n   - **Section 84** – The seller (including the e‑commerce platform acting as a “seller”) is *strictly liable* for any manufacturing defect.  \n   - **Section 35** – The consumer may institute a complaint electronically via **e‑Daakhil**; however, a demand notice is a prerequisite under settled jurisprudence.  \n\n2. **Relevant Judicial Pronouncements** (e.g., *M/s. Amazon.in v. R. Ramesh* (2022) 5 SCC 123) – The Supreme Court has held that an e‑commerce marketplace is *deemed a seller* and is liable to honour return/refund when the product is defective, irrespective of the “7‑day” clause, provided the defect is reported within a reasonable time.  \n\n---  \n\n### 8.   Demand (Within 15 Days)  \n\nThe addressee is hereby **required to**:  \n\n1. **Refund** the full purchase consideration of **Rs 26,999** **(inclusive of all taxes & delivery charges)**, **or**  \n2. **Replace** the defective Samsung Galaxy smartphone with a brand‑new, identical model **at no additional cost** to the consumer,  \n\n**within fifteen (15) calendar days** from the date of receipt of this notice (i.e., by **[DD Month Year]**).  \n\n*Payment/Replacement may be effected by direct bank transfer to the consumer’s account (details to be furnished upon acceptance) or by dispatch of a brand‑new device to the address mentioned above.*  \n\n---  \n\n### 9.   Consequence of Non‑Compliance  \n\nIf the above demand is not complied with within the stipulated period, the consumer **shall be constrained to initiate** the following legal actions **without any further notice**:  \n\n1. **Filing of a complaint** before the **District Consumer Disputes Redressal Commission (DCDRC)** under the Consumer Protection Act, 2019, seeking:  \n   - Refund of **Rs 26,999** plus **interest at 12 % per annum** from the date of delivery (14 Nov 2024) until actual payment,  \n   - Compensation for **litigation costs, mental agony, and inconvenience** (as per [unverified reference removed] of the Act),  \n   - **Penalty** for unfair trade practice as per Section 2(47).  \n\n2. **Claim for statutory interest** at **12 % per annum** (as per *State Bank of India v. M/s. Ramesh* (2021) 4 SCC 456) on the principal amount, calculated from **15 Nov 2024** (date of defect discovery) until actual receipt of the amount.  \n\n3. **Recovery of costs** incurred in sending this notice (postage, courier, legal drafting) and any further expenses incurred in the proceedings.  \n\n---  \n\n### 10.   Prayer  \n\nIn view of the foregoing, the consumer respectfully prays that the addressee:  \n\na) **Refunds** the amount of **Rs 26,999** (or replaces the phone) within 15 days; and  \n\nb) **Indemnifies** the consumer for interest, damages, and costs as enumerated above, failing which appropriate remedial action shall be taken before the consumer forum(s).  \n\n---  \n\n### 11.   Signature & Verification  \n\n> **Verified** that the contents of this notice are true and correct to the best of my knowledge and belief, and that I am authorized to issue the same on behalf of the consumer.  \n\n---  \n\n**[Your Signature]**  \n*Name:* **[Your Full Name]**  \n*Date:* **[DD Month Year]**  \n\n---  \n\n### 12.   Annexure Index  \n\n| **Annex‑No.** | **Description** |\n|--------------|-----------------|\n| Annex‑A | Original Invoice – Rs 26,999 |\n| Annex‑B | Delivery Receipt (14 Nov 2024) |\n| Annex‑C | Technician Job‑Sheet (signed) |\n| Annex‑D | Chat‑screen captures (request & cancellation) |\n| Annex‑E | Platform’s Return Policy (7‑day clause) |\n| Annex‑F | Video/Photograph of defect (if any) |\n\n---  \n\n*Prepared by:* **NyayaMitra India – Expert Legal Drafting Unit**  \n*Contact:* **+91‑[Your Phone] | legal@nyayamitra.in**  \n\n*This notice is issued without prejudice to any other rights or remedies available to the consumer under applicable law.*  ",
+  "legal_notice_draft": "## **LEGAL DEMAND NOTICE**  \n*(Consumer & E‑Commerce – Defective Samsung Galaxy Phone)*  \n\n---\n\n### **1.   Header**\n\n| **From (Sender)** | **To (Recipient)** |\n|-------------------|--------------------|\n| **Name:** *[Your Full Name]*  <br> **Address:** *[Your Complete Residential Address]*  <br> **Mobile:** *[Your Mobile No.]*  <br> **E‑mail:** *[Your Email ID]* | **Name:** *[E‑Commerce Platform – Legal/Customer Service Department]*  <br> **Address:** *[Registered Office / Corporate Address as per website]*  <br> **E‑mail:** *[Official Support Email]* |\n\n---\n\n### **2.   Date & Mode of Dispatch**\n\n- **Date:** *[Insert Date – e.g., 7 November 2026]*  \n- **Mode of Dispatch:** **Speed Post – Acknowledgement Due (AD)** / **Registered E‑mail (with read‑receipt)**  \n\n*(Both copies are being sent – one by Speed Post and one by registered e‑mail for redundancy and proof of service.)*  \n\n---\n\n### **3.   Subject**\n\n> **Demand for Refund / Replacement of Defective Samsung Galaxy Smartphone (Order No. [XXXX]) purchased for Rs 26,999**  \n\n---\n\n### **4.   Opening Paragraph (Instruction Clause)**  \n\n> **Under instructions from my client, the undersigned hereby submits as under:**  \n\n---\n\n### **5.   Statement of Facts (Chronological Sequence)**  \n\n| **Date / Period** | **Event** |\n|-------------------|-----------|\n| **10 Nov 2024** | Placed an order for a *Samsung Galaxy* smartphone (Model: *[Exact Model]*, Price: **Rs 26,999**) on the e‑commerce app of *[Platform Name]* (Order No. [XXXX]). |\n| **14 Nov 2024** | Phone was delivered to the above‑stated residential address; delivery receipt attached (Annexure‑B). |\n| **15 Nov 2024** | Within 24 hours of unboxing, the screen began flickering and the touch panel stopped responding. A replacement/return request was lodged through the app’s “Return/Replace” facility (timestamped copy attached – Annexure‑D). |\n| **21 Nov 2024** | A certified technician from *[Authorized Service Provider]* visited, inspected the device, diagnosed a **manufacturing hardware defect**, and signed the job‑sheet confirming the same (Annexure‑C). |\n| **23 Nov 2024** | Customer‑support executive cancelled the return request, stating that the 7‑day return window had expired on 21 Nov 2024 and directed the consumer to an authorized service centre located **≈ 40 km** away (chat screenshots attached – Annexure‑D). |\n\n---\n\n### **6.   Documents Annexed (Evidence)**  \n\n| **Annexure** | **Description** |\n|--------------|-----------------|\n| **Annexure‑A** | Original invoice showing purchase price **Rs 26,999**. |\n| **Annexure‑B** | Delivery receipt confirming receipt on **14 Nov 2024**. |\n| **Annexure‑C** | Technician’s inspection job‑sheet (signed) confirming a manufacturing defect. |\n| **Annexure‑D** | Chat‑screen captures with customer‑support showing the return request, its cancellation, and the 7‑day window claim. |\n| **Annexure‑E** *(optional)* | Screenshot of the platform’s “7‑day return policy” as displayed at the time of purchase. |\n\n---\n\n### **7.   Legal Grounds**\n\n1. **Consumer Protection Act, 2019**  \n   - **Section 2(7)** – Defines the complainant as a *consumer* (purchase for personal use).  \n   - **Section 2(10)** – The hardware defect constitutes a *defect in goods*.  \n   - **Section 2(11)** – The platform’s refusal to replace/repair amounts to a *deficiency in service*.  \n   - **Section 2(47)** – Denial of refund/replacement after a confirmed defect is an *unfair trade practice*.  \n   *Reference:* *Consumer Protection (Consumer Protection) Rules, 2020* – Rule 3 (right to replacement/repair within 30 days of delivery for defective goods).  \n\n2. **Statutory Interest & Compensation**  \n   - Under **[unverified reference removed]** of the CPA, the consumer is entitled to **interest at the rate of 12 % per annum** on the amount due, calculated from the date of default (i.e., from **23 Nov 2024**).  \n   - The consumer may also claim **damages for loss of enjoyment and inconvenience** as per **[unverified reference removed](2)**.\n\n---\n\n### **8.   Demand (15‑Day Rectification Window)**  \n\n> **You are hereby directed to effect either:**  \n\n1. **A full refund of Rs 26,999 (Rupees Twenty‑Six Thousand Nine Hundred Ninety‑Nine only)**, **or**  \n2. **A brand‑new replacement of the same model (Samsung Galaxy – identical specifications)**  \n\n> **within **_**fifteen (15) calendar days**_** from the receipt of this notice (i.e., on or before **[Date + 15 days]**).**  \n\n> The refund/replacement must be credited to the bank account **[Your Bank Details]** or the replacement dispatched to the address mentioned above, at **no additional cost** to the consumer.\n\n---\n\n### **9.   Consequence of Non‑Compliance**\n\n- **Failure to comply** within the stipulated 15‑day period will compel the consumer to **file a complaint before the District Consumer Disputes Redressal Commission (DCDRC)** under the Consumer Protection Act, 2019, seeking:\n  1. **Refund of Rs 26,999** with **statutory interest at 12 % per annum** from 23 Nov 2024 till actual payment.  \n  2. **Compensation for inconvenience and mental agony** (as deemed fit by the Commission).  \n  3. **Recovery of litigation costs, postage, and any other expenses** incurred.  \n\n- The consumer also reserves the right to **approach the appropriate consumer forum for execution of the award** and to **report the unfair trade practice** to the **Competition Commission of India** and **State Consumer Protection Council**.\n\n---\n\n### **10.   Legal Disclaimer**\n\n> This notice is issued **without prejudice** to any other rights or remedies available to the consumer under the law. The consumer expressly reserves all such rights.\n\n---\n\n### **11.   Signature & Verification**\n\n| **Signature of the Consumer** | **Date** |\n|-------------------------------|----------|\n| _____________________________ | __________ |\n\n*The consumer affirms that the facts stated herein are true and correct to the best of his/her knowledge and belief.*\n\n---\n\n### **12.   Service Confirmation (for Speed Post)**  \n\n| **Speed Post Receipt No.** | **Date of Dispatch** |\n|----------------------------|----------------------|\n| __________________________ | ____________________ |\n\n*(Retain the receipt as proof of service.)*  \n\n---  \n\n**Prepared by:** *[Your Full Name]* – Consumer (Self‑Represented)  \n\n**Contact:** *[Mobile No.]* | *[Email ID]*  \n\n---  \n\n*Please acknowledge receipt of this notice within 2 working days.*  ",
   "sample_roleplay_turn": {
     "user_argument": "Under Section 2(11) and Section 84 of the Consumer Protection Act 2019, delivering a defective phone and delaying inspection past your return window is a clear deficiency in service and unfair trade practice. I have the technician report confirming hardware fault. I demand an immediate refund or I will escalate to the National Consumer Helpline and e-Daakhil.",
     "opponent_response": {
-      "opponent_reply": "Sir, as per the Terms & Conditions you agreed to at the time of purchase, the return window is strictly 7 days from the date of delivery. Your request was lodged after that period, so per our company policy we cannot process a refund or replacement. The defect you are reporting is a manufacturing issue and falls under Samsung’s warranty, not our platform’s return policy. Please contact the authorised Samsung service centre as directed in the order confirmation. We have already forwarded your request to the seller, but we cannot override the 7‑day rule.",
+      "opponent_reply": "Look, I have already explained our stance. We operate strictly by our terms and policies, so I cannot agree to this right now.",
       "coach_evaluation": {
-        "strength_rating": "Strong",
-        "what_went_well": "You correctly quoted specific sections of the Consumer Protection Act and attached a technician’s report – that shows you have solid legal backing and evidence.",
-        "what_to_improve": "Add the order invoice, delivery proof, and explicitly invoke [unverified reference removed] (right to replacement/refund) and [unverified reference removed] (definition of consumer) to strengthen your claim. Mention the two‑year limitation period and that you are ready to file a complaint on e‑Daakhil with all documents attached.",
-        "suggested_next_counter": "I demand a full refund under [unverified reference removed] of the CPA and will file a complaint on e‑Daakhil with the technician report, invoice, and delivery proof if you do not comply."
+        "strength_rating": "Moderate",
+        "what_went_well": "You maintained a clear and determined position.",
+        "what_to_improve": "Quote the exact 15-day timeline and statutory liability under Indian law.",
+        "suggested_next_counter": "Remind them that persistent refusal attracts 12% statutory interest in formal court proceedings."
       }
     }
   }

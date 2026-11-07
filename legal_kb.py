@@ -63,7 +63,8 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
             "within a reasonable time after notice, any repairs which he is bound to make to the property, "
             "the lessee may make the same himself, and deduct the expense of such repairs with interest from the rent, or otherwise recover it from the lessor.\n"
             "4. Quiet Enjoyment (Section 108(A)(c)): Under Section 108(A) (rights and liabilities of the lessor), the lessor shall be deemed to contract "
-            "with the lessee that, if the latter pays the rent reserved by the lease and performs lease contracts, he may hold the property during the lease term without interruption."
+            "with the lessee that, if the latter pays the rent reserved by the lease and performs lease contracts, he may hold the property during the lease term without interruption.\n"
+            "5. Plain Note on Scope: This section covers the tenant's duty to restore the property. It does not itself set rules for refunding deposits; deposit recovery usually rests on the rental agreement and a civil suit."
         ),
         "remedy_steps": [
             "Serve a 15-day formal Legal Demand Notice (established pre-litigation practice) citing Section 108(B)(m) demanding full refund of unlawfully deducted deposit amounts.",
@@ -421,10 +422,62 @@ def scan_unverified_sections(text: str) -> List[str]:
             unverified.append(raw)
     return unverified
 
+# ==================== CASE-NAME GUARDRAIL ====================
+
+# Each word in a party name begins with a capital letter (e.g. Ramesh, State, D.K., Ltd.)
+_CAP_WORD = r"(?:(?:[A-Z]\.)+[A-Za-z0-9&']*(?:\.[A-Za-z0-9&']+)*|[A-Z][A-Za-z0-9&']*\.?)"
+_JOINER = r"(?:of|and|the|for|in|&|de)"
+_PARTY = rf"(?:{_CAP_WORD}(?:\s+(?:{_JOINER}\s+)?{_CAP_WORD}){{0,4}})"
+_VS = r"(?:v\.|v|vs\.?|versus)"
+
+CASE_NAME_PATTERN_STRICT = re.compile(rf"\b({_PARTY}\s+(?i:{_VS})\s+{_PARTY})\b")
+_PREP_PREFIX = re.compile(r"^(?:in|under|see|also|refer to|citing|as per|as held in)\s+", re.IGNORECASE)
+
+def scan_case_names(text: str) -> List[str]:
+    """
+    Scans text for adversarial or unverified judicial case citations
+    such as 'X v. Y', 'X vs Y', 'X versus Y'.
+    Filters out non-case phrases like 'civil vs criminal'.
+    """
+    if not text or not isinstance(text, str):
+        return []
+    found = []
+    for m in CASE_NAME_PATTERN_STRICT.finditer(text):
+        matched_str = m.group(1).strip()
+        cleaned = _PREP_PREFIX.sub("", matched_str).strip()
+        cleaned = re.sub(r"[\.,;:!?]+$", "", cleaned).strip()
+        
+        # Check against exclusions like "civil vs criminal"
+        norm_pair = re.sub(r"\s+", " ", cleaned.lower())
+        norm_pair = re.sub(r"\.", "", norm_pair)
+        if any(exc in norm_pair for exc in ["civil vs criminal", "criminal vs civil", "civil versus criminal", "criminal versus civil"]):
+            continue
+            
+        if cleaned and cleaned not in found:
+            found.append(cleaned)
+    return found
+
+def sanitize_case_names(text: str) -> str:
+    """
+    Replaces unverified case citations with '[unverified case reference removed]' and logs the event.
+    """
+    if not text or not isinstance(text, str):
+        return text
+    cases = scan_case_names(text)
+    if not cases:
+        return text
+    print(f"[SECURITY GUARD] Logged unverified case reference(s): {cases}")
+    sanitized = text
+    for c in cases:
+        pat = re.compile(re.escape(c), re.IGNORECASE)
+        sanitized = pat.sub("[unverified case reference removed]", sanitized)
+    return sanitized
+
 def sanitize_unverified_sections(text: str) -> str:
     """
-    Scans an AI answer for unverified section references AND banned Act names.
-    Replaces any unverified section or banned Act with '[unverified reference removed]' and logs it.
+    Scans an AI answer for unverified section references, banned Act names, and unverified case citations.
+    Replaces any unverified section or banned Act with '[unverified reference removed]',
+    and any unverified case citation with '[unverified case reference removed]', and logs it.
     """
     if not text or not isinstance(text, str):
         return text
@@ -432,7 +485,10 @@ def sanitize_unverified_sections(text: str) -> str:
     # Step 1: Sanitize banned Act names
     text = sanitize_banned_acts(text)
 
-    # Step 2: Sanitize unverified section references
+    # Step 2: Sanitize unverified case citations
+    text = sanitize_case_names(text)
+
+    # Step 3: Sanitize unverified section references
     unverified = scan_unverified_sections(text)
     if not unverified:
         return text
