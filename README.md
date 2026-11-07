@@ -18,7 +18,7 @@ Instead of a rigid static form or batch report generator, **NyayaMitra** acts li
 3. **📊 Live Case Intelligence Sidecar:**
    - Real-time side panel continuously tracking your **Chronological Timeline**, **Case Dossier**, and **Documentary Proofs**.
 4. **📝 15-Day Formal Legal Notice Generator:**
-   - Drafts a ready-to-serve **15-Day Legal Demand Notice** or consumer complaint with 1-click `.txt` download.
+   - Drafts a ready-to-serve **15-Day Legal Demand Notice** (established pre-litigation practice to document reasonable notice, not a statutory code section) or consumer complaint with 1-click `.txt` download.
 5. **🥊 Opponent Practice Arena (Roleplay):**
    - Practice negotiating against a simulated opposing party with instant coach feedback (strength rating, critique, and counter-tactics).
 

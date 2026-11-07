@@ -66,7 +66,7 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
             "with the lessee that, if the latter pays the rent reserved by the lease and performs lease contracts, he may hold the property during the lease term without interruption."
         ),
         "remedy_steps": [
-            "Serve a 15-day formal Legal Demand Notice citing Section 108(B)(m) demanding full refund of unlawfully deducted deposit amounts.",
+            "Serve a 15-day formal Legal Demand Notice (established pre-litigation practice) citing Section 108(B)(m) demanding full refund of unlawfully deducted deposit amounts.",
             "If unresolved, file a recovery suit before the local civil court / Small Causes Court."
         ]
     },
@@ -104,7 +104,7 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
         ),
         "remedy_steps": [
             "Lodge formal complaint on National Consumer Helpline (NCH) toll-free 1915 or consumerhelpline.gov.in.",
-            "Serve a 15-day formal Legal Demand Notice to the seller and e-commerce platform.",
+            "Serve a 15-day formal Legal Demand Notice (established pre-litigation practice) to the seller and e-commerce platform.",
             "File an electronic consumer complaint online on e-Daakhil (edaakhil.nic.in) with order invoice, defect photos, and communication history."
         ]
     },
@@ -138,18 +138,19 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
     # ==================== CIVIL VS CRIMINAL DISTINCTION ====================
     {
         "domain": "Civil vs. Criminal Boundary",
-        "act": "General Legal Principle (Civil vs. Criminal Boundary)",
-        "source_url": "https://www.indiacode.nic.in/",
-        "verified_on": "<to be filled after check>",
-        "status": "needs_my_verification",
+        "act": "General Legal Principle (Civil vs. Criminal Boundary - General Guidance)",
+        "source_url": "https://nalsa.gov.in/",
+        "verified_on": "2026-11-07",
+        "status": "general_guidance",
         "sections": [],
         "key_provisions": (
-            "1. Boundary Rule: Mere failure to refund a deposit, pay wages, or fulfill a contract is generally a civil dispute, not criminal cheating.\n"
-            "2. Requirement for Criminal Cheating: A criminal offense typically requires proof of dishonest or fraudulent intention at the very beginning of the transaction.\n"
-            "3. Warning against False Police Complaints: Filing criminal police complaints for purely civil or monetary disputes is improper and may be rejected."
+            "1. General Guidance (Carries No Section Number): Mere failure to refund a deposit, pay wages, or fulfill a contract "
+            "is fundamentally a civil dispute / breach of contract, not criminal cheating.\n"
+            "2. Requirement for Criminal Offense: A criminal charge requires proof of dishonest or fraudulent intention at the very inception of the transaction.\n"
+            "3. Caution on Police Complaints: Initiating criminal police complaints or FIRs for purely civil monetary disputes is legally improper and liable to rejection."
         ),
         "remedy_steps": [
-            "Pursue appropriate civil remedies and statutory dispute forums.",
+            "Pursue civil remedies and statutory dispute forums (Rent Authority, Consumer Commission, Labor Authority).",
             "Do not file criminal police complaints for purely civil disputes unless actual fraud or deception was present from inception."
         ]
     }

@@ -12,7 +12,7 @@ Rather than a static web form, NyayaMitra provides a conversational intake workf
 1. **Multilingual Intake (Voice + Text across 11 Languages):** Transcribes voice via Whisper Large v3 Turbo or accepts text in Hindi, Hinglish, Tamil, Telugu, Kannada, Bengali, Marathi, Gujarati, Malayalam, Punjabi, and English.
 2. **Empathetic Dialogue & Fact Extraction:** Organizes unstructured explanations into a factual dossier with dates, monetary claims, and documentary proofs.
 3. **Live Intelligence Sidecar:** Real-time side panel displaying the case timeline, evidence checklist, and statutory provisions.
-4. **Actionable Outputs:** Generates a structured 15-day formal Legal Demand Notice and provides an interactive Dispute Practice Arena for mock negotiation.
+4. **Actionable Outputs:** Generates a structured 15-day formal Legal Demand Notice (established pre-litigation practice to establish a clear paper trail, not a statutory mandate) and provides an interactive Dispute Practice Arena for mock negotiation.
 
 ### Scoped Civil Domains
 To maintain legal integrity, NyayaMitra is explicitly restricted to three everyday civil domains:
