@@ -58,22 +58,24 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
         "domain": "Consumer Protection",
         "act": "Consumer Protection Act, 2019 (CPA 2019)",
         "source_url": "https://www.indiacode.nic.in/",
-        "verified_on": "<to be filled after check>",
-        "status": "needs_my_verification",
+        "verified_on": "2026-11-07",
+        "status": "verified",
         "sections": ["Section 2(7)", "Section 2(11)", "Section 2(47)", "Section 35", "Section 84"],
         "key_provisions": (
-            "1. Consumer Definition (Sec 2(7)): Any person who buys goods or hires services for consideration, including online/offline.\n"
-            "2. Deficiency in Service (Sec 2(11)): Any fault, imperfection, shortcoming or inadequacy in quality, nature, and manner of performance.\n"
-            "3. Unfair Trade Practice (Sec 2(47)): False representation of goods, refusal to issue refunds for defective items within reasonable time, "
-            "or one-sided terms.\n"
-            "4. Product Liability (Sec 84): Manufacturer or seller is liable to compensate consumer for harm caused by defective product.\n"
-            "5. Jurisdiction & Filing (Sec 35): Filing of complaint before the District Consumer Commission. (Exact section for territorial and pecuniary jurisdiction to be confirmed from official text).\n"
-            "6. Online Filing (e-Daakhil): Consumers can file complaints completely online via edaakhil.nic.in without hiring a lawyer."
+            "1. Consumer Definition (Section 2(7)): Any person buying goods or hiring services for consideration; "
+            "expressly includes online/e-commerce transactions (Explanation (b)). Excludes commercial resale, but covers self-employment livelihood.\n"
+            "2. Deficiency in Service (Section 2(11)): Any fault, imperfection, shortcoming or inadequacy in quality, nature, or manner of performance; "
+            "includes negligence, omission, or deliberate withholding of relevant information causing loss or injury.\n"
+            "3. Unfair Trade Practice (Section 2(47)): Deceptive practices including falsely representing second-hand goods as new (sub-clause (i)(c)), "
+            "misleading repair/replacement promises (sub-clause (i)(h)), and refusing to refund consideration for defective goods within the stipulated period "
+            "or within 30 days in the absence of stipulation (sub-clause (viii)).\n"
+            "4. Product Liability (Section 84): Manufacturer or seller liability for harm caused by defective products.\n"
+            "5. Filing of Complaint (Section 35): Manner of filing a consumer complaint before the District Commission, including electronic filing (e-Daakhil)."
         ),
         "remedy_steps": [
             "Lodge formal complaint on National Consumer Helpline (NCH) toll-free 1915 or consumerhelpline.gov.in.",
-            "Serve a 15-day formal Legal Notice to the seller and e-commerce marketplace.",
-            "File consumer complaint online on e-Daakhil portal (edaakhil.nic.in) with order invoice, defect photos, and communication proof."
+            "Serve a 15-day formal Legal Demand Notice to the seller and e-commerce platform.",
+            "File an electronic consumer complaint online on e-Daakhil (edaakhil.nic.in) with order invoice, defect photos, and communication history."
         ]
     },
 
