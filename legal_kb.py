@@ -70,20 +70,23 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
         "source_url": "https://www.indiacode.nic.in/",
         "verified_on": "2026-11-07",
         "status": "verified",
-        "sections": ["Section 2(7)", "Section 2(11)", "Section 2(47)", "Section 35", "Section 84"],
+        "sections": ["Section 2(7)", "Section 2(10)", "Section 2(11)", "Section 2(47)", "Section 35", "Section 84"],
         "key_provisions": (
             "1. Consumer Definition (Section 2(7)): Any person buying goods or hiring services for consideration; "
             "expressly includes online/e-commerce transactions (Explanation (b)). Excludes commercial resale, but covers self-employment livelihood.\n"
-            "2. Deficiency in Service (Section 2(11)): Any fault, imperfection, shortcoming or inadequacy in quality, nature, or manner of performance; "
+            "2. Defect in Goods (Section 2(10)): Any fault, imperfection, or shortcoming in the quality, quantity, potency, purity or standard "
+            "which is required to be maintained by or under any law for the time being in force or under any contract, express or implied, "
+            "or as is claimed by the trader in any manner whatsoever in relation to any goods or product.\n"
+            "3. Deficiency in Service (Section 2(11)): Any fault, imperfection, shortcoming or inadequacy in quality, nature, or manner of performance; "
             "includes negligence, omission, or deliberate withholding of relevant information causing loss or injury.\n"
-            "3. Unfair Trade Practice (Section 2(47)): Deceptive practices including falsely representing second-hand goods as new (sub-clause (i)(c)), "
+            "4. Unfair Trade Practice (Section 2(47)): Deceptive practices including falsely representing second-hand goods as new (sub-clause (i)(c)), "
             "misleading repair/replacement promises (sub-clause (i)(h)), and refusing to refund consideration for defective goods within the stipulated period "
             "or within 30 days in the absence of stipulation (sub-clause (viii)).\n"
-            "4. Liability of Product Manufacturer (Section 84): A product manufacturer is liable in a product liability action if the product: "
+            "5. Liability of Product Manufacturer (Section 84): A product manufacturer is liable in a product liability action if the product: "
             "contains a manufacturing defect (a), is defective in design (b), deviates from manufacturing specifications (c), "
             "does not conform to the express warranty (d), or fails to contain adequate instructions/warnings to prevent harm (e); "
             "and is liable even if proving absence of negligence or fraud in making the warranty (sub-section (2)).\n"
-            "5. Filing of Complaint (Section 35): Manner of filing a consumer complaint before the District Commission, including electronic filing (e-Daakhil)."
+            "6. Filing of Complaint (Section 35): Manner of filing a consumer complaint before the District Commission, including electronic filing (e-Daakhil)."
         ),
         "remedy_steps": [
             "Lodge formal complaint on National Consumer Helpline (NCH) toll-free 1915 or consumerhelpline.gov.in.",
