@@ -69,7 +69,10 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
             "3. Unfair Trade Practice (Section 2(47)): Deceptive practices including falsely representing second-hand goods as new (sub-clause (i)(c)), "
             "misleading repair/replacement promises (sub-clause (i)(h)), and refusing to refund consideration for defective goods within the stipulated period "
             "or within 30 days in the absence of stipulation (sub-clause (viii)).\n"
-            "4. Product Liability (Section 84): Manufacturer or seller liability for harm caused by defective products.\n"
+            "4. Liability of Product Manufacturer (Section 84): A product manufacturer is liable in a product liability action if the product: "
+            "contains a manufacturing defect (a), is defective in design (b), deviates from manufacturing specifications (c), "
+            "does not conform to the express warranty (d), or fails to contain adequate instructions/warnings to prevent harm (e); "
+            "and is liable even if proving absence of negligence or fraud in making the warranty (sub-section (2)).\n"
             "5. Filing of Complaint (Section 35): Manner of filing a consumer complaint before the District Commission, including electronic filing (e-Daakhil)."
         ),
         "remedy_steps": [
