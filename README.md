@@ -57,9 +57,15 @@ NyayaMitra strictly enforces that models never invent laws or court judgments:
 
 ## 🧪 Verification & Benchmark Suite
 
-NyayaMitra includes an automated benchmark suite (`verify_test_suite.py`) testing 17 distinct scenarios (10 core civil scenarios across tenancy, consumer, and wage disputes, plus 7 adversarial stress tests).
+NyayaMitra includes an automated benchmark suite (`verify_test_suite.py`) testing 19 distinct scenarios (10 core civil scenarios across tenancy, consumer, and wage disputes, plus 9 adversarial stress tests).
 
-- **Automated Test Run:** 17/17 passed (0 failed), logged directly to `test_cases/verification_run.txt`.
+- **Automated Test Run:** **19/19 passed (0 failed)**, logged directly to `test_cases/verification_run.txt`.
+- **What the Suite Measures:**
+  1. **Code-Level Section & Act-Name Guard:** Strips unverified section citations (e.g., Section 999A, unverified model tenancy sections) and banned/repealed Act names (e.g., Payment of Wages Act, Minimum Wages Act, Indian Penal Code, IPC, CrPC) replacing them with `[unverified reference removed]`.
+  2. **Immediate Advocate Escalation:** Deterministically routes emergency queries (criminal violence, assault, arrest) to the *District Legal Services Authority (DLSA Helpline: 15100)*.
+  3. **Honest Out-of-Scope Refusal:** Refuses matters outside the 3 supported domains (divorce, spousal maintenance/alimony, writ petitions) cleanly without guessing.
+  4. **Maintenance Disambiguation:** Distinguishes in-scope tenancy flat maintenance (e.g., ₹2,000 monthly maintenance fee) from out-of-scope matrimonial maintenance.
+- **Note on Answer Correctness:** Full answer correctness was checked only on test cases where the user filled in `expected_answer_verified_by_me`. For all other cases, the suite rigorously evaluates statutory grounding, code-level safety guards, escalation criteria, and domain scope boundaries.
 - **Unverified Section Reduction:** The section scanner on raw model outputs measured:
   - `tc_01_tenancy.json`: before fix: 5 unverified sections, after fix: 0
   - `tc_02_consumer.json`: before fix: 4 unverified sections, after fix: 0

@@ -137,9 +137,12 @@ To maintain legal integrity, NyayaMitra is explicitly restricted to three everyd
 <hr style='border:none; border-top:1px solid #e0e0e0; margin:10px 0;'/>
 <h2>3. Hallucination Defense & Quality Verification</h2>
 1. <strong>No Invented Precedents:</strong> Judicial case citations were intentionally eliminated from the database to prevent manufactured citations.
-2. <strong>Code-Level Section Guard:</strong> Verifies every statutory section cited against a whitelist extracted from the local knowledge base.
-3. <strong>Repealed Statute Removal:</strong> The repealed Payment of Wages Act, 1936 was replaced with the Code on Wages, 2019 (Sections 17(2), 17(4), 18(1), 18(3)).
-4. <strong>Automated Verification Suite (<code>verify_test_suite.py</code>):</strong> Runs 17 benchmark test cases (10 core civil scenarios + 7 adversarial queries covering invented sections, repealed statutes, criminal threats, and out-of-scope overrides), achieving a pass count of 17/17 passed (0 failed), logged to <code>test_cases/verification_run.txt</code>. In raw model outputs across TC-01 to TC-03, unverified section references were reduced from before fix: 16 unverified sections (5 in TC-01, 4 in TC-02, 7 in TC-03) to after fix: 0 unverified sections.
+2. <strong>Code-Level Section & Act Guard:</strong> Verifies every statutory section cited against a whitelist extracted exclusively from verified entries in the local knowledge base, and bans repealed/unverified Act names (Payment of Wages Act, Minimum Wages Act, Payment of Bonus Act, Equal Remuneration Act, Indian Penal Code, IPC, CrPC) replacing them with <code>[unverified reference removed]</code>.
+3. <strong>Repealed Statute Removal:</strong> The repealed Payment of Wages Act, 1936 was replaced with the Code on Wages, 2019 (Sections 17(1), 17(2), 17(4), 18(1), 18(2), 18(3)).
+4. <strong>Automated Verification Suite (<code>verify_test_suite.py</code>):</strong> Runs 19 benchmark test cases (10 core civil scenarios + 9 adversarial queries covering invented sections, repealed statutes, criminal threats, maintenance disambiguation, and out-of-scope overrides), achieving a pass count of <strong>19/19 passed (0 failed)</strong>, logged to <code>test_cases/verification_run.txt</code>.
+   - <strong>What the Suite Measures:</strong> (a) Code-level section and banned Act guards, (b) Immediate advocate escalation triggers, and (c) Honest out-of-scope refusal.
+   - <strong>Note on Answer Correctness:</strong> Full answer correctness was checked only on cases where the user filled in <code>expected_answer_verified_by_me</code>.
+   - <strong>Raw Model Output Reduction:</strong> Across raw model outputs (TC-01 to TC-03), unverified section references were reduced from before fix: 16 unverified sections (5 in TC-01, 4 in TC-02, 7 in TC-03) to after fix: 0 unverified sections, and all banned Act citations were successfully intercepted.
 <hr style='border:none; border-top:1px solid #e0e0e0; margin:10px 0;'/>
 <h2>4. One Place the AI Tools Got It Wrong</h2>
 <!-- PLACEHOLDER: To be filled by candidate based on real testing experience -->

@@ -67,9 +67,12 @@ To maintain legal integrity, NyayaMitra is explicitly restricted to three everyd
 
 ## 3. Hallucination Defense & Quality Verification
 1. **No Invented Precedents:** Judicial case citations were intentionally eliminated from the database to prevent manufactured citations.
-2. **Code-Level Section Guard:** Verifies every statutory section cited against a whitelist extracted from the local knowledge base.
-3. **Repealed Statute Removal:** The repealed Payment of Wages Act, 1936 was replaced with the Code on Wages, 2019 (Sections 17(2), 17(4), 18(1), 18(3)).
-4. **Automated Verification Suite (`verify_test_suite.py`):** Runs 17 benchmark test cases (10 core civil scenarios + 7 adversarial queries covering invented sections, repealed statutes, criminal threats, and out-of-scope overrides), achieving a pass count of 17/17 passed (0 failed), logged to `test_cases/verification_run.txt`. In raw model outputs across TC-01 to TC-03, unverified section references were reduced from before fix: 16 unverified sections (5 in TC-01, 4 in TC-02, 7 in TC-03) to after fix: 0 unverified sections.
+2. **Code-Level Section & Act Guard:** Verifies every statutory section cited against a whitelist extracted exclusively from verified entries in the local knowledge base, and bans repealed/unverified Act names (Payment of Wages Act, Minimum Wages Act, Payment of Bonus Act, Equal Remuneration Act, Indian Penal Code, IPC, CrPC) replacing them with `[unverified reference removed]`.
+3. **Repealed Statute Removal:** The repealed Payment of Wages Act, 1936 was replaced with the Code on Wages, 2019 (Sections 17(1), 17(2), 17(4), 18(1), 18(2), 18(3)).
+4. **Automated Verification Suite (`verify_test_suite.py`):** Runs 19 benchmark test cases (10 core civil scenarios + 9 adversarial queries covering invented sections, repealed statutes, criminal threats, maintenance disambiguation, and out-of-scope overrides), achieving a pass count of **19/19 passed (0 failed)**, logged to `test_cases/verification_run.txt`.
+   - **What the Suite Measures:** (a) Code-level section and banned Act guards, (b) Immediate advocate escalation triggers, and (c) Honest out-of-scope refusal.
+   - **Note on Answer Correctness:** Full answer correctness was checked only on cases where the user filled in `expected_answer_verified_by_me`.
+   - **Raw Model Output Reduction:** Across raw model outputs (TC-01 to TC-03), unverified section references were reduced from before fix: 16 unverified sections (5 in TC-01, 4 in TC-02, 7 in TC-03) to after fix: 0 unverified sections, and all banned Act citations were successfully intercepted.
 
 ---
 

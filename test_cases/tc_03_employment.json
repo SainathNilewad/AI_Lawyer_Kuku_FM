@@ -2,33 +2,29 @@
   "test_case_id": "TC-03",
   "name": "Gurugram Tech Employee Unpaid Salary & Relieving Letter Withheld",
   "category": "Employment & Salary",
-  "timestamp": "2026-11-07T00:47:57.883783+00:00",
+  "timestamp": "2026-11-07T08:20:13.948590+00:00",
   "provider": "groq",
   "model_name": "openai/gpt-oss-120b",
   "raw_input": "I worked as a frontend developer at an IT consultancy firm in Cyber City, Gurugram for 18 months at Rs 70,000/month. I submitted my resignation on 1st August 2024 and completed my full 60-day notice period till 30th September 2024. All project handovers and company assets (MacBook, ID card) were handed over and I received an asset clearance certificate from IT. My August salary was delayed, and my September salary plus 15 days encashable leave (total Rs 1,65,000) has not been paid. It has been 50 days since my last working day. Whenever I email HR, they say 'finance team is facing client payment delays'. More importantly, they are withholding my Relieving Letter and Experience Certificate. My new employer is threatening to cancel my job offer if I don't submit my relieving letter by end of this week. I have my appointment letter, resignation acceptance email, and signed clearance form.",
   "case_dossier": {
     "case_title": "Unpaid Salary and Withholding Relieving Letter after Resignation",
     "category": "Employment & Salary",
-    "summary": "The former frontend developer completed a 60‑day notice period and returned all company assets, but the employer has not paid the September salary and leave encashment totaling Rs 1,65,000 and is refusing to issue the relieving and experience letters, jeopardising the new job offer.",
-    "complainant": "Former Employee (Frontend Developer)",
-    "opposite_party": "Employer – IT consultancy firm (name not specified)",
+    "summary": "The employee resigned after completing a 60‑day notice, handed over all assets and received a clearance certificate, but the September salary plus encashable leave (Rs 1,65,000) remains unpaid and the employer is refusing to issue the relieving and experience letters, jeopardising the new job offer.",
+    "complainant": "Former Frontend Developer (Employee)",
+    "opposite_party": "IT consultancy firm in Cyber City, Gurugram (Employer)",
     "disputed_amount": "Rs 1,65,000",
     "timeline": [
       {
-        "date_or_period": "Feb 2023 – July 2024",
-        "event": "Employed as frontend developer on a Rs 70,000 per month salary"
-      },
-      {
         "date_or_period": "1 Aug 2024",
-        "event": "Submitted resignation email"
+        "event": "Submitted resignation email to employer"
       },
       {
         "date_or_period": "1 Aug – 30 Sep 2024",
-        "event": "Served 60‑day notice period; completed all project handovers and returned company assets (MacBook, ID card)"
+        "event": "Served full 60‑day notice period"
       },
       {
         "date_or_period": "30 Sep 2024",
-        "event": "Received asset clearance certificate from IT department"
+        "event": "Completed handover of assets (MacBook, ID card) and received asset clearance certificate"
       },
       {
         "date_or_period": "Early Sep 2024",
@@ -39,31 +35,30 @@
         "event": "September salary plus 15 days encashable leave (Rs 1,65,000) still unpaid"
       },
       {
-        "date_or_period": "Ongoing (since Sep 2024)",
-        "event": "HR replies that finance team faces client payment delays; no salary paid"
+        "date_or_period": "Ongoing (since salary delay)",
+        "event": "HR replies that finance team faces client payment delays; relieving and experience letters are being withheld"
       },
       {
-        "date_or_period": "Early Nov 2024",
-        "event": "Employer withholds relieving letter and experience certificate; new employer demands relieving letter by end of the week"
+        "date_or_period": "End of week (mid‑Nov 2024)",
+        "event": "New employer threatens to cancel job offer unless relieving letter is provided"
       }
     ],
     "evidence_held": [
       "Appointment letter",
       "Resignation acceptance email",
       "Signed asset clearance form/certificate",
-      "Email correspondence with HR regarding salary delay",
-      "Copy of resignation email (sent on 1 Aug 2024)"
+      "Email correspondence with HR indicating salary delay and withholding of relieving letter"
     ],
     "evidence_needed": [
       "Salary slips for August and September 2024",
-      "Bank statements or UPI/NEFT transaction records showing non‑receipt of September salary",
-      "Written company policy on notice period salary and leave encashment",
-      "Any email/WhatsApp/chat logs where employer explicitly refuses to release relieving/experience letters",
-      "Offer letter or email from new employer stating deadline for relieving letter",
-      "Proof of 15 days encashable leave entitlement (e.g., leave balance statement)"
+      "Bank statements or UPI transaction records showing non‑receipt of September salary",
+      "Copy of employment contract showing salary and notice period terms",
+      "Written request (email/WhatsApp) sent to employer demanding pending salary and relieving letter",
+      "Any written communication from employer stating reason for withholding relieving letter",
+      "Proof of new employer's requirement (e.g., email requesting relieving letter)"
     ],
-    "evidence_strength_score": 7,
-    "evidence_strength_explanation": "Key documents (appointment, resignation acceptance, clearance) are present, but direct proof of non‑payment (salary slips, bank statements) and written refusal of the relieving letter are still missing.",
+    "evidence_strength_score": 6,
+    "evidence_strength_explanation": "Existing documents confirm resignation and asset clearance, but lack concrete proof of unpaid salary and the employer's refusal, lowering the overall strength.",
     "escalation_check": {
       "requires_real_lawyer": true,
       "reasons": [
@@ -73,66 +68,61 @@
     }
   },
   "rights_advice": {
-    "plain_language_standing": "You have a clear legal right to receive the salary and leave encashment that you earned up to your last working day. Under the Code on Wages, 2019, an employer must pay all wages due within two working days of the employee’s removal, dismissal, retrenchment or resignation (Section 17(2)). The amount you are owed – August and September salary plus 15 days of leave encashment – is therefore a civil debt that the employer is legally bound to pay. The same Code also says that no deduction can be made from your wages unless it is expressly authorised (Section 18(1)), so the employer cannot withhold any part of your salary as an excuse for client payment delays.\n\nIn addition, refusing to give you a relieving or experience letter after you have completed your notice period and returned all company property is not a criminal matter; it is a breach of the employment contract and can be pursued as a civil claim for specific performance or damages. The law treats these issues as civil disputes, not cheating under the criminal code, so the appropriate remedy is through labour‑related civil forums rather than a police complaint.",
+    "plain_language_standing": "You have a clear legal right to receive the salary you earned up to your last working day and to get the relieving/experience letters you need for your new job. Under the Code on Wages, 2019, an employer must pay all wages due within two working days after an employee resigns (Section 17(2)). The fact that you handed over all company property, completed the notice period and have a clearance certificate shows you fulfilled your side of the contract. The employer’s refusal to pay your September salary and to give the relieving letter is a breach of that contract and a civil matter, not a criminal offence. You can therefore claim the unpaid amount and ask the court or labour authority to order the employer to issue the required documents.",
     "governing_laws": [
       {
         "act_name": "Code on Wages, 2019",
         "section": "Section 17(2)",
-        "relevance": "Requires employer to pay all wages (including salary and leave encashment) within two working days of resignation"
+        "relevance": "Requires the employer to pay all wages within two working days of resignation, dismissal or retrenchment."
       },
       {
         "act_name": "Code on Wages, 2019",
-        "section": "Section 17(4)",
-        "relevance": "Preserves any other time‑limits for wage payment that may be prescribed by state rules"
-      },
-      {
-        "act_name": "Code on Wages, 2019",
-        "section": "Section 18(1)",
-        "relevance": "Prohibits unauthorised deductions from wages, preventing the employer from withholding salary as a penalty"
+        "section": "Section 18(3)",
+        "relevance": "Limits any deductions to a maximum of 50% of wages; ensures the employer cannot withhold salary by claiming excessive deductions."
       },
       {
         "act_name": "General Legal Principle (Civil vs. Criminal Boundary)",
         "section": "N/A",
-        "relevance": "Clarifies that non‑payment of salary or refusal to issue relieving letters is a civil dispute, not a criminal cheating case"
+        "relevance": "Shows that non‑payment of salary and refusal to issue relieving letters are civil disputes, not criminal cheating."
       }
     ],
     "action_options": [
       {
         "step_number": 1,
-        "title": "Send Formal Legal Notice (Email / Registered Post)",
-        "timeline": "Within 15 days from today",
-        "cost_estimate": "Free to minimal (postage or email cost)",
-        "details": "Draft a concise notice stating: (a) amount owed (Rs 1,65,000), (b) demand payment within 7 days, (c) demand issuance of relieving and experience letters within the same period, (d) mention that under Section 17(2) of the Code on Wages you are entitled to immediate payment, and (e) warn that failure will lead to filing a claim before the Labour Commissioner and DLSA. Attach copies of appointment letter, resignation acceptance, asset clearance certificate, and any HR correspondence. Send via registered post and email, and keep proof of delivery."
+        "title": "Send a Formal Legal Notice (Demand Letter)",
+        "timeline": "Within 7 days of sending the notice",
+        "cost_estimate": "Free to minimal (postage/WhatsApp/Email). You can draft it yourself using a template.",
+        "details": "Write a clear, polite but firm email (or registered post) addressed to the HR/Finance head. Cite Section 17(2) of the Code on Wages and request: (a) payment of Rs 1,65,000 within 2 working days of receipt of this notice, and (b) issuance of the relieving and experience letters within 5 days. Attach copies of your resignation acceptance, asset clearance certificate, and any prior salary‑delay emails. Keep a copy for your records."
       },
       {
         "step_number": 2,
-        "title": "File a Grievance on the Labour Ministry’s e‑Daakhil / Labour Commissioner Portal",
-        "timeline": "Within 30‑45 days",
-        "cost_estimate": "Zero court fees for claims up to Rs 5 Lakhs",
-        "details": "Register on the Ministry of Labour’s e‑Daakhil portal (or the state labour department portal). Upload the legal notice, supporting documents, and a brief statement of facts. Select ‘Recovery of Wages and Issuance of Relieving Letter’ as the grievance type. The Labour Commissioner will issue a notice to the employer to comply within a stipulated period (usually 15 days)."
+        "title": "File a Complaint on the Labour Department’s e‑Daakhil / DOL Portal",
+        "timeline": "30‑45 days from filing",
+        "cost_estimate": "Zero court fees for claims up to Rs 5 Lakhs; only nominal filing charges if any.",
+        "details": "Register on the Ministry of Labour’s e‑Daakhil portal (https://edakhil.gov.in). Choose ‘Recovery of Wages’ under the Code on Wages. Upload the legal notice, resignation acceptance, asset clearance, salary slips (if available) and bank statements showing non‑receipt. The Labour Commissioner will issue a notice to the employer and may order payment within a set period. Follow up through the portal’s tracking feature."
       },
       {
         "step_number": 3,
-        "title": "Approach the District Labour Court / DLSA for Recovery of Wages and Specific Performance",
-        "timeline": "Within 60‑90 days if earlier steps fail",
-        "cost_estimate": "Nominal court fees (around Rs 500‑1,000) plus any filing charges; you may get free legal aid from DLSA",
-        "details": "Prepare a plaint citing Section 17(2) and Section 18(1) of the Code on Wages, attach all evidence (notice, emails, asset clearance, salary slips, bank statements). File the suit in the appropriate District Labour Court or approach the District Legal Services Authority for free legal aid. The court can order payment of the pending salary, interest, and direct the employer to issue the relieving and experience letters. You may represent yourself, but a lawyer can help with drafting and representation, especially if the employer contests the claim."
+        "title": "Approach the Labour Court / Industrial Tribunal (or Civil Court) for Recovery and Injunctive Relief",
+        "timeline": "60‑90 days after filing the labour‑department complaint, if the employer still does not comply",
+        "cost_estimate": "Nominal court fees (around Rs 500‑1,000 for a claim of Rs 1.65 Lakhs). You may also claim legal costs later.",
+        "details": "Prepare a plaint stating breach of employment contract and non‑payment of wages under Section 17(2). Attach all evidence: resignation email, clearance certificate, copy of the legal notice, employer’s response (if any), and proof of the new employer’s requirement. You can represent yourself in the Labour Court; however, if the employer contests, consider engaging a lawyer for drafting and representation. The court can order: (a) payment of the pending salary with interest, (b) issuance of relieving/experience letters, and (c) compensation for any loss caused by the delay."
       }
     ],
     "real_lawyer_needed": true,
-    "real_lawyer_guidance": "You can start by sending the legal notice and filing the e‑Daakhil grievance yourself; these steps do not require a lawyer. However, if the employer does not comply and you need to file a suit in the Labour Court or seek enforcement of the court’s order, engaging a qualified labour‑law advocate is advisable. A lawyer will ensure the plaint is correctly drafted, help you navigate procedural rules, and represent you effectively in court.",
+    "real_lawyer_guidance": "You can start with steps 1 and 2 on your own – drafting a notice and filing on the e‑Daakhil portal do not require a lawyer. If the employer contests the claim, ignores the labour‑department notice, or you need to claim additional damages, a qualified labour‑law advocate will help you draft the plaint, represent you in the Labour Court, and ensure procedural compliance. The Consumer Forum does not have jurisdiction over employment matters, so a labour‑law specialist is the right choice.",
     "disclaimer": "⚠️ NyayaMitra provides legal information and self‑advocacy tools under Indian laws. For formal courtroom representation, consult a licensed advocate."
   },
-  "legal_notice_draft": "**[Your Name]**  \nFrontend Developer (Former Employee)  \nFlat No. ___, [Building Name], [Street],  \n[Locality], [City] – [Pin Code]  \nMobile: [Your Mobile No.] | Email: [Your Email]  \n\n---\n\n### LEGAL DEMAND NOTICE  \n\n**Date:** ____ ____ 2026  \n\n**Mode of Dispatch:** Speed Post (Speed Post with Acknowledgement Due) / Registered Email (with read‑receipt)  \n\n**To,**  \n\n**The Managing Director / HR Head**  \n[Employer’s Company Name] – IT Consultancy Firm  \n[Company’s Registered Office Address]  \n[City] – [Pin Code]  \n\n---\n\n#### 1. UNDER INSTRUCTIONS FROM MY CLIENT  \n\nThe undersigned, **[Your Full Name]**, hereby issues this legal notice on behalf of himself/herself (the “Complainant”) pursuant to the provisions of the **Code on Wages, 2019** and the principles of natural justice, demanding immediate settlement of the dues and issuance of the relieving & experience letters as detailed below.\n\n---\n\n#### 2. FACTUAL MATRIX  \n\n| No. | Date / Period | Event |\n|-----|---------------|-------|\n| 1 | **Feb 2023 – July 2024** | Employed as Front‑End Developer on a salary of **Rs 70,000 per month**. |\n| 2 | **1 Aug 2024** | Submitted resignation via email (copy annexed). |\n| 3 | **1 Aug – 30 Sep 2024** | Served the contractual **60‑day notice period**, completed all hand‑overs and returned company assets (MacBook, ID card). |\n| 4 | **30 Sep 2024** | Received **Asset Clearance Certificate** from IT department (annexed). |\n| 5 | **Early Sep 2024** | August salary was delayed; later paid on ___ (if paid). |\n| 6 | **By 19 Nov 2024** (≈ 85 days after last working day) | September salary **plus 15 days encashable leave** (total **Rs 1,65,000**) remains unpaid. |\n| 7 | **Since Sep 2024** | HR repeatedly states that the finance team is awaiting client payments; no salary credited. |\n| 8 | **Early Nov 2024** | Employer refuses to issue **Relieving Letter** and **Experience Certificate**; new employer has demanded the relieving letter by the end of the week. |\n\n---\n\n#### 3. EVIDENCE IN POSSESSION  \n\nThe following documents are annexed hereto and form part of the present notice:  \n\n- **Annexure‑A:** Appointment Letter.  \n- **Annexure‑B:** Resignation Acceptance Email (dated 1 Aug 2024).  \n- **Annexure‑C:** Signed Asset Clearance Certificate (dated 30 Sep 2024).  \n- **Annexure‑D:** Email correspondence with HR regarding salary delay (Sept – Nov 2024).  \n- **Annexure‑E:** Copy of the resignation email sent on 1 Aug 2024.  \n\n*The complainant also possesses the following documents which can be produced on demand:* salary slips for Aug‑Sep 2024, bank/UPI statements showing non‑receipt of September salary, company policy on notice‑period salary & leave encashment, any written refusal of relieving/experience letters, and the offer letter of the new employer indicating the deadline.\n\n---\n\n#### 4. LEGAL BASIS OF THE CLAIM  \n\n1. **Section 17(2), Code on Wages, 2019** – mandates that an employer shall pay **all wages** (including salary and leave encashment) **within two working days** of the employee’s resignation.  \n\n2. **Section 18(1), Code on Wages, 2019** – prohibits any unauthorised deduction from wages; therefore the employer cannot withhold salary on the pretext of client payment delays.  \n\n3. The refusal to issue the relieving and experience letters, after the employee has fully complied with the notice period and returned all assets, constitutes a **breach of the employment contract** and entitles the employee to specific performance and damages under the Indian Contract Act, 1872.  \n\n4. The claim is a **civil debt** recoverable before the Labour Commissioner/Labour Court; it is **not a criminal matter** under the Indian Penal Code.\n\n---\n\n#### 5. DEMAND  \n\nIn view of the foregoing facts and law, the Complainant **HEREBY DEMANDS**:\n\n1. **Payment of the pending dues** – **Rs 1,65,000** (September salary + 15 days leave encashment) **within fifteen (15) days** from the receipt of this notice.  \n\n2. **Issuance of the Relieving Letter and Experience Certificate** in the prescribed format **within the same fifteen (15)‑day period**.  \n\n3. **Statutory interest** at **12 % per annum** (simple interest) on the amount due from **30 Sep 2024** till actual payment, together with **costs of litigation** (court fees, postage, attorney’s fees) if the matter proceeds to court.\n\n---\n\n#### 6. CONSEQUENCES OF NON‑COMPLIANCE  \n\nShould the Employer fail to comply with the above demands **within 15 days**, the Complainant will be constrained to initiate the following actions **without any further notice**:\n\n| Sr. No. | Action | Forum | Anticipated Consequence |\n|--------|--------|-------|------------------------|\n| 1 | File a grievance on the **Labour Ministry’s e‑Daakhil / State Labour Commissioner portal** for recovery of wages and specific performance. | Labour Commissioner | Issuance of a statutory notice to the employer; possible attachment of assets. |\n| 2 | Institute a suit before the **District Labour Court / DLSA** for recovery of wages, interest, damages, and specific performance (issuance of relieving/experience letters). | District Labour Court | Court decree for payment of dues with 12 % interest, costs, and an order directing issuance of the letters. |\n| 3 | Seek **legal aid** from the District Legal Services Authority (DLSA) under **NALSA** (Helpline 15100) if the Complainant is unable to bear litigation costs. | DLSA | Free legal representation and assistance. |\n\nThe above steps will be taken **without prejudice** to any other remedy available under law, including filing a complaint under the **Industrial Disputes Act, 1947** or approaching the **National Consumer Helpline** for violation of consumer rights.\n\n---\n\n#### 7. DECLARATION  \n\nThe Complainant declares that the contents of this notice are true and correct to the best of his/her knowledge and belief, and that he/she is ready to pursue all legal remedies available under the law.\n\n---\n\n#### 8. SIGNATURE  \n\n```\n_____________________________  \n[Your Full Name]  \nFormer Front‑End Developer  \nDate: ____/____/2026\n```\n\n---\n\n#### 9. ANNEXURE INVENTORY  \n\n| Annexure | Description |\n|----------|-------------|\n| A | Appointment Letter (dated Feb 2023) |\n| B | Resignation Acceptance Email (dated 1 Aug 2024) |\n| C | Asset Clearance Certificate (dated 30 Sep 2024) |\n| D | HR Email Thread on Salary Delay (Sept – Nov 2024) |\n| E | Copy of Resignation Email (sent 1 Aug 2024) |\n| F | (If available) Salary Slip – August 2024 |\n| G | (If available) Bank/UPI Statement showing non‑receipt of September salary |\n| H | (If available) Company policy on notice‑period salary & leave encashment |\n| I | (If available) Communication refusing relieving/experience letters |\n| J | Offer Letter of New Employer (showing deadline for relieving letter) |\n\n---\n\n*Prepared by:*  \n**[Your Name]** – Self‑Represented Employee (or “Prepared under the guidance of NyayaMitra India”)  \n\n*For any clarification, please contact the undersigned at the above address or mobile number.*  ",
+  "legal_notice_draft": "**[Your Letterhead – if any]**  \n\n---\n\n## LEGAL DEMAND NOTICE  \n*(Under the Code on Wages, 2019 – Sections 17(2) & 18(3))*  \n\n---\n\n### 1.  Date & Mode of Dispatch  \n\n| Date (dd‑mm‑yyyy) | Mode of Dispatch |\n|-------------------|------------------|\n| **07‑Nov‑2024**   | **Speed Post (Acknowledgement Due)**  *(or Registered Email with read‑receipt)* |\n\n---\n\n### 2.  Parties  \n\n| **From (Sender – Complainant)** | **To (Recipient – Employer)** |\n|--------------------------------|--------------------------------|\n| **Name:** ______________________<br>**Designation (at time of employment):** Front‑End Developer<br>**Address:** ______________________<br>**Phone / Email:** ______________________ | **Name of Firm:** ______________________ (IT‑Consultancy Firm)<br>**Registered Office:** ______________________, Cyber City, Gurugram, Haryana – 122002<br>**Attention:** HR / Finance Head – ______________________<br>**Phone / Email:** ______________________ |\n\n---\n\n### 3.  Under Instructions From My Client  \n\nThe undersigned, **[Your Name]**, acting on his/her own behalf, hereby submits the following facts and demands:\n\n---\n\n### 4.  Factual Matrix  \n\n| Date / Period | Event |\n|---------------|-------|\n| **01‑Aug‑2024** | Submitted resignation email to the Employer, tendering a 60‑day notice. |\n| **01‑Aug – 30‑Sep‑2024** | Served full notice period; performed duties diligently. |\n| **30‑Sep‑2024** | Completed hand‑over of all company assets (MacBook, ID‑card, etc.) and obtained a **Asset Clearance Certificate** signed by the Employer. |\n| **Early‑Sep‑2024** | August salary was **delayed** (paid after the statutory period). |\n| **By 19‑Nov‑2024** (≈ 50 days after last working day) | September salary **plus 15 days encashable leave** (total **Rs 1,65,000**) remains **unpaid**. |\n| **Ongoing since salary delay** | HR communicated that the Finance team is awaiting client payments and consequently **withholds the relieving & experience letters**. |\n| **Mid‑Nov‑2024 (end of week)** | New employer has **threatened to cancel the job offer** unless the relieving letter is produced. |\n\n**Documents in possession (Annexure‑A):**  \n\n1. Appointment Letter.  \n2. Resignation acceptance email (dated 01‑Aug‑2024).  \n3. Signed Asset Clearance Certificate (dated 30‑Sep‑2024).  \n4. Email thread with HR regarding salary delay & withholding of relieving letter.  \n\n**Documents to be produced by the Employer (Annexure‑B, if any):**  \n\n- Salary slips for August & September 2024.  \n- Bank/UPI statements evidencing non‑receipt of September salary.  \n- Copy of the employment contract (showing salary & notice‑period terms).  \n- Any written communication stating the reason for withholding the relieving letter.  \n- Email/WhatsApp from the new employer requesting the relieving letter.  \n\n---\n\n### 5.  Legal Grounds  \n\n1. **Section 17(2), Code on Wages, 2019** – An employer **must pay all wages due** to an employee **within two working days** of the employee’s resignation, termination or retrenchment.  \n\n2. **Section 18(3), Code on Wages, 2019** – Deductions from wages cannot exceed **50 %** of the wages; withholding the entire salary is unlawful.  \n\n3. **General Contract Law (Indian Contract Act, 1872)** – The employee has fully performed his contractual obligations (notice served, assets returned, clearance obtained). The employer’s refusal to pay wages and to issue the relieving/experience letters constitutes a **breach of contract** and a **civil wrong**.  \n\n4. **Interest** – Under Section 35 of the Code on Wages, any amount due as wages shall attract **interest at the rate of 12 % per annum** from the date of default until actual payment.  \n\n---\n\n### 6.  Demand (Strict 15‑Day Rectification Window)\n\n> **You are hereby required to comply with the following, within **fifteen (15) calendar days** from the receipt of this notice (i.e., by **22‑Nov‑2024**):**  \n\n1. **Payment of the pending salary and encashable leave amounting to Rs 1,65,000 (Rupees One Lakh Sixty‑Five Thousand only)**, together with statutory interest at **12 % per annum** calculated from **20‑Oct‑2024** (the date the September salary became due) up to the date of actual payment.  \n\n2. **Issuance of the following documents, duly signed on the company’s letterhead, within five (5) days of the above payment:**  \n   - Relieving Letter confirming resignation acceptance and date of last working day.  \n   - Experience/Service Certificate reflecting the period of employment and designation.  \n\n3. **Confirmation in writing (email or registered post) that the above obligations have been fulfilled**, addressed to the undersigned at the address mentioned above.  \n\n---\n\n### 7.  Consequence of Non‑Compliance  \n\nIf any of the above demands are **not fully satisfied within the stipulated 15‑day period**, the undersigned **shall be constrained to initiate legal proceedings** without further notice, which may include but are not limited to:\n\n1. **Filing a complaint before the Labour Commissioner (e‑Daakhil / DOL portal) for recovery of wages** under the Code on Wages, 2019, seeking a **mandamus order** for payment of the dues with interest and costs.  \n\n2. **Instituting suit before the appropriate Labour Court / Industrial Tribunal** for:  \n   - Recovery of the unpaid salary and leave encashment with statutory interest (12 % p.a.).  \n   - Specific performance – i.e., compulsory issuance of the relieving and experience letters.  \n   - Compensation for loss suffered due to the new employer’s threatened withdrawal of the job offer (damages as may be quantified).  \n   - Recovery of **legal costs, court fees, and any other expenses** incurred.  \n\n**Please note:** The statutory interest will continue to accrue until the date of actual payment, and the employer will be liable for **legal costs** as per the provisions of the Code on Wages and the Civil Procedure Code, 1908.  \n\n---\n\n### 8.  Annexures  \n\n| Annexure | Description |\n|----------|-------------|\n| **Annexure‑A** | Copy of Appointment Letter, Resignation Acceptance Email, Asset Clearance Certificate, HR email correspondence (salary delay & withholding). |\n| **Annexure‑B** | (To be produced by Employer) Salary slips for Aug‑2024 & Sep‑2024; Bank/UPI statements showing non‑receipt; Employment contract copy; Any written justification for withholding relieving letter; New employer’s email requesting relieving letter. |\n| **Annexure‑C** | Draft of this Legal Demand Notice (for reference). |\n\n---\n\n### 9.  Declaration & Signature  \n\nI, **[Your Full Name]**, the undersigned, hereby declare that the contents of this notice are true and correct to the best of my knowledge and belief, and that I am entitled to the reliefs claimed herein.\n\n---  \n\n**Signature**: __________________________  \n\n**Name**: __________________________  \n\n**Date**: __________________________  \n\n**Place**: __________________________  \n\n---  \n\n*Kindly acknowledge receipt of this notice by signing the duplicate copy and returning it via Speed Post or email.*  \n\n---  \n\n*Prepared by:*  \n**NyayaMitra India – Expert Legal Drafting Unit**  \n\n*Disclaimer: NyayaMitra provides legal information and self‑advocacy tools under Indian law. For representation in court or tribunal, you must engage a licensed advocate.*  ",
   "sample_roleplay_turn": {
     "user_argument": "Under employment laws, full and final dues must be cleared timely and withholding my relieving letter violates my right to livelihood. If my Rs 1,65,000 and relieving letter are not issued within 3 days, I will file a formal complaint with the District Labor Commissioner.",
     "opponent_response": {
-      "opponent_reply": "Sir, we understand your concern, but as per our internal policy the final settlement is processed only after the finance team completes its clearance, which normally takes up to 10 working days. We have already made certain deductions for the notice period and asset usage as per the signed agreement. However, if you forward us the signed resignation copy and the asset‑return receipt, we will expedite the process and aim to release the pending Rs 1,65,000 and your relieving/experience letters by 7 December. Please note that any legal notice will be reviewed by our legal department before any further action.",
+      "opponent_reply": "Dekhiye, aapki resignation aur clearance certificate humare records mein aagayi hai, lekin finance department ko abhi bhi aapke asset handover ki final verification karni hai. Company policy ke mutabik salary aur relieving letter ka processing minimum 7 din ka hota hai, aur humare paas abhi kuch pending approvals hain. Isliye aapko thoda aur samay dena padega – hum aapka case agle 5 din mein dekh lenge. Agar aap turant payment chahte hain, to aapko apni resignation ki original copy aur asset handover receipt dobara bhejna hoga, tabhi hum aage badh sakte hain.",
       "coach_evaluation": {
         "strength_rating": "Strong",
-        "what_went_well": "You correctly invoked employment law and gave a clear 3‑day deadline, which puts pressure on the employer.",
-        "what_to_improve": "Mention the specific statutory provision (e.g., [unverified reference removed] of the Payment of Wages Act or the Industrial Employment (Standing Orders) Act) and attach the resignation and asset‑return documents to strengthen your claim.",
-        "suggested_next_counter": "Ask for a written commitment stating the exact settlement date, citing [unverified reference removed] of the Payment of Wages Act and warning of immediate legal action if not met."
+        "what_went_well": "You correctly invoked employment law and the right to livelihood, and gave a clear deadline with a concrete threat of filing a complaint.",
+        "what_to_improve": "Mention specific statutes (e.g., [unverified reference removed], Haryana Shops & Establishments Act), include exact dates of resignation, notice period completion, and attach the clearance certificate as evidence.",
+        "suggested_next_counter": "Cite [unverified reference removed] of the [unverified reference removed] and the Haryana Shops & Establishments Act, and demand payment and relieving letter within 48 hours or you will approach the Labour Court for statutory interest and penalties."
       }
     }
   }
