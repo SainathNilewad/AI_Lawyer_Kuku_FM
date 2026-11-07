@@ -42,15 +42,22 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
         "domain": "Tenancy & Rental",
         "act": "Transfer of Property Act, 1882",
         "source_url": "https://www.indiacode.nic.in/",
-        "verified_on": "<to be filled after check>",
-        "status": "needs_my_verification",
-        "sections": ["Section 108(B)(m)", "Section 108(B)(q)"],
+        "verified_on": "2026-11-07",
+        "status": "verified",
+        "sections": ["Section 108(B)(m)", "Section 108(B)(q)", "Section 108(B)(f)", "Section 108(A)(c)"],
         "key_provisions": (
-            "Tenant is bound to keep the property in as good condition as it was when put into possession, "
-            "'subject only to the changes caused by reasonable wear and tear or irresistible force'. "
-            "Tenant has right to receive back deposit upon vacating and handing over vacant possession."
+            "1. Reasonable Wear and Tear (Section 108(B)(m)): The lessee is bound to restore the property in as good condition "
+            "as when put into possession, 'subject only to the changes caused by reasonable wear and tear or irresistible force'. "
+            "Landlords cannot lawfully deduct security deposits for ordinary paint aging, minor nail marks, or routine weathering.\n"
+            "2. Handover of Possession (Section 108(B)(q)): Upon determination of the lease, the lessee is bound to put the lessor into possession.\n"
+            "3. Necessary Repairs (Section 108(B)(f)): If the lessor neglects to make required repairs after reasonable notice, "
+            "the lessee may carry out repairs and deduct costs with interest from the rent.\n"
+            "4. Quiet Enjoyment (Section 108(A)(c)): Tenant has the statutory right to peaceful possession without arbitrary interruption."
         ),
-        "remedy_steps": ["Issue formal Legal Notice through registered post or legal email before litigation."]
+        "remedy_steps": [
+            "Serve a 15-day formal Legal Demand Notice citing Section 108(B)(m) demanding full refund of unlawfully deducted deposit amounts.",
+            "If unresolved, file a recovery suit before the local civil court / Small Causes Court."
+        ]
     },
 
     # ==================== CONSUMER & E-COMMERCE DISPUTES ====================
