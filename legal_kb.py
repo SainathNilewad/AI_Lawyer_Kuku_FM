@@ -23,7 +23,9 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
         "sections": ["Section 12", "Section 13", "Section 13(1)", "Section 13(2)", "Section 14", "Section 21", "Section 21(1)", "Section 21(2)"],
         "key_provisions": (
             "1. Note on Enforceability: The Model Tenancy Act, 2021 is a central model law drafted by the Ministry of Housing and Urban Affairs "
-            "and binds only States and Union Territories that have formally adopted or enacted it. State rent control acts govern elsewhere.\n"
+            "under Entry 18 of the State List and binds only States and Union Territories that formally adopt or enact it (such as Andhra Pradesh, "
+            "Uttar Pradesh, Tamil Nadu, and Assam which have enacted aligned tenancy legislations). Other states (e.g. Karnataka, Maharashtra, Delhi) "
+            "continue under their respective State Rent Control Acts alongside Section 108 of the Transfer of Property Act, 1882.\n"
             "2. Retention of Tenancy Agreement (Section 12): The tenancy agreement shall be signed in duplicate by both the landlord and tenant, "
             "and one each of such original signed tenancy agreement shall be retained by the landlord and tenant.\n"
             "3. Rent Payment and Conclusive Proof (Section 13): Every tenant shall pay rent within the agreed period (sub-section (1)). "
