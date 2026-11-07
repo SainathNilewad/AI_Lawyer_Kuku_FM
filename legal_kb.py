@@ -17,25 +17,31 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
     {
         "domain": "Tenancy & Rental",
         "act": "Model Tenancy Act, 2021 (and State Rent Control Enactments)",
-        "source_url": "https://www.indiacode.nic.in/",
-        "verified_on": "<to be filled after check>",
-        "status": "needs_my_verification",
-        "sections": ["Section 13", "Section 14", "Section 21"],
+        "source_url": "https://mohua.gov.in/",
+        "verified_on": "2026-11-07",
+        "status": "verified",
+        "sections": ["Section 12", "Section 13", "Section 13(1)", "Section 13(2)", "Section 14", "Section 21", "Section 21(1)", "Section 21(2)"],
         "key_provisions": (
-            "1. Note on Enforceability: The Model Tenancy Act, 2021 is a model law drafted by the Central Government "
-            "and binds only States and Union Territories that have formally adopted or enacted it. State rent laws vary.\n"
-            "2. Security Deposit Cap: Security deposit for residential premises cannot exceed 2 months' rent.\n"
-            "3. Refund Timeline: Landlord must refund the security deposit within 30 days of the tenant handing over peaceful possession, "
-            "after deducting agreed legitimate dues.\n"
-            "4. Normal Wear and Tear: Landlords cannot deduct deposit for ordinary wear-and-tear (e.g., natural fading of wall paint, "
-            "minor aging of fixtures). Deductions must be substantiated with itemized bills.\n"
-            "5. Rent Authority: Disputes over deposit withholding or eviction must be filed before the Rent Authority/Rent Court, "
-            "not a regular civil court."
+            "1. Note on Enforceability: The Model Tenancy Act, 2021 is a central model law drafted by the Ministry of Housing and Urban Affairs "
+            "and binds only States and Union Territories that have formally adopted or enacted it. State rent control acts govern elsewhere.\n"
+            "2. Retention of Tenancy Agreement (Section 12): The tenancy agreement shall be signed in duplicate by both the landlord and tenant, "
+            "and one each of such original signed tenancy agreement shall be retained by the landlord and tenant.\n"
+            "3. Rent Payment and Conclusive Proof (Section 13): Every tenant shall pay rent within the agreed period (sub-section (1)). "
+            "The landlord must forthwith provide a duly signed receipt against acknowledgement (sub-section (2)). "
+            "Crucially, the proviso to Section 13(2) provides that where payment of rent or other charges is made through electronic mode, "
+            "the bank acknowledgment thereof shall be conclusive proof of such payment.\n"
+            "4. Deposit of Rent with Rent Authority (Section 14): Where the landlord refuses to accept rent or refuses to give a receipt, "
+            "the rent may be paid by money order consecutively for two months, and if still refused, the tenant may deposit the same with the Rent Authority.\n"
+            "5. Protection Against Eviction (Section 21): Under Section 21(1), a tenant shall not be evicted during the continuance of the tenancy agreement "
+            "except in accordance with an order of the Rent Court on specified grounds under Section 21(2) (e.g. non-payment of rent arrears for 2 consecutive months, "
+            "subletting without written consent, misuse causing public nuisance or property damage, or unauthorized structural changes).\n"
+            "6. Security Deposit Cap (Statutory Note): Residential security deposit caps (up to 2 months' rent) derive from Section 11 of the Model Act "
+            "and applicable state adoption enactments."
         ),
         "remedy_steps": [
-            "Send formal written demand notice giving 15 days to refund deposit with interest for delay.",
-            "If unresponsive, register grievance on the State Rent Authority Portal or National Consumer Helpline.",
-            "File petition before local Rent Authority / Small Causes Court for refund with interest and damages (subject to state adoption)."
+            "Produce electronic bank / UPI transfer statement as conclusive proof of rent payment under proviso to Section 13(2).",
+            "Serve a formal written legal notice citing Section 21(1) against unlawful eviction or Section 108(B)(m) for deposit recovery.",
+            "If unresolved, file an application before the local Rent Authority / Rent Court (subject to state adoption)."
         ]
     },
     {
