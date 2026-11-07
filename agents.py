@@ -13,7 +13,8 @@ from legal_kb import (
     retrieve_verified_legal_context,
     check_immediate_advocate_escalation,
     sanitize_unverified_sections,
-    scan_unverified_sections
+    scan_unverified_sections,
+    scan_banned_acts
 )
 from llm_engine import LegalLLMEngine
 
@@ -196,19 +197,33 @@ Output format MUST be valid JSON with this structure:
                 "disclaimer": "⚠️ NyayaMitra provides legal information and self-advocacy tools under Indian laws."
             }
 
-        # Code-level guard: Sanitize plain language standing for unverified section references
+        # Code-level guard: Sanitize plain language standing for unverified section references & banned Acts
         if isinstance(result, dict) and "plain_language_standing" in result:
             result["plain_language_standing"] = sanitize_unverified_sections(result["plain_language_standing"])
 
-        # Code-level guard: Check governing laws list against allowed statutory sections
+        # Code-level guard: Check governing laws list against allowed statutory sections & banned Acts
         if isinstance(result, dict) and "governing_laws" in result and isinstance(result["governing_laws"], list):
             for item in result["governing_laws"]:
                 if isinstance(item, dict):
+                    act_name = str(item.get("act_name", ""))
+                    banned_a = scan_banned_acts(act_name)
+                    if banned_a:
+                        item["status"] = "unverified reference removed"
+                        item["act_name"] = "[unverified reference removed]"
                     sec = str(item.get("section", ""))
                     unv = scan_unverified_sections(sec)
                     if unv:
                         item["status"] = "unverified reference removed"
-                        item["section"] = f"[unverified reference removed: {', '.join(unv)}]"
+                        item["section"] = "[unverified reference removed]"
+
+        # Code-level guard: Sanitize action options
+        if isinstance(result, dict) and "action_options" in result and isinstance(result["action_options"], list):
+            for opt in result["action_options"]:
+                if isinstance(opt, dict):
+                    if "details" in opt and isinstance(opt["details"], str):
+                        opt["details"] = sanitize_unverified_sections(opt["details"])
+                    if "title" in opt and isinstance(opt["title"], str):
+                        opt["title"] = sanitize_unverified_sections(opt["title"])
 
         return result
 

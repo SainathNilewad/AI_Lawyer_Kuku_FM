@@ -144,7 +144,9 @@ CRITICAL_ESCALATION_CRITERIA = [
     "physical harm",
     "divorce",
     "custody",
-    "maintenance",
+    "child maintenance",
+    "spousal maintenance",
+    "alimony",
     "writ petition",
     "ndps",
     "arms act",
@@ -168,7 +170,9 @@ HIGH_RISK_WORDS = [
 OVERRIDING_OUT_OF_SCOPE_TOPICS = [
     "divorce",
     "custody",
-    "maintenance",
+    "child maintenance",
+    "spousal maintenance",
+    "alimony",
     "writ petition"
 ]
 
@@ -317,19 +321,57 @@ def normalize_section_reference(s: str) -> str:
 
 def get_allowed_sections() -> Set[str]:
     """
-    Collects every allowed section reference from the verified statutory database.
+    Collects allowed section references ONLY from entries whose status is 'verified'.
     Includes both full clauses ('17(2)', '108(b)(m)') and parent section numbers ('17', '108').
     """
     allowed: Set[str] = set()
     for entry in VERIFIED_STATUTORY_DATABASE:
-        for s in entry.get("sections", []):
-            norm = normalize_section_reference(s)
-            if norm:
-                allowed.add(norm)
-                base = re.match(r'^([0-9]+)', norm)
-                if base:
-                    allowed.add(base.group(1))
+        if entry.get("status") == "verified":
+            for s in entry.get("sections", []):
+                norm = normalize_section_reference(s)
+                if norm:
+                    allowed.add(norm)
+                    base = re.match(r'^([0-9]+)', norm)
+                    if base:
+                        allowed.add(base.group(1))
     return allowed
+
+# Banned/repealed/unverified Act names that must never appear in AI legal outputs
+BANNED_ACT_PATTERNS = [
+    r"\bPayment of Wages Act(?:\s*,\s*\d{4})?\b",
+    r"\bMinimum Wages Act(?:\s*,\s*\d{4})?\b",
+    r"\bPayment of Bonus Act(?:\s*,\s*\d{4})?\b",
+    r"\bEqual Remuneration Act(?:\s*,\s*\d{4})?\b",
+    r"\bIndian Penal Code(?:\s*,\s*\d{4})?\b",
+    r"\bIPC\b",
+    r"\bCrPC\b",
+    r"\bCode of Criminal Procedure(?:\s*,\s*\d{4})?\b",
+]
+
+def scan_banned_acts(text: str) -> List[str]:
+    """Scans text for banned or repealed Act names."""
+    if not text or not isinstance(text, str):
+        return []
+    found = []
+    for pat in BANNED_ACT_PATTERNS:
+        matches = re.findall(pat, text, re.IGNORECASE)
+        for m in matches:
+            if m not in found:
+                found.append(m)
+    return found
+
+def sanitize_banned_acts(text: str) -> str:
+    """Replaces banned Act names with [unverified reference removed] and logs the event."""
+    if not text or not isinstance(text, str):
+        return text
+    banned = scan_banned_acts(text)
+    if not banned:
+        return text
+    print(f"[SECURITY GUARD] Logged unverified Act name reference(s): {banned}")
+    sanitized = text
+    for pat in BANNED_ACT_PATTERNS:
+        sanitized = re.sub(pat, "[unverified reference removed]", sanitized, flags=re.IGNORECASE)
+    return sanitized
 
 # Note on regex limitations (crude scanner):
 # What this regex misses:
@@ -360,12 +402,16 @@ def scan_unverified_sections(text: str) -> List[str]:
 
 def sanitize_unverified_sections(text: str) -> str:
     """
-    Scans an AI answer for section references. If an unknown section appears,
-    adds a visible warning '[unverified reference removed]' and logs it.
+    Scans an AI answer for unverified section references AND banned Act names.
+    Replaces any unverified section or banned Act with '[unverified reference removed]' and logs it.
     """
     if not text or not isinstance(text, str):
         return text
 
+    # Step 1: Sanitize banned Act names
+    text = sanitize_banned_acts(text)
+
+    # Step 2: Sanitize unverified section references
     unverified = scan_unverified_sections(text)
     if not unverified:
         return text

@@ -26,7 +26,9 @@ from legal_kb import (
     check_immediate_advocate_escalation,
     get_allowed_sections,
     scan_unverified_sections,
-    sanitize_unverified_sections
+    sanitize_unverified_sections,
+    scan_banned_acts,
+    sanitize_banned_acts
 )
 from llm_engine import LegalLLMEngine
 from agents import CaseBuilderAgent, RightsAdvisorAgent
@@ -104,7 +106,18 @@ def run_test_suite():
                 case_passed = False
                 failure_reasons.append("Sanitizer failed to remove/flag Section 999A.")
 
-        # 4. Agent Execution & Section Guard Verification (for non-out-of-scope cases)
+        # Check: Adversarial repealed statute specifically
+        if adv_type == "repealed_statute":
+            banned_in_query = scan_banned_acts(query)
+            if not banned_in_query:
+                case_passed = False
+                failure_reasons.append("Banned Act scanner failed to detect Payment of Wages Act in query.")
+            sanitized_act = sanitize_banned_acts("Claim under Payment of Wages Act, 1936.")
+            if "Payment of Wages Act" in sanitized_act:
+                case_passed = False
+                failure_reasons.append("Sanitizer failed to remove/flag Payment of Wages Act.")
+
+        # 4. Agent Execution & Guard Verification (for non-out-of-scope cases)
         if not is_out_of_scope:
             try:
                 # Build dossier and get advice
@@ -121,6 +134,12 @@ def run_test_suite():
                 if unverified_found:
                     case_passed = False
                     failure_reasons.append(f"AI response contained unverified section(s): {unverified_found}")
+
+                # Check for any banned Act name in the generated standing text
+                banned_acts_found = scan_banned_acts(standing_text)
+                if banned_acts_found:
+                    case_passed = False
+                    failure_reasons.append(f"AI response contained banned Act name(s): {banned_acts_found}")
             except Exception as e:
                 # If engine has network or key issue, record it honestly
                 failure_reasons.append(f"Agent execution error: {e}")
