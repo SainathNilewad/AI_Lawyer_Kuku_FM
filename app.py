@@ -153,19 +153,21 @@ with st.sidebar:
     provider_choice = st.selectbox("LLM Provider:", ["Groq", "Gemini"], index=default_p_idx)
     prov_code = provider_choice.lower()
 
+    groq_key = os.getenv("GROQ_API_KEY", "")
+    gemini_key = os.getenv("GEMINI_API_KEY", "") or os.getenv("GOOGLE_API_KEY", "")
+    active_key = groq_key if prov_code == "groq" else gemini_key
+
     if prov_code == "groq":
-        active_key = os.getenv("GROQ_API_KEY", "")
         default_model = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
-        groq_models = get_cached_groq_models(active_key) if active_key else []
+        groq_models = get_cached_groq_models(groq_key) if groq_key else []
         if groq_models:
             m_idx = groq_models.index(default_model) if default_model in groq_models else 0
             model_name = st.selectbox("Model:", groq_models, index=m_idx)
         else:
             model_name = st.text_input("Model:", value=default_model)
     else:
-        active_key = os.getenv("GEMINI_API_KEY", "") or os.getenv("GOOGLE_API_KEY", "")
         default_model = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
-        gemini_models = get_cached_gemini_models(active_key) if active_key else []
+        gemini_models = get_cached_gemini_models(gemini_key) if gemini_key else []
         if gemini_models:
             m_idx = gemini_models.index(default_model) if default_model in gemini_models else 0
             model_name = st.selectbox("Model:", gemini_models, index=m_idx)
@@ -177,8 +179,7 @@ with st.sidebar:
     else:
         st.error(f"❌ {provider_choice} API Key missing in .env")
 
-    groq_whisper_key = os.getenv("GROQ_API_KEY", "")
-    if groq_whisper_key:
+    if groq_key:
         st.success("🎙️ Voice Transcription (Whisper) Ready")
 
     st.markdown("---")
@@ -256,13 +257,16 @@ with col_chat:
         audio_bytes = audio_prompt.read()
         if "last_audio_bytes" not in st.session_state or st.session_state.last_audio_bytes != audio_bytes:
             st.session_state.last_audio_bytes = audio_bytes
-            with st.spinner("🎧 Transcribing your voice via Groq Whisper..."):
-                whisper_key = groq_key or active_key
-                voice_transcribed_text = transcribe_audio_file(audio_bytes, whisper_key, lang_code=whisper_code)
-                if voice_transcribed_text and not voice_transcribed_text.startswith("[Voice Transcription Error"):
-                    st.success(f"🗣️ Heard: *\"{voice_transcribed_text}\"*")
-                elif voice_transcribed_text:
-                    st.warning(voice_transcribed_text)
+            whisper_key = groq_key
+            if not whisper_key:
+                st.warning("⚠️ Voice transcription requires GROQ_API_KEY in .env.")
+            else:
+                with st.spinner("🎧 Transcribing your voice via Groq Whisper..."):
+                    voice_transcribed_text = transcribe_audio_file(audio_bytes, whisper_key, lang_code=whisper_code)
+                    if voice_transcribed_text and not voice_transcribed_text.startswith("[Voice Transcription Error"):
+                        st.success(f"🗣️ Heard: *\"{voice_transcribed_text}\"*")
+                    elif voice_transcribed_text:
+                        st.warning(voice_transcribed_text)
 
     # Render Chat History
     for msg in st.session_state.chat_history:
