@@ -82,19 +82,23 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
         "domain": "Employment & Labor",
         "act": "Code on Wages, 2019",
         "source_url": "https://www.indiacode.nic.in/",
-        "verified_on": "<to be filled after check>",
-        "status": "needs_my_verification",
-        "sections": ["Section 17(2)", "Section 17(4)", "Section 18(1)", "Section 18(3)"],
+        "verified_on": "2026-11-07",
+        "status": "verified",
+        "sections": ["Section 17(1)", "Section 17(2)", "Section 17(4)", "Section 18(1)", "Section 18(2)", "Section 18(3)"],
         "key_provisions": (
-            "1. Payment of Wages on Removal, Dismissal or Resignation (Section 17(2)): Wages of an employee who is removed, dismissed, "
+            "1. Time Limit for Wage Payment (Section 17(1)): Wages must be paid: daily (at the end of the shift), "
+            "weekly (on the last working day before the weekly holiday), fortnightly (before the end of the second day after the end of the fortnight), "
+            "or monthly (before the expiry of the seventh day of the succeeding month).\n"
+            "2. Payment on Removal, Dismissal or Resignation (Section 17(2)): Wages of an employee who is removed, dismissed, "
             "retrenched or resigns must be paid within two working days of that event.\n"
-            "2. Other Laws Preserved (Section 17(4)): The Code does not affect any time limit for payment of wages given in any other law (state rules may differ).\n"
-            "3. Authorised Deductions Only (Section 18(1)): No deductions from wages except those authorised by the Code.\n"
-            "4. Deduction Limits (Section 18(3)): Total deductions in a wage period are capped.\n"
-            "5. Claims and Forum: Procedure and forum vary; confirm from the official text or ask a lawyer / DLSA 15100."
+            "3. Other Laws Preserved (Section 17(4)): The Code does not affect any time limit for payment of wages given in any other law (state rules may differ).\n"
+            "4. Authorised Deductions Only (Section 18(1), 18(2)): No deductions from wages except those authorised under Section 18(2) of the Code "
+            "(e.g. fines, absence from duty, damage or loss directly attributable to neglect or default, house-accommodation, amenities, advances/loans, statutory tax/provident fund).\n"
+            "5. Statutory 50% Deduction Cap (Section 18(3)): The total amount of deductions which may be made in any wage period from the wages of an employee shall not exceed fifty per cent. (50%) of such wages.\n"
+            "6. Claims and Forum: Procedure and forum vary; confirm from the official text or ask a lawyer / DLSA 15100."
         ),
         "remedy_steps": [
-            "Send formal written demand email to employer requesting immediate release of unpaid wages and dues.",
+            "Send formal written demand email to employer citing Sections 17(2) and 18(3) requesting immediate release of unpaid wages and relieving documents within statutory timelines.",
             "Procedure and forum vary; confirm from the official text or ask a lawyer / DLSA 15100."
         ]
     },
