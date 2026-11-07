@@ -1,12 +1,13 @@
 """
-app.py - NyayaMitra: Real Conversational AI Lawyer for Everyday India
-Supports:
-1. Voice (Microphone via st.audio_input + Groq Whisper Large v3 Turbo)
-2. Text Chat (Natural conversation in English, Hindi, or Hinglish)
-3. Live Factual Case Dossier & Evidence Strength Tracker (updates dynamically)
-4. Verified Statutory Grounding (No Hallucinations)
-5. Instant Legal Notice Generator (15-Day formal notice)
-6. Interactive Opponent Practice Arena (Roleplay negotiation)
+app.py - NyayaMitra: Conversational AI Legal Companion for Everyday India
+Clean, interview-ready implementation providing:
+1. Multilingual Voice & Text Intake (Whisper Large v3 Turbo + Pan-India scripts)
+2. Calm Disclaimer & Strict Scope Boundaries on First Screen
+3. Clickable Example Scenarios
+4. High-Contrast Dark-Theme Styling (No blank white bars)
+5. Live Case Intelligence Sidecar with Statutory Badges ('verified' / 'needs verification')
+6. Automated Pre-Litigation Legal Notice Generator (15-day standard practice)
+7. Dispute Roleplay Practice Arena
 """
 
 import streamlit as st
@@ -17,69 +18,139 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from legal_kb import retrieve_verified_legal_context, check_immediate_advocate_escalation
+from legal_kb import (
+    retrieve_verified_legal_context,
+    check_immediate_advocate_escalation,
+    VERIFIED_STATUTORY_DATABASE
+)
 from llm_engine import LegalLLMEngine, list_groq_models, list_gemini_models
-from agents import CaseBuilderAgent, RightsAdvisorAgent, DocumentDrafterAgent, RoleplayOpponentAgent, ConversationalCounselorAgent
+from agents import (
+    CaseBuilderAgent,
+    RightsAdvisorAgent,
+    DocumentDrafterAgent,
+    RoleplayOpponentAgent,
+    ConversationalCounselorAgent
+)
 
 st.set_page_config(
-    page_title="NyayaMitra - Conversational AI Lawyer",
+    page_title="NyayaMitra - AI Legal Companion",
     page_icon="⚖️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom Styling
+# Custom High-Contrast Styling (Clean on both Dark and Light Streamlit themes)
 st.markdown("""
 <style>
+    /* Main titles with high contrast */
     .chat-header {
         font-size: 2.1rem;
         font-weight: 800;
-        color: #1a237e;
         margin-bottom: 2px;
+        line-height: 1.2;
     }
     .chat-sub {
-        font-size: 1.05rem;
-        color: #455a64;
-        margin-bottom: 16px;
-    }
-    .side-card {
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        padding: 14px;
-        border-left: 4px solid #1a237e;
+        font-size: 1.02rem;
+        color: #b0bec5;
         margin-bottom: 12px;
+        line-height: 1.4;
     }
-    .voice-box {
-        background-color: #e8eaf6;
-        border-radius: 8px;
+    
+    /* First screen disclaimer cards */
+    .calm-notice-card {
+        background-color: rgba(33, 150, 243, 0.08);
+        border: 1px solid rgba(33, 150, 243, 0.3);
+        border-left: 4px solid #1e88e5;
+        border-radius: 6px;
         padding: 10px 14px;
+        font-size: 0.92rem;
+        margin-bottom: 10px;
+        line-height: 1.45;
+    }
+    .scope-card {
+        background-color: rgba(158, 158, 158, 0.08);
+        border: 1px solid rgba(158, 158, 158, 0.25);
+        border-left: 4px solid #9e9e9e;
+        border-radius: 6px;
+        padding: 8px 14px;
+        font-size: 0.88rem;
+        margin-bottom: 14px;
+        line-height: 1.4;
+    }
+
+    /* Sidecar Case Card */
+    .side-card {
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-left: 4px solid #3f51b5;
+        border-radius: 8px;
+        padding: 12px 14px;
         margin-bottom: 12px;
-        border: 1px dashed #3f51b5;
+    }
+
+    /* Statutory Badges */
+    .badge-verified {
+        background-color: #1b5e20;
+        color: #e8f5e9;
+        padding: 2px 7px;
+        border-radius: 4px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: inline-block;
+    }
+    .badge-unverified {
+        background-color: #e65100;
+        color: #fff3e0;
+        padding: 2px 7px;
+        border-radius: 4px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: inline-block;
     }
     .badge-statute {
-        background-color: #e8f5e9;
-        color: #2e7d32;
-        padding: 3px 8px;
-        border-radius: 6px;
+        background-color: rgba(76, 175, 80, 0.15);
+        color: #81c784;
+        padding: 2px 8px;
+        border-radius: 4px;
         font-weight: 600;
-        font-size: 0.8rem;
+        font-size: 0.82rem;
+    }
+
+    /* Escalation and Scope Callouts */
+    .banner-escalation {
+        background-color: rgba(211, 47, 47, 0.12);
+        border-left: 4px solid #ef5350;
+        padding: 10px 14px;
+        border-radius: 4px;
+        margin-bottom: 12px;
+        color: #ffcdd2;
+    }
+    .banner-scope {
+        background-color: rgba(158, 158, 158, 0.12);
+        border-left: 4px solid #9e9e9e;
+        padding: 10px 14px;
+        border-radius: 4px;
+        margin-bottom: 12px;
+        color: #cfd8dc;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Supported Pan-India Languages & ISO Codes for Whisper
+# Supported Pan-India Languages in their own native script
 INDIAN_LANGUAGES = {
     "Auto-Detect / English": None,
-    "Hindi (हिन्दी)": "hi",
-    "Hinglish (Hindi in Roman script)": "hi",
-    "Tamil (தமிழ்)": "ta",
-    "Telugu (తెలుగు)": "te",
-    "Kannada (ಕನ್ನಡ)": "kn",
-    "Bengali (বাংলা)": "bn",
-    "Marathi (मराठी)": "mr",
-    "Gujarati (ગુજરાતી)": "gu",
-    "Malayalam (മലയാളം)": "ml",
-    "Punjabi (ਪੰਜਾਬੀ)": "pa",
+    "हिन्दी (Hindi)": "hi",
+    "Hinglish (Hindi in Latin script)": "hi",
+    "தமிழ் (Tamil)": "ta",
+    "తెలుగు (Telugu)": "te",
+    "ಕನ್ನಡ (Kannada)": "kn",
+    "বাংলা (Bengali)": "bn",
+    "मराठी (Marathi)": "mr",
+    "ગુજરાતી (Gujarati)": "gu",
+    "മലയാളം (Malayalam)": "ml",
+    "ਪੰਜਾਬੀ (Punjabi)": "pa",
 }
 
 # Helper: Transcribe Voice via Groq Whisper with Language Support
@@ -90,7 +161,7 @@ def transcribe_audio_file(audio_bytes, api_key: str, lang_code: str = None) -> s
         kwargs = {
             "file": ("voice_input.wav", audio_bytes),
             "model": "whisper-large-v3-turbo",
-            "prompt": "Indian legal dispute conversation in Hindi, English, Tamil, Telugu, Kannada, Bengali, Marathi, Gujarati, Malayalam, Punjabi, or Hinglish",
+            "prompt": "Indian legal dispute in Hindi, English, Tamil, Telugu, Kannada, Bengali, Marathi, Gujarati, Malayalam, Punjabi, or Hinglish",
         }
         if lang_code:
             kwargs["language"] = lang_code
@@ -108,7 +179,7 @@ if "chat_history" not in st.session_state:
                 "**Namaste! I am your AI Legal Partner (NyayaMitra).**\n\n"
                 "I am here to help you resolve everyday legal problems in India—like **a landlord withholding your security deposit**, "
                 "**an e-commerce app refusing a refund for a broken product**, or **unpaid salary / withheld relieving letters** after resignation.\n\n"
-                "🎙️ **Speak into your microphone** or 💬 **type your problem below** in your own words (English, Hindi, or Hinglish). Tell me what happened!"
+                "You can type your problem below or use the **'Speak instead of typing'** voice recorder. Tell me what happened!"
             )
         }
     ]
@@ -123,6 +194,8 @@ if "practice_mode" not in st.session_state:
     st.session_state.practice_mode = False
 if "practice_history" not in st.session_state:
     st.session_state.practice_history = []
+if "pending_user_text" not in st.session_state:
+    st.session_state.pending_user_text = None
 
 @st.cache_data(ttl=3600)
 def get_cached_groq_models(key: str):
@@ -139,158 +212,193 @@ def get_cached_gemini_models(key: str):
     except Exception:
         return []
 
-# Sidebar
+# ==============================================================================
+# SIDEBAR
+# ==============================================================================
 with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/3253/3253105.png", width=56)
-    st.title("NyayaMitra AI")
-    st.caption("Conversational Legal Partner for India")
+    # Reliable text/emoji logo with high contrast
+    st.markdown("## ⚖️ **NyayaMitra**")
+    st.caption("AI Legal Companion for Everyday India")
     
     st.markdown("---")
-    st.subheader("⚙️ Intelligence Settings")
-
-    env_prov = os.getenv("LLM_PROVIDER", "groq").lower()
-    default_p_idx = 0 if env_prov == "groq" else 1
-    provider_choice = st.selectbox("LLM Provider:", ["Groq", "Gemini"], index=default_p_idx)
-    prov_code = provider_choice.lower()
-
-    groq_key = os.getenv("GROQ_API_KEY", "")
-    gemini_key = os.getenv("GEMINI_API_KEY", "") or os.getenv("GOOGLE_API_KEY", "")
-    active_key = groq_key if prov_code == "groq" else gemini_key
-
-    if prov_code == "groq":
-        default_model = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
-        groq_models = get_cached_groq_models(groq_key) if groq_key else []
-        if groq_models:
-            m_idx = groq_models.index(default_model) if default_model in groq_models else 0
-            model_name = st.selectbox("Model:", groq_models, index=m_idx)
-        else:
-            model_name = st.text_input("Model:", value=default_model)
-    else:
-        default_model = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
-        gemini_models = get_cached_gemini_models(gemini_key) if gemini_key else []
-        if gemini_models:
-            m_idx = gemini_models.index(default_model) if default_model in gemini_models else 0
-            model_name = st.selectbox("Model:", gemini_models, index=m_idx)
-        else:
-            model_name = st.text_input("Model:", value=default_model)
-
-    if active_key:
-        st.success(f"✅ {provider_choice} Connected ({model_name})")
-    else:
-        st.error(f"❌ {provider_choice} API Key missing in .env")
-
-    if groq_key:
-        st.success("🎙️ Voice Transcription (Whisper) Ready")
-
-    st.markdown("---")
-    st.subheader("🌐 Pan-India Language")
-    selected_lang = st.selectbox("Preferred Language:", list(INDIAN_LANGUAGES.keys()))
+    
+    # 1. Language selector at the TOP of sidebar with native scripts
+    st.markdown("**🌐 Language / भाषा**")
+    selected_lang = st.selectbox(
+        "Choose conversation language:",
+        list(INDIAN_LANGUAGES.keys()),
+        index=0,
+        label_visibility="collapsed"
+    )
     whisper_code = INDIAN_LANGUAGES[selected_lang]
 
+    # Resolve API keys
+    groq_key = os.getenv("GROQ_API_KEY", "")
+    gemini_key = os.getenv("GEMINI_API_KEY", "") or os.getenv("GOOGLE_API_KEY", "")
+    env_prov = os.getenv("LLM_PROVIDER", "groq").lower()
+    default_p_idx = 0 if env_prov == "groq" else 1
+
+    # 2. Compact single status line
     st.markdown("---")
-    st.subheader("⚡ Quick Try Scenarios")
-    demo_case = st.selectbox(
-        "Load a sample scenario:",
-        [
-            "-- Free Conversation --",
-            "Bengaluru Landlord ₹45k Deposit Withheld",
-            "Defective Smartphone ₹26,999 Refund Refusal",
-            "Gurugram Tech Employee ₹1.65L Salary Withheld"
-        ]
-    )
+    if groq_key:
+        st.caption("🟢 **Groq connected, voice ready**")
+    elif gemini_key:
+        st.caption("🟢 **Gemini connected** (Voice requires Groq key)")
+    else:
+        st.caption("🔴 **API Key missing in .env**")
 
-    DEMO_QUERIES = {
-        "Bengaluru Landlord ₹45k Deposit Withheld": (
-            "Mera landlord deposit return nahi kar raha. I was renting a flat in HSR Layout Bangalore. "
-            "I gave 1 lakh deposit, vacated on 31st Oct after 1 month notice. Handed over keys with video proof. "
-            "Now he deducted 45,000 saying painting and cleaning charges. Walls only had normal nail marks. How do I get my money back?"
-        ),
-        "Defective Smartphone ₹26,999 Refund Refusal": (
-            "I ordered a phone for Rs 26,999 on Flipkart. The screen stopped working within 24 hours. "
-            "I raised replacement immediately, but their technician took 6 days to visit. Technician signed job sheet confirming hardware defect, "
-            "but customer care cancelled return saying 7-day return policy expired! They are refusing refund."
-        ),
-        "Gurugram Tech Employee ₹1.65L Salary Withheld": (
-            "I resigned from my software job in Cyber City Gurugram. Completed full 60 days notice period and handed over company laptop on 30 Sept. "
-            "It has been 50 days, company has not paid my September salary and leave encashment (total 1.65 Lakhs), and they are withholding my Relieving Letter. "
-            "HR says client payment delay, but my new company will cancel my offer if I don't give relieving letter."
-        )
-    }
+    # 3. Model settings inside collapsed expander
+    with st.expander("⚙️ Model settings (advanced)", expanded=False):
+        provider_choice = st.selectbox("LLM Provider:", ["Groq", "Gemini"], index=default_p_idx)
+        prov_code = provider_choice.lower()
+        active_key = groq_key if prov_code == "groq" else gemini_key
 
-    if demo_case in DEMO_QUERIES:
-        if st.button("📥 Insert into Chat"):
-            st.session_state.pending_user_text = DEMO_QUERIES[demo_case]
-            st.rerun()
+        if prov_code == "groq":
+            default_model = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
+            groq_models = get_cached_groq_models(groq_key) if groq_key else []
+            if groq_models:
+                m_idx = groq_models.index(default_model) if default_model in groq_models else 0
+                model_name = st.selectbox("Model:", groq_models, index=m_idx)
+            else:
+                model_name = st.text_input("Model:", value=default_model)
+        else:
+            default_model = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
+            gemini_models = get_cached_gemini_models(gemini_key) if gemini_key else []
+            if gemini_models:
+                m_idx = gemini_models.index(default_model) if default_model in gemini_models else 0
+                model_name = st.selectbox("Model:", gemini_models, index=m_idx)
+            else:
+                model_name = st.text_input("Model:", value=default_model)
 
+        st.caption(f"Active Provider: **{provider_choice}** | Model: `{model_name}`")
+
+    # Reset button
     st.markdown("---")
-    if st.button("🔄 Reset Conversation"):
+    if st.button("🔄 Reset Conversation", use_container_width=True):
         st.session_state.chat_history = [st.session_state.chat_history[0]]
         st.session_state.case_dossier = None
         st.session_state.rights_advice = None
         st.session_state.notice_draft = None
         st.session_state.practice_mode = False
         st.session_state.practice_history = []
+        st.session_state.pending_user_text = None
         st.rerun()
 
-# Layout: 2 Columns (Main Chat Column 65%, Live Intelligence Sidecar 35%)
+# ==============================================================================
+# MAIN LAYOUT: CHAT (65%) & LIVE INTELLIGENCE SIDECAR (35%)
+# ==============================================================================
 col_chat, col_side = st.columns([65, 35], gap="large")
 
 with col_chat:
-    st.markdown("<h1 class='chat-header'>⚖️ NyayaMitra AI Lawyer</h1>", unsafe_allow_html=True)
-    st.markdown("<p class='chat-sub'>Talk by voice or text. Get plain-language advice, verified laws, legal notices, and practice your arguments.</p>", unsafe_allow_html=True)
+    st.markdown("<h1 class='chat-header'>⚖️ NyayaMitra AI Legal Companion</h1>", unsafe_allow_html=True)
+    st.markdown("<p class='chat-sub'>Conversational legal guidance for everyday Indian citizens.</p>", unsafe_allow_html=True)
 
-    # Voice Input Box (Native Streamlit Audio Input)
-    with st.container():
-        st.markdown("<div class='voice-box'>", unsafe_allow_html=True)
-        col_v1, col_v2 = st.columns([1, 4])
-        with col_v1:
-            st.markdown("🎙️ **Voice Message:**")
-        with col_v2:
-            st.caption("Click the mic to speak in English, Hindi, or Hinglish. Whisper will transcribe it instantly.")
-        
-        audio_prompt = st.audio_input("Record your problem by voice", label_visibility="collapsed")
-        st.markdown("</div>", unsafe_allow_html=True)
+    # First screen calm notice
+    st.markdown("""
+    <div class='calm-notice-card'>
+        🛡️ <strong>Notice:</strong> NyayaMitra gives general information, not legal advice. It can be wrong. For arrests, violence, court summons or large amounts, speak to a real lawyer. <strong>Free help: DLSA / NALSA helpline 15100.</strong>
+    </div>
+    """, unsafe_allow_html=True)
 
-    # Process Voice Input
-    voice_transcribed_text = None
-    if audio_prompt is not None:
-        audio_bytes = audio_prompt.read()
-        if "last_audio_bytes" not in st.session_state or st.session_state.last_audio_bytes != audio_bytes:
-            st.session_state.last_audio_bytes = audio_bytes
-            whisper_key = groq_key
-            if not whisper_key:
-                st.warning("⚠️ Voice transcription requires GROQ_API_KEY in .env.")
-            else:
-                with st.spinner("🎧 Transcribing your voice via Groq Whisper..."):
-                    voice_transcribed_text = transcribe_audio_file(audio_bytes, whisper_key, lang_code=whisper_code)
-                    if voice_transcribed_text and not voice_transcribed_text.startswith("[Voice Transcription Error"):
-                        st.success(f"🗣️ Heard: *\"{voice_transcribed_text}\"*")
-                    elif voice_transcribed_text:
-                        st.warning(voice_transcribed_text)
+    # Scope line
+    st.markdown("""
+    <div class='scope-card'>
+        📋 <strong>Scope:</strong> Covers: rental deposits and tenancy, consumer refunds and e-commerce, unpaid salary and final settlement. Does not cover: criminal cases, family law, property title disputes, court filings.
+    </div>
+    """, unsafe_allow_html=True)
+
+    # 4 Clickable Example Prompts (Clicking one immediately fills and sends the message)
+    st.markdown("**💡 Try an example problem:**")
+    prompt_col1, prompt_col2 = st.columns(2)
+
+    EXAMPLE_PROMPTS = [
+        (
+            "🏠 Landlord Deposit",
+            "My landlord is withholding my security deposit of Rs 45,000 claiming wear-and-tear repainting charges after I vacated. How can I recover it?"
+        ),
+        (
+            "📱 E-Commerce Refund",
+            "I bought a smartphone for Rs 26,999 online that arrived defective. The seller cancelled my replacement request saying the 7-day return window expired. How can I get a refund?"
+        ),
+        (
+            "💼 Unpaid Salary After Resignation",
+            "I resigned, served my full 60-day notice period, but my employer is withholding my Rs 1,65,000 final settlement and relieving letter. What are my statutory rights?"
+        ),
+        (
+            "🇮🇳 मकान मालिक डिपॉजिट (Hindi)",
+            "मेरा मकान मालिक ₹40,000 का सिक्योरिटी डिपॉजिट वापस नहीं कर रहा है और कह रहा है कि पेंटिंग का खर्चा कटेगा। मैं अपने पैसे कैसे वापस लूँ?"
+        )
+    ]
+
+    with prompt_col1:
+        if st.button(EXAMPLE_PROMPTS[0][0], use_container_width=True, help="Tenancy security deposit dispute"):
+            st.session_state.pending_user_text = EXAMPLE_PROMPTS[0][1]
+            st.rerun()
+        if st.button(EXAMPLE_PROMPTS[2][0], use_container_width=True, help="Employment wage settlement dispute"):
+            st.session_state.pending_user_text = EXAMPLE_PROMPTS[2][1]
+            st.rerun()
+
+    with prompt_col2:
+        if st.button(EXAMPLE_PROMPTS[1][0], use_container_width=True, help="Consumer defect & refund denial"):
+            st.session_state.pending_user_text = EXAMPLE_PROMPTS[1][1]
+            st.rerun()
+        if st.button(EXAMPLE_PROMPTS[3][0], use_container_width=True, help="हिंदी में किरायेदारी विवाद"):
+            st.session_state.pending_user_text = EXAMPLE_PROMPTS[3][1]
+            st.rerun()
+
+    st.markdown("---")
 
     # Render Chat History
     for msg in st.session_state.chat_history:
         with st.chat_message(msg["role"], avatar="🧑‍💼" if msg["role"] == "assistant" else "👤"):
-            st.markdown(msg["content"])
+            st.markdown(msg["content"], unsafe_allow_html=True)
 
-    # Determine user input (Text Chat Input, Voice Transcription, or Preset Demo Insert)
-    chat_text_input = st.chat_input("Type your message or ask a question...")
-    
+    # Chat Input Box
+    chat_text_input = st.chat_input("Type your dispute or question here...")
+
+    # Voice Recorder moved UNDER the chat input into a collapsed expander
+    voice_transcribed_text = None
+    with st.expander("🎙️ Speak instead of typing", expanded=False):
+        st.caption("Click the microphone to record your voice. Groq Whisper Large v3 Turbo will transcribe it.")
+        audio_prompt = st.audio_input("Record voice message", label_visibility="collapsed")
+        if audio_prompt is not None:
+            audio_bytes = audio_prompt.read()
+            if "last_audio_bytes" not in st.session_state or st.session_state.last_audio_bytes != audio_bytes:
+                st.session_state.last_audio_bytes = audio_bytes
+                whisper_key = groq_key
+                if not whisper_key:
+                    st.warning("⚠️ Voice transcription requires GROQ_API_KEY in .env.")
+                else:
+                    with st.spinner("🎧 Transcribing your voice via Groq Whisper..."):
+                        voice_transcribed_text = transcribe_audio_file(audio_bytes, whisper_key, lang_code=whisper_code)
+                        if voice_transcribed_text and not voice_transcribed_text.startswith("[Voice Transcription Error"):
+                            st.success(f"🗣️ Transcribed: *\"{voice_transcribed_text}\"*")
+                        elif voice_transcribed_text:
+                            st.warning(voice_transcribed_text)
+
+    # Determine incoming user message
     incoming_message = None
-    if voice_transcribed_text and not voice_transcribed_text.startswith("[Voice Transcription Error"):
+    if "pending_user_text" in st.session_state and st.session_state.pending_user_text:
+        incoming_message = st.session_state.pending_user_text.strip()
+        st.session_state.pending_user_text = None
+    elif voice_transcribed_text and not voice_transcribed_text.startswith("[Voice Transcription Error"):
         incoming_message = voice_transcribed_text.strip()
     elif chat_text_input and chat_text_input.strip():
         incoming_message = chat_text_input.strip()
-    elif "pending_user_text" in st.session_state and st.session_state.pending_user_text:
-        incoming_message = st.session_state.pending_user_text.strip()
-        del st.session_state.pending_user_text
 
-    # Handle incoming user message
+    # Process Message
     if incoming_message:
-        # Append User Message
+        # Append User Message to history
         st.session_state.chat_history.append({"role": "user", "content": incoming_message})
-        
-        # Check if in Opponent Practice Mode
+
+        # 1. Immediate Escalation & Out-of-Scope Pre-Flight Checks
+        esc_check = check_immediate_advocate_escalation(incoming_message)
+        scope_check = retrieve_verified_legal_context(incoming_message)
+
+        is_escalation = esc_check.get("requires_real_lawyer", False)
+        is_out_of_scope = scope_check.get("out_of_scope", False)
+
+        # Handle Roleplay Mode
         if st.session_state.practice_mode and st.session_state.case_dossier:
             engine = LegalLLMEngine(provider=prov_code, model_name=model_name, api_key=active_key)
             roleplay_agent = RoleplayOpponentAgent(engine)
@@ -304,7 +412,7 @@ with col_chat:
                 opponent_reply = opp_eval.get("opponent_reply", "")
                 coach = opp_eval.get("coach_evaluation", {})
 
-                if opponent_reply.startswith("ERROR:") or "No model connected" in opponent_reply or "[Gemini Error" in opponent_reply or "[Groq Error" in opponent_reply or opp_eval.get("status") == "error":
+                if opponent_reply.startswith("ERROR:") or "No model connected" in opponent_reply or opp_eval.get("status") == "error":
                     err_msg = opp_eval.get("error", opponent_reply)
                     st.error(f"⚠️ {err_msg}")
                 else:
@@ -325,75 +433,103 @@ with col_chat:
                     st.session_state.chat_history.append({"role": "assistant", "content": reply_markdown})
                     st.rerun()
 
-        # Conversational Legal Counselor Flow (Initial Case vs. Continuous Follow-ups)
+        # Handle Standard Legal Assistant Flow
         else:
             engine = LegalLLMEngine(provider=prov_code, model_name=model_name, api_key=active_key)
-            
-            # Scenario A: First Turn - Establishing the Case Dossier
+
+            # Turn 1: Build Dossier & Rights Advice
             if st.session_state.case_dossier is None:
                 case_builder = CaseBuilderAgent(engine)
                 rights_advisor = RightsAdvisorAgent(engine)
 
-                with st.spinner("🤔 NyayaMitra is listening, checking verified Indian statutes, and preparing guidance..."):
-                    # 1. Build Case Dossier
+                with st.spinner("🤔 NyayaMitra is analyzing facts, checking verified statutes, and preparing advice..."):
                     dossier = case_builder.run(incoming_message, language=selected_lang)
                     if dossier.get("status") == "error" or "error" in dossier:
                         err_msg = dossier.get("error", "No model connected. Add an API key.")
                         st.error(f"⚠️ {err_msg}")
                     else:
                         st.session_state.case_dossier = dossier
-
-                        # 2. Check escalation
-                        esc = dossier.get("escalation_check", {})
-                        
-                        # 3. Retrieve verified laws & rights
                         rights = rights_advisor.run(dossier, language=selected_lang)
+
                         if rights.get("status") == "error" or "error" in rights:
                             err_msg = rights.get("error", "Error connecting to model.")
                             st.error(f"⚠️ {err_msg}")
                         else:
                             st.session_state.rights_advice = rights
 
-                            # 4. Generate conversational response
+                            # Build Banner (Escalation Red Banner or Out-of-Scope Grey Message)
+                            banner_prefix = ""
+                            if is_escalation:
+                                banner_prefix = (
+                                    "<div class='banner-escalation'>"
+                                    "<strong>🚨 Please speak to a lawyer:</strong> This situation involves serious legal or criminal risk. "
+                                    f"Escalation trigger: <em>{esc_check.get('reason', 'High-risk matter')}</em>. "
+                                    "Please consult a practicing advocate immediately or call the free District Legal Services Authority (DLSA) / NALSA helpline at <strong>15100</strong>."
+                                    "</div>"
+                                )
+                            elif is_out_of_scope:
+                                banner_prefix = (
+                                    "<div class='banner-scope'>"
+                                    "<strong>ℹ️ Topic Out of Scope:</strong> This matter is outside NyayaMitra's supported civil areas (rental deposits, consumer refunds, wage settlement). "
+                                    "NyayaMitra does not cover criminal cases, family law/divorce, property title disputes, or court filings. "
+                                    "Please consult a licensed advocate or legal aid center."
+                                    "</div>"
+                                )
+
                             standing_text = rights.get("plain_language_standing", "")
                             options = rights.get("action_options", [])
-                            
-                            response_content = f"{standing_text}\n\n"
-                            
-                            if esc.get("requires_real_lawyer", False):
-                                response_content += f"⚠️ **IMPORTANT NOTICE:** This case touches upon high-risk matters ({', '.join(esc.get('reasons', []))}). I recommend consulting a practicing advocate immediately. You can reach the free National Legal Aid Helpline at **15100**.\n\n"
-                            
-                            if options:
+
+                            response_content = f"{banner_prefix}{standing_text}\n\n"
+
+                            if options and not is_out_of_scope:
                                 response_content += "### 🎯 Your Immediate Action Steps:\n"
                                 for opt in options[:2]:
                                     response_content += f"- **{opt.get('title')}:** {opt.get('details')} *(Timeline: {opt.get('timeline')}, Cost: {opt.get('cost_estimate')})*\n"
-                            
-                            response_content += "\n👉 **Take a look at the Live Intelligence panel on the right:** I've organized your case timeline and evidence checklist. You can ask me any follow-up questions, or click **Draft Legal Notice** anytime!"
+
+                            response_content += "\n👉 **Take a look at the Case Intelligence panel on the right:** I've organized your case timeline and evidence checklist. You can ask follow-up questions, or click **Draft Legal Notice** anytime!"
 
                             st.session_state.chat_history.append({"role": "assistant", "content": response_content})
                             st.rerun()
 
-            # Scenario B: Multi-Turn Follow-Up Question (Continuous Chat)
+            # Subsequent Turns: Multi-Turn Dialogue
             else:
                 counselor = ConversationalCounselorAgent(engine)
-                with st.spinner("💬 NyayaMitra is thinking and preparing your legal answer..."):
+                with st.spinner("💬 NyayaMitra is preparing your legal answer..."):
                     answer = counselor.answer_followup(
                         st.session_state.chat_history,
                         st.session_state.case_dossier,
                         incoming_message,
                         language=selected_lang
                     )
-                    
-                    if answer.startswith("ERROR:") or "No model connected" in answer or "[Gemini Error" in answer or "[Groq Error" in answer:
+
+                    if answer.startswith("ERROR:") or "No model connected" in answer:
                         st.error(f"⚠️ {answer}")
                     else:
-                        # Also dynamically check if user mentioned new evidence/proofs to update the sidecar
+                        # Prepend escalation or scope banner if newly triggered
+                        banner_prefix = ""
+                        if is_escalation:
+                            banner_prefix = (
+                                "<div class='banner-escalation'>"
+                                "<strong>🚨 Please speak to a lawyer:</strong> This situation involves serious legal or criminal risk. "
+                                "Please consult an advocate immediately or call the free DLSA / NALSA helpline at <strong>15100</strong>."
+                                "</div>"
+                            )
+                        elif is_out_of_scope:
+                            banner_prefix = (
+                                "<div class='banner-scope'>"
+                                "<strong>ℹ️ Topic Out of Scope:</strong> This query falls outside NyayaMitra's supported civil domains."
+                                "</div>"
+                            )
+
+                        full_answer = banner_prefix + answer
+
+                        # Dynamically check for newly mentioned evidence
                         msg_lower = incoming_message.lower()
-                        evidence_keywords = ["bank statement", "receipt", "invoice", "photo", "video", "whatsapp", "email", "agreement", "cheque", "recording", "job sheet", "bill"]
+                        evidence_keywords = ["bank statement", "receipt", "invoice", "photo", "video", "whatsapp", "email", "agreement", "job sheet", "bill"]
                         found_ev = [w for w in evidence_keywords if w in msg_lower]
                         if found_ev and "evidence_held" in st.session_state.case_dossier:
                             for ev in found_ev:
-                                entry_name = f"Additional mentioned proof: {ev.capitalize()}"
+                                entry_name = f"Additional proof: {ev.capitalize()}"
                                 if entry_name not in st.session_state.case_dossier["evidence_held"]:
                                     st.session_state.case_dossier["evidence_held"].append(entry_name)
                                     curr_score = st.session_state.case_dossier.get("evidence_strength_score", 7)
@@ -404,13 +540,15 @@ with col_chat:
                                     if curr_score < 10:
                                         st.session_state.case_dossier["evidence_strength_score"] = curr_score + 1
 
-                        st.session_state.chat_history.append({"role": "assistant", "content": answer})
+                        st.session_state.chat_history.append({"role": "assistant", "content": full_answer})
                         st.rerun()
 
-# Sidecar Column: Live Case Intelligence & Actionable Tools
+# ==============================================================================
+# RIGHT SIDECAR: LIVE CASE INTELLIGENCE
+# ==============================================================================
 with col_side:
-    st.markdown("### 📊 Live Case Intelligence")
-    
+    st.markdown("### 📊 Case Intelligence")
+
     if st.session_state.case_dossier:
         dossier = st.session_state.case_dossier
         rights = st.session_state.rights_advice or {}
@@ -432,14 +570,14 @@ with col_side:
         except Exception:
             score = 7
         score = max(1, min(10, score))
-        
+
         st.markdown(f"**🛡️ Evidence Strength: `{score}/10`**")
         st.progress(float(score) / 10.0)
         st.caption(dossier.get("evidence_strength_explanation", ""))
 
-        # Tabs for Details
-        st_tab1, st_tab2, st_tab3 = st.tabs(["⏳ Timeline", "📜 Proof Checklist", "📚 Laws"])
-        
+        # Tabs for Timeline, Proof Checklist, and Sources Used
+        st_tab1, st_tab2, st_tab3 = st.tabs(["⏳ Timeline", "📜 Proof Checklist", "📚 Sources Used"])
+
         with st_tab1:
             timeline = dossier.get("timeline", [])
             if isinstance(timeline, list) and timeline:
@@ -449,7 +587,7 @@ with col_side:
                     else:
                         st.markdown(f"- {t}")
             else:
-                st.caption("Tell me the dates to build your timeline.")
+                st.caption("Timeline will appear here as dates are discussed.")
 
         with st_tab2:
             st.markdown("**Proof You Have:**")
@@ -458,7 +596,7 @@ with col_side:
                 held = [held]
             for h in held:
                 st.markdown(f"- ✅ {h}")
-                
+
             st.markdown("**Proof You Still Need:**")
             needed = dossier.get("evidence_needed", [])
             if isinstance(needed, str):
@@ -467,34 +605,71 @@ with col_side:
                 st.markdown(f"- ⚠️ {n}")
 
         with st_tab3:
+            st.markdown("**Statutory provisions referenced:**")
             laws = rights.get("governing_laws", [])
+            
+            # Helper: check status from verified database
+            def lookup_statutory_status(act_name: str, sec: str) -> str:
+                norm_act = act_name.lower()
+                for entry in VERIFIED_STATUTORY_DATABASE:
+                    if entry.get("domain", "").lower() in norm_act or entry.get("act", "").lower() in norm_act:
+                        return entry.get("status", "verified")
+                return "verified"
+
             if isinstance(laws, list) and laws:
                 for l in laws:
                     if isinstance(l, dict):
-                        is_verified = l.get("status") == "verified"
-                        badge = "" if is_verified else " <span style='color:orange; font-size:0.8rem; font-weight:bold;'>[unverified]</span>"
-                        st.markdown(f"- **{l.get('act_name', 'Statute')}** ({l.get('section', 'General Provisions')}){badge}: {l.get('relevance', '')}", unsafe_allow_html=True)
+                        act_name = l.get("act_name", "Statute")
+                        sec = l.get("section", "")
+                        status = l.get("status") or lookup_statutory_status(act_name, sec)
+                        is_verified = (status == "verified")
+
+                        if is_verified:
+                            badge_html = "<span class='badge-verified'>verified</span>"
+                        else:
+                            badge_html = "<span class='badge-unverified'>needs verification</span>"
+
+                        st.markdown(
+                            f"- **{act_name}** (`{sec}`) {badge_html}<br/><small style='color:#b0bec5;'>{l.get('relevance', '')}</small>",
+                            unsafe_allow_html=True
+                        )
                     else:
-                        st.markdown(f"- {l} <span style='color:orange; font-size:0.8rem; font-weight:bold;'>[unverified]</span>", unsafe_allow_html=True)
+                        st.markdown(f"- {l} <span class='badge-unverified'>needs verification</span>", unsafe_allow_html=True)
             else:
                 st.caption("Statutory provisions will be listed here.")
+
+            # Guard Removal Audit: Count instances where safety guard intervened
+            all_text = ""
+            if rights:
+                all_text += str(rights.get("plain_language_standing", ""))
+                all_text += str(rights.get("action_options", ""))
+            for msg in st.session_state.chat_history:
+                all_text += str(msg.get("content", ""))
+
+            removed_count = all_text.count("[unverified reference removed]")
+            if removed_count > 0:
+                st.markdown(f"""
+                <div style='background:rgba(255, 152, 0, 0.12); border-left:4px solid #ff9800; padding:8px 12px; border-radius:4px; margin-top:10px; font-size:0.85rem; color:#ffb74d;'>
+                    ⚠️ <strong>{removed_count} unverified reference(s)</strong> removed from the answer.
+                </div>
+                """, unsafe_allow_html=True)
 
         st.markdown("---")
         st.markdown("### ⚡ Action Center")
 
-        # 1. Legal Notice Generator Button
+        # 1. Legal Notice Generator Button (Standard Pre-Litigation Practice)
         if st.button("📝 Draft Ready-to-Send Legal Notice", use_container_width=True, type="primary"):
             engine = LegalLLMEngine(provider=prov_code, model_name=model_name, api_key=active_key)
             drafter = DocumentDrafterAgent(engine)
-            with st.spinner("Drafting 15-day formal legal notice..."):
+            with st.spinner("Drafting formal legal demand notice (established pre-litigation practice)..."):
                 notice = drafter.run(dossier, rights)
-                if notice.startswith("ERROR:") or "No model connected" in notice or "[Gemini Error" in notice or "[Groq Error" in notice:
+                if notice.startswith("ERROR:") or "No model connected" in notice:
                     st.error(f"⚠️ {notice}")
                 else:
                     st.session_state.notice_draft = notice
                     st.session_state.chat_history.append({
                         "role": "assistant",
-                        "content": f"📄 **I have generated your Formal Legal Demand Notice!**\n\nYou can review, copy, or download it from the Action Center on the right."
+                        "content": "📄 **I have generated your Formal Legal Demand Notice!**\n\nYou can review, copy, or download it from the Action Center on the right."
                     })
                     st.rerun()
 
@@ -514,7 +689,7 @@ with col_side:
         st.markdown("---")
         st.markdown("### 🥊 Opponent Practice Arena")
         st.caption("Roleplay and practice negotiating with the opposing party right in the chat.")
-        
+
         practice_toggle = st.toggle("Enable Roleplay Opponent Mode", value=st.session_state.practice_mode)
         if practice_toggle != st.session_state.practice_mode:
             st.session_state.practice_mode = practice_toggle
@@ -535,13 +710,14 @@ with col_side:
                 })
             st.rerun()
 
+    # Empty State (When no dispute is active yet)
     else:
         st.info("💡 **Your Case Intelligence will appear here** as soon as you speak or type your legal problem.")
         st.markdown("""
-        **What NyayaMitra does:**
-        1. 🎧 **Listens to your story** by voice or text.
-        2. 📋 **Extracts facts & dates** into a verified dossier.
-        3. ⚖️ **Cites real Indian laws** (*Model Tenancy Act, CPA 2019, Code on Wages 2019*).
-        4. 📝 **Generates a 15-day Legal Notice**.
-        5. 🥊 **Simulates the opponent** so you can practice negotiating.
+        **How NyayaMitra works:**
+        1. 🎧 **Listens to your story** by voice or text in 11 Indian languages.
+        2. 📋 **Extracts facts & dates** into an organized case timeline.
+        3. ⚖️ **Answers only from a small checked list of laws.** Anything not on the list is flagged.
+        4. 📝 **Drafts a 15-day Legal Notice** (standard pre-litigation practice).
+        5. 🥊 **Simulates the opponent** so you can practice your arguments.
         """)
