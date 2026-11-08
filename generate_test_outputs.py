@@ -61,14 +61,8 @@ TEST_SCENARIOS = [
 ]
 
 def run_real_test_cases():
-    # Prefer Groq Flagship or Gemini Flagship from environment
-    provider = os.getenv("LLM_PROVIDER", "groq").lower()
-    if provider == "groq" and os.getenv("GROQ_API_KEY"):
-        engine = LegalLLMEngine(provider="groq", model_name="openai/gpt-oss-120b")
-    elif os.getenv("GEMINI_API_KEY"):
-        engine = LegalLLMEngine(provider="gemini", model_name="gemini-3.5-flash")
-    else:
-        engine = LegalLLMEngine(provider="groq", model_name="openai/gpt-oss-120b")
+    # Use Google Gemini (gemini-3.5-flash-lite) as primary model
+    engine = LegalLLMEngine(provider="gemini", model_name="gemini-3.5-flash-lite")
 
     case_builder = CaseBuilderAgent(engine)
     rights_advisor = RightsAdvisorAgent(engine)
@@ -107,8 +101,8 @@ def run_real_test_cases():
             "name": scenario["name"],
             "category": scenario["category"],
             "timestamp": run_timestamp,
-            "provider": engine.provider,
-            "model_name": engine.model_name,
+            "provider": getattr(engine, "last_used_provider", "Gemini"),
+            "model_name": getattr(engine, "last_used_model", "gemini-3.5-flash-lite"),
             "raw_input": scenario["raw_story"],
             "case_dossier": dossier,
             "rights_advice": rights,
@@ -136,9 +130,11 @@ def run_real_test_cases():
 
     # Write Markdown Report containing unedited raw outputs
     report_path = os.path.join(test_cases_dir, "raw_outputs_report.md")
+    actual_p = getattr(engine, "last_used_provider", "Gemini")
+    actual_m = getattr(engine, "last_used_model", "gemini-3.5-flash-lite")
     with open(report_path, "w", encoding="utf-8") as f:
         f.write("# NyayaMitra - Official Unedited Raw Outputs for Test Cases\n\n")
-        f.write(f"> **Execution Metadata:** Generated on `{datetime.datetime.now(datetime.timezone.utc).isoformat()}` using Provider: `{engine.provider}`, Model: `{engine.model_name}`.\n")
+        f.write(f"> **Execution Metadata:** Generated on `{datetime.datetime.now(datetime.timezone.utc).isoformat()}` using Provider: `{actual_p}`, Model: `{actual_m}`.\n")
         f.write("> **Strict Ground Rule:** Real agent calls only. No post-editing, no mock datasets.\n\n")
 
         for out in outputs:

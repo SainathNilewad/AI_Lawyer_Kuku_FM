@@ -96,5 +96,5 @@
 
 ================================================================================
  Verification Summary: 28/28 Passed | 0 Failed
- Verbatim console output saved to: D:\Project\AI Lawyer\test_cases\verification_run.txt
+ Verbatim console output saved to: test_cases/verification_run.txt
 ================================================================================

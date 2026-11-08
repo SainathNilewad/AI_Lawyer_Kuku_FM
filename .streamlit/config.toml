@@ -4,7 +4,7 @@ enableCORS = false
 enableXsrfProtection = true
 
 [client]
-showErrorDetails = "full"
+showErrorDetails = "none"
 
 [theme]
 base = "dark"

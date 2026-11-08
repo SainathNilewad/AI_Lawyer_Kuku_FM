@@ -43,13 +43,16 @@ from agents import CaseBuilderAgent, RightsAdvisorAgent, DocumentDrafterAgent, C
 
 BENCHMARK_FILE = os.path.join(os.path.dirname(__file__), "test_cases", "benchmark_test_cases.json")
 OUTPUT_VERIFICATION_FILE = os.path.join(os.path.dirname(__file__), "test_cases", "verification_run.txt")
+_REPO_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class Tee:
     def __init__(self, *files):
         self.files = files
     def write(self, obj):
+        # Remove local absolute paths (like D:\Project\AI Lawyer)
+        cleaned = obj.replace(_REPO_DIR + "\\", "").replace(_REPO_DIR + "/", "").replace(_REPO_DIR, "")
         for f in self.files:
-            f.write(obj)
+            f.write(cleaned)
             f.flush()
     def flush(self):
         for f in self.files:
@@ -327,7 +330,7 @@ def run_test_suite():
 
     print("\n" + "=" * 80, flush=True)
     print(f" Verification Summary: {passed_count}/{len(cases)} Passed | {failed_count} Failed", flush=True)
-    print(f" Verbatim console output saved to: {OUTPUT_VERIFICATION_FILE}", flush=True)
+    print(f" Verbatim console output saved to: test_cases/verification_run.txt", flush=True)
     print("=" * 80, flush=True)
 
     sys.stdout = orig_stdout

@@ -57,21 +57,23 @@ NyayaMitra strictly enforces that models never invent laws or court judgments:
 
 ## 🧪 Verification & Benchmark Suite
 
-NyayaMitra includes an automated benchmark suite (`verify_test_suite.py`) testing 22 distinct scenarios (10 core civil scenarios across tenancy, consumer, and wage disputes, plus 12 adversarial stress tests).
+NyayaMitra includes an automated benchmark suite (`verify_test_suite.py`) testing 28 distinct scenarios (10 core civil scenarios across tenancy, consumer, and wage disputes, plus 18 adversarial stress tests).
 
-- **Automated Test Run:** **22/22 passed (0 failed)**, logged directly to `test_cases/verification_run.txt`.
+- **Automated Test Run:** **28/28 passed (0 failed)**, logged directly to `test_cases/verification_run.txt`.
+- **Primary Model Evaluated:** **Google Gemini 3.5 Flash** (`gemini-3.5-flash-lite`, free tier) for all statutory and document reasoning tasks. Groq is used exclusively for speech-to-text audio transcription via **Whisper Large v3 Turbo** (`whisper-large-v3-turbo`).
 - **What the Suite Measures:**
   1. **Code-Level Section & Act-Name Guard:** Strips unverified section citations (e.g., Section 999A, unverified model tenancy sections) and banned/repealed Act names (e.g., Payment of Wages Act, Minimum Wages Act, Indian Penal Code, IPC, CrPC) replacing them with `[unverified reference removed]`.
-  2. **Case-Name Guard & TPA Scope Check:** Detects judicial case names (`"X v. Y"`, `"X vs Y"`, `"X versus Y"`) replacing them with `[unverified case reference removed]`, and verifies Section 108 of the Transfer of Property Act is not misconstrued as guaranteeing a deposit refund.
+  2. **Case-Name Guard & TPA Scope Check:** Detects judicial case names (`"X v. Y"`, `"X vs Y"`, `"X versus Y"`) replacing them with `[unverified case reference removed]`, intercepts case-law requests deterministically, and verifies Section 108 of the Transfer of Property Act is not misconstrued as guaranteeing a deposit refund.
   3. **Immediate Advocate Escalation:** Deterministically routes emergency queries (criminal violence, assault, arrest) to the *District Legal Services Authority (DLSA Helpline: 15100)*.
   4. **Honest Out-of-Scope Refusal:** Refuses matters outside the 3 supported domains (divorce, spousal maintenance/alimony, writ petitions) cleanly without guessing.
   5. **Maintenance Disambiguation:** Distinguishes in-scope tenancy flat maintenance (e.g., ₹2,000 monthly maintenance fee) from out-of-scope matrimonial maintenance.
+  6. **Provision & Fact Relevance:** Ensures Section 18 of the Code on Wages is cited only when deductions/fines are present, and prevents hallucinated email reminders or experience certificate demands in drafted notices.
 - **Note on Answer Correctness:** Full answer correctness was checked only on test cases where the user filled in `expected_answer_verified_by_me`. For all other cases, the suite rigorously evaluates statutory grounding, code-level safety guards, escalation criteria, and domain scope boundaries.
 - **Unverified Section Reduction:** The section scanner on raw model outputs measured:
-  - `tc_01_tenancy.json`: before fix: 5 unverified sections, after fix: 0
-  - `tc_02_consumer.json`: before fix: 4 unverified sections, after fix: 0
-  - `tc_03_employment.json`: before fix: 7 unverified sections, after fix: 0
-  - Total across test outputs: **before fix: 16 unverified sections, after fix: 0**.
+  - `tc_01_tenancy.json`: before fix: 2 unverified sections, after fix: 0
+  - `tc_02_consumer.json`: before fix: 0 unverified sections, after fix: 0
+  - `tc_03_employment.json`: before fix: 5 unverified sections, after fix: 0
+  - Total across baseline test outputs: **before fix: 7 unverified sections, after fix: 0**.
 
 To run the verification suite:
 ```bash
@@ -92,11 +94,10 @@ pip install -r requirements.txt
 ### 2. Configure Environment (`.env`)
 Create a `.env` file with your API keys:
 ```env
-GROQ_API_KEY=your_groq_api_key_here
 GEMINI_API_KEY=your_gemini_api_key_here
-LLM_PROVIDER=groq
-GROQ_MODEL=openai/gpt-oss-120b
-GEMINI_MODEL=gemini-3.5-flash
+GROQ_API_KEY=your_groq_api_key_here  # Used exclusively for Whisper voice transcription
+LLM_PROVIDER=gemini
+GEMINI_MODEL=gemini-3.5-flash-lite
 ```
 
 ### 3. Run the Conversational App
@@ -114,16 +115,17 @@ Open **`http://localhost:8501`** in your browser.
 ├── legal_kb.py                       # Grounded statutory knowledge base, section whitelist & guard
 ├── agents.py                         # Modular agents (CaseBuilder, RightsAdvisor, Drafter, Roleplay)
 ├── llm_engine.py                     # Provider engine (Groq & Gemini) with model listing & error handling
-├── verify_test_suite.py              # Automated 22-scenario benchmark & adversarial test runner
+├── verify_test_suite.py              # Automated 28-scenario benchmark & adversarial test runner
 ├── .env                              # API key configuration
 ├── .gitignore                        # Protects .env from git commits
 ├── requirements.txt                  # Minimal dependencies
 ├── solution_doc.md                   # 2-Page Executive Solution Document
 ├── solution_doc.html                 # Print-ready HTML version of solution document
 └── test_cases/
-    ├── benchmark_test_cases.json     # 22 benchmark & adversarial test cases
-    ├── verification_run.txt          # Saved console output of automated test suite (22/22 passed)
+    ├── benchmark_test_cases.json     # 28 benchmark & adversarial test cases
+    ├── verification_run.txt          # Saved console output of automated test suite (28/28 passed)
     ├── raw_outputs_report.md         # Full Markdown report of live model outputs
+    ├── single_session_output.json    # Scripted six-message session verifying live chat path
     ├── tc_01_tenancy.json            # Tenancy live output dossier (post-fix)
     ├── tc_02_consumer.json           # Consumer live output dossier (post-fix)
     ├── tc_03_employment.json         # Employment live output dossier (post-fix)

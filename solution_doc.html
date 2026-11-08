@@ -136,17 +136,34 @@ To maintain legal integrity, NyayaMitra is explicitly restricted to three everyd
   - Formatting formal legal notices and simulating opposing party counter-arguments in the practice arena.
 <hr style='border:none; border-top:1px solid #e0e0e0; margin:10px 0;'/>
 <h2>3. Hallucination Defense & Quality Verification</h2>
-1. <strong>No Invented Precedents:</strong> Judicial case citations were intentionally eliminated from the database to prevent manufactured citations.
-2. <strong>Code-Level Section & Act Guard:</strong> Verifies every statutory section cited against a whitelist extracted exclusively from verified entries in the local knowledge base, and bans repealed/unverified Act names (Payment of Wages Act, Minimum Wages Act, Payment of Bonus Act, Equal Remuneration Act, Indian Penal Code, IPC, CrPC) replacing them with <code>[unverified reference removed]</code>.
-3. <strong>Repealed Statute Removal:</strong> The repealed Payment of Wages Act, 1936 was replaced with the Code on Wages, 2019 (Sections 17(1), 17(2), 17(4), 18(1), 18(2), 18(3)).
-4. <strong>Automated Verification Suite (<code>verify_test_suite.py</code>):</strong> Runs 19 benchmark test cases (10 core civil scenarios + 9 adversarial queries covering invented sections, repealed statutes, criminal threats, maintenance disambiguation, and out-of-scope overrides), achieving a pass count of <strong>19/19 passed (0 failed)</strong>, logged to <code>test_cases/verification_run.txt</code>.
-   - <strong>What the Suite Measures:</strong> (a) Code-level section and banned Act guards, (b) Immediate advocate escalation triggers, and (c) Honest out-of-scope refusal.
-   - <strong>Note on Answer Correctness:</strong> Full answer correctness was checked only on cases where the user filled in <code>expected_answer_verified_by_me</code>.
-   - <strong>Raw Model Output Reduction:</strong> Across raw model outputs (TC-01 to TC-03), unverified section references were reduced from before fix: 16 unverified sections (5 in TC-01, 4 in TC-02, 7 in TC-03) to after fix: 0 unverified sections, and all banned Act citations were successfully intercepted.
+<ol>
+  <li><strong>No Invented Precedents:</strong> Judicial case citations were intentionally eliminated from the database to prevent manufactured citations. In addition, an upstream regex intercept catches any prompt soliciting court precedents (e.g., "which Supreme Court case") and serves a deterministic refusal directing users to DLSA (15100).</li>
+  <li><strong>Code-Level Section & Act Guard:</strong> Verifies every statutory section cited against a whitelist extracted exclusively from verified entries in the local knowledge base, and bans repealed/unverified Act names (Payment of Wages Act, Minimum Wages Act, Payment of Bonus Act, Equal Remuneration Act, Indian Penal Code, IPC, CrPC) replacing them with <code>[unverified reference removed]</code>.</li>
+  <li><strong>Repealed Statute Removal & Triggered Relevance:</strong> The repealed Payment of Wages Act, 1936 was replaced with the Code on Wages, 2019. Furthermore, specific sections are gated behind trigger words: Section 18 (deductions) is only injected if deduction/fine keywords appear, preventing the model from hallucinating Section 18 in simple withheld-salary disputes.</li>
+  <li><strong>Automated Verification Suite (<code>verify_test_suite.py</code>):</strong> Runs 28 benchmark test cases (10 core civil scenarios + 18 adversarial queries covering invented sections, repealed statutes, criminal threats, maintenance disambiguation, case-law interception, date integrity, provision relevance, and notice facts), achieving a pass count of <strong>28/28 passed (0 failed)</strong>, logged verbatim to <code>test_cases/verification_run.txt</code>.
+    <ul>
+      <li><strong>Evaluated Model:</strong> Google Gemini 3.5 Flash (<code>gemini-3.5-flash-lite</code>, free tier) for statutory reasoning; Groq for Whisper Large v3 Turbo voice transcription.</li>
+      <li><strong>What the Suite Measures:</strong> (a) Code-level section and banned Act guards, (b) Immediate advocate escalation triggers, (c) Honest out-of-scope refusal, (d) Upstream precedent interception, and (e) Fact and provision relevance.</li>
+      <li><strong>Note on Answer Correctness:</strong> Full answer correctness was checked only on cases where the user filled in <code>expected_answer_verified_by_me</code>.</li>
+      <li><strong>Raw Model Output Reduction:</strong> Across raw model outputs (TC-01 to TC-03), unverified section references were reduced from before fix: 7 unverified sections (2 in TC-01, 0 in TC-02, 5 in TC-03) to after fix: 0 unverified sections, and all banned Act citations were successfully intercepted.</li>
+    </ul>
+  </li>
+</ol>
 <hr style='border:none; border-top:1px solid #e0e0e0; margin:10px 0;'/>
 <h2>4. One Place the AI Tools Got It Wrong</h2>
-<!-- PLACEHOLDER: To be filled by candidate based on real testing experience -->
-[Placeholder: Describe a specific instance where LLM tools gave an incorrect legal answer, invented a section, or gave flawed advice, and how NyayaMitra's verification guardrails handled it.]
+<p>During initial testing with unconstrained frontier models on our employment wage-recovery scenario (TC-03), the LLM exhibited three critical legal hallucinations:</p>
+<ol>
+  <li><strong>Hallucinating Repealed Legislation & Phantom Sections:</strong> It cited the repealed <em>Payment of Wages Act, 1936</em> (specifically Sections 5 and 15), advising the employee to approach the Payment of Wages Authority with a 12-month limitation period that does not apply under contemporary central labor codes.</li>
+  <li><strong>Statutory Distortion (Section 18 Mischaracterization):</strong> When prompted with the modern <em>Code on Wages, 2019</em>, the model cited Section 18(3) and erroneously claimed that <em>"Section 18 prohibits employers from withholding wages"</em>. In reality, Section 18 strictly governs <em>permissible deductions</em> (fines, absence from duty, damage to goods) and caps total deductions at 50% of wages; it does not govern the withholding of full-and-final settlement upon resignation (which is covered under Section 17(2)).</li>
+  <li><strong>Manufactured Judicial Precedents:</strong> When asked for precedent awarding interest on delayed wages, the model hallucinated fake Supreme Court citations (e.g., <code>(2000) 4 SCC 68</code>). Similarly, in a tenancy deposit scenario (TC-01), the model inappropriately cited criminal cheating provisions (Section 420 IPC / Section 318 BNS) for a purely contractual civil dispute.</li>
+</ol>
+<p><strong>How NyayaMitra Solved It:</strong></p>
+<ul>
+  <li>Replaced open-ended RAG with a hand-verified, closed statutory knowledge base (<code>legal_kb.py</code>).</li>
+  <li>Implemented <strong>Provision-Relevance Gating</strong> (<code>filter_employment_entry</code>): Section 18 is completely withheld from prompts unless the user explicitly mentions deductions, fines, or pay cuts.</li>
+  <li>Implemented <strong>Deterministic Upstream Interception</strong>: Case-law requests and criminal violence triggers bypass the LLM entirely, returning verified guidance and helpline 15100.</li>
+  <li>Implemented a post-generation <strong>Regex Section Whitelist Guard</strong> that strips unverified section numbers and banned acts automatically.</li>
+</ul>
 <hr style='border:none; border-top:1px solid #e0e0e0; margin:10px 0;'/>
 <h2>5. Honest Limitations</h2>
 <li><strong>Model Law Enforceability:</strong> The Model Tenancy Act, 2021 is a central model law; it only binds states that have formally enacted it. Local state rent control legislations govern non-adopting states.</li>
