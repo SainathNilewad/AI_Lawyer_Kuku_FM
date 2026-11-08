@@ -20,8 +20,6 @@ _REPO_ROOT = str(Path(__file__).resolve().parent)
 if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
 
-import json
-import io
 from dotenv import load_dotenv
 
 load_dotenv()

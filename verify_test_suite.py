@@ -35,8 +35,6 @@ from legal_kb import (
     scan_banned_acts,
     sanitize_banned_acts,
     scan_unverified_acts,
-    sanitize_unverified_acts,
-    is_allowed_act,
     scan_case_names,
     sanitize_case_names,
     is_case_law_request,

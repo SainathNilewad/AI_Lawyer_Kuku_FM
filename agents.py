@@ -26,8 +26,6 @@ try:
         sanitize_unverified_sections,
         scan_unverified_sections,
         scan_banned_acts,
-        scan_unverified_acts,
-        sanitize_unverified_acts,
         is_allowed_act
     )
 except ImportError:
@@ -37,8 +35,6 @@ except ImportError:
         sanitize_unverified_sections,
         scan_unverified_sections,
         scan_banned_acts,
-        scan_unverified_acts,
-        sanitize_unverified_acts,
         is_allowed_act
     )
 
