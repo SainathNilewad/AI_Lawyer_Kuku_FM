@@ -12,7 +12,6 @@ import json
 import datetime
 import re
 import sys
-import os
 from pathlib import Path
 
 # Explicitly ensure repo root is in sys.path on Streamlit Cloud / Linux
@@ -139,7 +138,6 @@ class RightsAdvisorAgent:
                         "step_number": 1,
                         "title": "Consult a Licensed Advocate or DLSA",
                         "timeline": "Immediate",
-                        "cost_estimate": "Free legal aid via DLSA",
                         "details": "Contact your local District Legal Services Authority or call toll-free 15100 for official legal assistance."
                     }
                 ],
@@ -395,7 +393,7 @@ User's Latest Statement/Argument:
                     "strength_rating": "Moderate",
                     "what_went_well": "You maintained a clear and determined position.",
                     "what_to_improve": "Quote the exact 15-day timeline and statutory liability under Indian law.",
-                    "suggested_next_counter": "Remind them that persistent refusal attracts 12% statutory interest in formal court proceedings."
+                    "suggested_next_counter": "Remind them that persistent refusal may attract statutory liability and formal action before the competent authority."
                 }
             }
 
