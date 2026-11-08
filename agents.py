@@ -7,8 +7,9 @@ Implements the 4 core capabilities for Problem 2 (AI Lawyer):
 4. RoleplayOpponentAgent: Dispute simulator allowing user to practice counter-arguments
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 import json
+import datetime
 from legal_kb import (
     retrieve_verified_legal_context,
     check_immediate_advocate_escalation,
@@ -38,6 +39,7 @@ CRITICAL INSTRUCTIONS:
 3. Audit the Evidence: List what proof the user currently mentions, and what critical missing evidence they should collect.
 4. Rate the Evidence Strength on a scale of 1 to 10.
 5. Determine the dispute category: 'Tenancy & Rental', 'Consumer & E-Commerce', 'Employment & Salary', or 'General Civil'.
+6. Do not state court fees, interest rates, processing times, penalties or portal names unless they appear in the provided knowledge base or in the user's message. If needed, say 'confirm this locally or with a lawyer / DLSA 15100.'
 
 Output MUST be a valid JSON object with EXACTLY this structure:
 {{
@@ -143,13 +145,15 @@ STRICT HALLUCINATION PREVENTION RULES:
 2. NEVER invent fake section numbers, punishments, or past judgments.
 3. If a section is not in the grounding text, explain the general legal principle without manufacturing a citation.
 4. Clearly state whether the issue is Civil or Criminal. (Remind users that monetary/contract disputes are NOT criminal cheating).
+5. Answer length & structure: Lead with a concise 3-line summary (core legal standing, key statutory rule, immediate takeaway), followed by clear details.
+6. Do not state court fees, interest rates, processing times, penalties or portal names unless they appear in the provided knowledge base or in the user's message. If needed, say 'confirm this locally or with a lawyer / DLSA 15100.' (Note: e-Daakhil applies strictly to consumer disputes, NEVER to employment or salary matters).
 
 VERIFIED STATUTORY GROUNDING:
 {grounding_text}
 
 Output format MUST be valid JSON with this structure:
 {{
-  "plain_language_standing": "A clear, reassuring 2-3 paragraph explanation of where the person stands under Indian law and why they have a strong/valid claim.",
+  "plain_language_standing": "A clear, reassuring explanation of where the person stands under Indian law. MUST start with a 3-line summary of their standing, followed by details.",
   "governing_laws": [
     {{"act_name": "Name of Statute", "section": "Specific Section", "relevance": "Why it protects the user"}}
   ],
@@ -163,15 +167,15 @@ Output format MUST be valid JSON with this structure:
     }},
     {{
       "step_number": 2,
-      "title": "Government Grievance Portal Filing (e.g. e-Daakhil / NCH / Rent Authority)",
-      "timeline": "e.g. 30-45 Days",
-      "cost_estimate": "Zero court fees up to Rs. 5 Lakhs",
-      "details": "Concrete instructions on portal registration"
+      "title": "Statutory Authority / Grievance Portal Filing",
+      "timeline": "e.g. 30-45 Days (or confirm locally)",
+      "cost_estimate": "Zero to nominal",
+      "details": "Instructions on proper forum: e-Daakhil for consumer, Rent Authority for tenancy, Labor Commissioner / DLSA for employment (never e-Daakhil for employment)"
     }},
     {{
       "step_number": 3,
       "title": "Statutory Forum / Consumer Commission Petition",
-      "timeline": "e.g. 60-90 Days",
+      "timeline": "Confirm locally / with DLSA",
       "cost_estimate": "Nominal",
       "details": "How to proceed if earlier steps fail"
     }}
@@ -187,6 +191,10 @@ Output format MUST be valid JSON with this structure:
             return result
         if not isinstance(result, dict) or "plain_language_standing" not in result:
             raw_txt = result.get("raw_text", str(result)) if isinstance(result, dict) else str(result)
+            is_emp = "employ" in str(case_dossier.get("category", "")).lower() or "wage" in str(case_dossier.get("category", "")).lower()
+            step_2_title = "File Claim with Labor Commissioner / DLSA" if is_emp else "File on Government Grievance Portal"
+            step_2_details = "Register claim before local Labor Commissioner or seek free assistance via DLSA Helpline 15100." if is_emp else "Register on statutory portal (e.g. e-Daakhil for consumer disputes, Rent Authority for tenancy)."
+
             result = {
                 "plain_language_standing": raw_txt if raw_txt else "Under Indian Law, you have a strong statutory claim to seek full recovery or refund, as arbitrary withholding or deficient services are unlawful.",
                 "governing_laws": [
@@ -194,7 +202,7 @@ Output format MUST be valid JSON with this structure:
                 ],
                 "action_options": [
                     {"step_number": 1, "title": "Serve Formal 15-Day Legal Demand Notice", "timeline": "15 Days", "cost_estimate": "Free / Speed Post", "details": "Issue notice via Speed Post and Email."},
-                    {"step_number": 2, "title": "File on Government Grievance Portal", "timeline": "30-45 Days", "cost_estimate": "Zero to nominal", "details": "Register on e-Daakhil / NCH / Rent Authority."}
+                    {"step_number": 2, "title": step_2_title, "timeline": "Varies by state", "cost_estimate": "Zero to nominal", "details": step_2_details}
                 ],
                 "real_lawyer_needed": False,
                 "real_lawyer_guidance": "You can pursue pre-litigation notice and statutory portals yourself without an advocate.",
@@ -237,8 +245,18 @@ class DocumentDrafterAgent:
     def __init__(self, engine: LegalLLMEngine):
         self.engine = engine
 
+    def draft_demand_notice(self, case_dossier: Dict[str, Any], rights_advice: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Convenience method returning structured dict containing the notice text."""
+        text = self.run(case_dossier, rights_advice or {})
+        return {"notice_text": text}
+
     def run(self, case_dossier: Dict[str, Any], rights_advice: Dict[str, Any], doc_type: str = "Legal Demand Notice") -> str:
-        system_prompt = """
+        today_str = datetime.date.today().strftime("%d/%m/%Y")
+        timeline_dates = [t.get("date_or_period", "") for t in case_dossier.get("timeline", []) if t.get("date_or_period")]
+        category = case_dossier.get("category", "")
+        is_emp = "employ" in str(category).lower() or "wage" in str(category).lower()
+
+        system_prompt = f"""
 You are the Expert Legal Drafter at NyayaMitra India.
 Your job is to draft a rigorous, professionally formatted Indian Legal Document that an ordinary citizen 
 can immediately print, sign, and serve via Speed Post with Acknowledgement Due (AD) or registered email.
@@ -248,10 +266,12 @@ DOCUMENT STANDARDS:
 2. Include: Header, Date, Mode of Dispatch (Speed Post / Email), Details of Sender and Recipient.
 3. Structured Factual Sequence: 'Under instructions from my client / The undersigned submits as under...'
 4. Clear recital of facts, timeline, amounts, and violation of statutory provisions.
-5. Strict 15-Day Rectification Demand Window.
-6. Explicit warning of further legal action (Consumer Commission / Rent Authority / Labor Court) with 12% statutory interest and litigation damages if not settled.
-7. Space for signatures and annexure inventory.
-8. Output formatted in clean Markdown.
+5. Strict 15-Day Rectification Demand Window (established pre-litigation practice).
+6. Warning of further legal action before the appropriate statutory forum.
+7. DATE RULES: Today's date is {today_str}. Never invent a year or date. Use only the specific dates provided in the case timeline ({', '.join(timeline_dates) if timeline_dates else 'none provided'}) or the user's story; if a date is unknown, use the placeholder '[DD/MM/YYYY]'. Do NOT assume the year is 2024 or any other year unless explicitly stated in the case facts.
+8. UNVERIFIED SPECIFICS: Do not state court fees, interest rates, processing times, penalties or portal names unless they appear in the provided knowledge base or in the user's message. If needed, say 'confirm this locally or with a lawyer / DLSA 15100.' {'(Note: For employment disputes, do NOT mention e-Daakhil; e-Daakhil is strictly for consumer cases).' if is_emp else ''}
+9. Space for signatures and annexure inventory.
+10. Output formatted in clean Markdown.
 """
         user_prompt = f"""
 Draft Document Type: {doc_type}
@@ -261,6 +281,9 @@ Case Facts Dossier:
 
 Legal Standing & Grounded Laws:
 {json.dumps(rights_advice, indent=2)}
+
+Today's Date: {today_str}
+Dossier Timeline Dates: {', '.join(timeline_dates) if timeline_dates else 'Use [DD/MM/YYYY]'}
 
 Please write the complete, unedited, ready-to-send document.
 """
@@ -285,6 +308,7 @@ Your character traits:
 - You are defensive, dismissive, make typical Indian landlord/corporate excuses (e.g. 'Read the agreement', 'Painting costs money', 'Company policy', 'Return window expired').
 - You try to intimidate the user with jargon or delays.
 - HOWEVER, if the user firmly cites exact facts, dates, receipts, or statutory consumer/tenancy laws, you begin to soften and negotiate!
+- Do not state court fees, interest rates, processing times, penalties or portal names unless they appear in the provided knowledge base or in the user's message. If needed, say 'confirm this locally or with a lawyer / DLSA 15100.'
 
 You must also act as a 'Coach' to evaluate the user's argument.
 
@@ -344,8 +368,11 @@ class ConversationalCounselorAgent:
     def answer_followup(self, chat_history: List[Dict[str, str]], case_dossier: Dict[str, Any], user_message: str, language: str = "Auto-Detect") -> str:
         category = case_dossier.get("category", "") if case_dossier else ""
         summary = case_dossier.get("summary", "") if case_dossier else ""
+        today_str = datetime.date.today().strftime("%d/%m/%Y")
+        is_emp = "employ" in str(category).lower() or "wage" in str(category).lower()
         
-        kb_result = retrieve_verified_legal_context(f"{category} {summary} {user_message}")
+        # Pass fallback_category so follow-up queries inherit active case domain
+        kb_result = retrieve_verified_legal_context(f"{category} {summary} {user_message}", fallback_category=category)
         if kb_result.get("out_of_scope"):
             return (
                 "This topic falls outside the verified everyday legal domains covered by NyayaMitra "
@@ -377,11 +404,14 @@ VERIFIED STATUTORY GROUNDING (NO HALLUCINATIONS):
 
 INSTRUCTIONS FOR MULTI-TURN CHAT:
 1. Answer the user's follow-up question DIRECTLY, warmly, and practically.
-2. If the user asks 'what if...', 'can I...', 'how do I...', or about proofs/threats/police/courts, give them clear, step-by-step practical guidance under Indian law.
-3. If the user shares new facts or evidence, acknowledge them and incorporate them into your advice.
-4. Keep the language natural, reassuring, and conversational.
-5. Never invent fake section numbers or fake case laws.
-6. If a physical courtroom appearance or high-risk criminal step is needed, tell them clearly to consult an advocate.
+2. ANSWER STRUCTURE: Lead with a clear 3-line summary of your direct advice, followed by concise bulleted details and practical steps.
+3. If the user asks 'what if...', 'can I...', 'how do I...', or about proofs/threats/police/courts, give them clear, step-by-step practical guidance under Indian law.
+4. DATE & TIME RULES: Today's date is {today_str}. Never invent years or dates. Use only dates provided in the case facts or [DD/MM/YYYY]. Do not assume 2024 or any year unless stated in the case facts.
+5. UNVERIFIED SPECIFICS: Do not state court fees, interest rates, processing times, penalties or portal names unless they appear in the provided knowledge base or in the user's message. If needed, say 'confirm this locally or with a lawyer / DLSA 15100.' {'(Note: For employment disputes, do NOT mention e-Daakhil; e-Daakhil is strictly for consumer cases).' if is_emp else ''}
+6. If the user shares new facts or evidence, acknowledge them and incorporate them into your advice.
+7. Keep the language natural, reassuring, and conversational.
+8. Never invent fake section numbers or fake case laws.
+9. If a physical courtroom appearance or high-risk criminal step is needed, tell them clearly to consult an advocate.
 """
         # Format recent conversation history (last 8 turns for context)
         recent_history = chat_history[-8:] if len(chat_history) > 8 else chat_history

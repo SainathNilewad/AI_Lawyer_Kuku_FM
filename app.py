@@ -30,7 +30,9 @@ except Exception:
 from legal_kb import (
     retrieve_verified_legal_context,
     check_immediate_advocate_escalation,
-    VERIFIED_STATUTORY_DATABASE
+    VERIFIED_STATUTORY_DATABASE,
+    is_case_law_request,
+    CASE_LAW_FIXED_REPLY
 )
 from llm_engine import LegalLLMEngine, list_groq_models, list_gemini_models
 from agents import (
@@ -195,6 +197,8 @@ if "chat_history" not in st.session_state:
 
 if "case_dossier" not in st.session_state:
     st.session_state.case_dossier = None
+if "case_category" not in st.session_state:
+    st.session_state.case_category = None
 if "rights_advice" not in st.session_state:
     st.session_state.rights_advice = None
 if "notice_draft" not in st.session_state:
@@ -277,7 +281,7 @@ with st.sidebar:
             else:
                 model_name = st.text_input("Model:", value=default_model)
         else:
-            default_model = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
+            default_model = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
             gemini_models = get_cached_gemini_models(active_key) if active_key else []
             if gemini_models:
                 m_idx = gemini_models.index(default_model) if default_model in gemini_models else 0
@@ -302,6 +306,7 @@ with st.sidebar:
     if st.button("🔄 Reset Conversation", use_container_width=True):
         st.session_state.chat_history = [st.session_state.chat_history[0]]
         st.session_state.case_dossier = None
+        st.session_state.case_category = None
         st.session_state.rights_advice = None
         st.session_state.notice_draft = None
         st.session_state.practice_mode = False
@@ -415,7 +420,8 @@ with col_chat:
     if incoming_message:
         # Pre-check: Ensure an active API key is connected before invoking agents
         if not active_key:
-            st.session_state.chat_history.append({"role": "user", "content": incoming_message})
+            if not st.session_state.chat_history or st.session_state.chat_history[-1].get("content") != incoming_message:
+                st.session_state.chat_history.append({"role": "user", "content": incoming_message})
             st.session_state.chat_history.append({
                 "role": "assistant",
                 "content": (
@@ -436,15 +442,49 @@ with col_chat:
             })
             st.rerun()
 
-        # Append User Message to history
-        st.session_state.chat_history.append({"role": "user", "content": incoming_message})
+        # Fix duplicated user bubble: append only if not already last message
+        if not st.session_state.chat_history or st.session_state.chat_history[-1].get("content") != incoming_message:
+            st.session_state.chat_history.append({"role": "user", "content": incoming_message})
 
-        # 1. Immediate Escalation & Out-of-Scope Pre-Flight Checks
+        # Pre-flight Check 1: Case-law request check (Fixed reply, no LLM call)
+        if is_case_law_request(incoming_message):
+            st.session_state.chat_history.append({
+                "role": "assistant",
+                "content": CASE_LAW_FIXED_REPLY
+            })
+            st.rerun()
+
+        # Pre-flight Check 2: True Out-of-Scope check (with category inheritance, no LLM call)
+        cat_fallback = st.session_state.get("case_category")
+        scope_check = retrieve_verified_legal_context(incoming_message, fallback_category=cat_fallback)
+        if scope_check.get("truly_out_of_scope", False):
+            scope_reply = (
+                "<div class='banner-scope'>"
+                "<strong>ℹ️ Topic Out of Scope:</strong> This matter falls outside NyayaMitra's supported civil areas (rental deposits, consumer refunds, wage settlement). "
+                "NyayaMitra does not cover criminal cases, family law/divorce, property title disputes, or court filings. "
+                "Please consult a licensed advocate or contact the free District Legal Services Authority (DLSA) / NALSA helpline at <strong>15100</strong>."
+                "</div>"
+            )
+            st.session_state.chat_history.append({"role": "assistant", "content": scope_reply})
+            st.rerun()
+
+        # Pre-flight Check 3: Immediate Escalation check (Short fixed advice, no predictions, no LLM call)
         esc_check = check_immediate_advocate_escalation(incoming_message)
-        scope_check = retrieve_verified_legal_context(incoming_message)
-
-        is_escalation = esc_check.get("requires_real_lawyer", False)
-        is_out_of_scope = scope_check.get("out_of_scope", False)
+        if esc_check.get("requires_real_lawyer", False):
+            reason = esc_check.get("reason", "High-risk matter")
+            escalation_reply = (
+                f"<div class='banner-escalation'>"
+                f"<strong>🚨 Please speak to a lawyer:</strong> This situation involves serious legal or criminal risk.<br>"
+                f"Escalation trigger: <em>{reason}</em>.<br>"
+                f"Please consult a practicing advocate immediately or call the free District Legal Services Authority (DLSA) / NALSA helpline at <strong>15100</strong>."
+                f"</div>\n\n"
+                f"**Immediate safety steps:**\n"
+                f"- **Keep written records:** Preserve all messages, notices, emails, and call logs.\n"
+                f"- **Do not sign anything:** Do not sign any settlement, resignation, or admission under threat or pressure.\n"
+                f"- **Speak to a lawyer or DLSA 15100:** NyayaMitra cannot predict what police or courts will do. Please contact your local District Legal Services Authority or call 15100 for official legal protection."
+            )
+            st.session_state.chat_history.append({"role": "assistant", "content": escalation_reply})
+            st.rerun()
 
         # Handle Roleplay Mode
         if st.session_state.practice_mode and st.session_state.case_dossier:
@@ -463,6 +503,11 @@ with col_chat:
                 if opponent_reply.startswith("ERROR:") or "No model connected" in opponent_reply or opp_eval.get("status") == "error":
                     err_msg = opp_eval.get("error", opponent_reply)
                     st.error(f"⚠️ {err_msg}")
+                    st.session_state.chat_history.append({
+                        "role": "assistant",
+                        "content": f"⚠️ **Model Error:** {err_msg}\n\nPlease check your model settings."
+                    })
+                    st.rerun()
                 else:
                     st.session_state.practice_history.append({"role": "user", "content": incoming_message})
                     st.session_state.practice_history.append({"role": "assistant", "content": opponent_reply})
@@ -492,44 +537,36 @@ with col_chat:
 
                 with st.spinner("🤔 NyayaMitra is analyzing facts, checking verified statutes, and preparing advice..."):
                     dossier = case_builder.run(incoming_message, language=selected_lang)
-                    if dossier.get("status") == "error" or "error" in dossier:
+                    if isinstance(dossier, dict) and (dossier.get("status") == "error" or "error" in dossier):
                         err_msg = dossier.get("error", "No model connected. Add an API key.")
                         st.error(f"⚠️ {err_msg}")
+                        st.session_state.chat_history.append({
+                            "role": "assistant",
+                            "content": f"⚠️ **Model Error:** {err_msg}\n\nPlease check your API key in **Model settings (advanced)**."
+                        })
+                        st.rerun()
                     else:
                         st.session_state.case_dossier = dossier
+                        st.session_state.case_category = dossier.get("category", "")
                         rights = rights_advisor.run(dossier, language=selected_lang)
 
-                        if rights.get("status") == "error" or "error" in rights:
+                        if isinstance(rights, dict) and (rights.get("status") == "error" or "error" in rights):
                             err_msg = rights.get("error", "Error connecting to model.")
                             st.error(f"⚠️ {err_msg}")
+                            st.session_state.chat_history.append({
+                                "role": "assistant",
+                                "content": f"⚠️ **Model Error:** {err_msg}\n\nPlease check your model settings."
+                            })
+                            st.rerun()
                         else:
                             st.session_state.rights_advice = rights
-
-                            # Build Banner (Escalation Red Banner or Out-of-Scope Grey Message)
-                            banner_prefix = ""
-                            if is_escalation:
-                                banner_prefix = (
-                                    "<div class='banner-escalation'>"
-                                    "<strong>🚨 Please speak to a lawyer:</strong> This situation involves serious legal or criminal risk. "
-                                    f"Escalation trigger: <em>{esc_check.get('reason', 'High-risk matter')}</em>. "
-                                    "Please consult a practicing advocate immediately or call the free District Legal Services Authority (DLSA) / NALSA helpline at <strong>15100</strong>."
-                                    "</div>"
-                                )
-                            elif is_out_of_scope:
-                                banner_prefix = (
-                                    "<div class='banner-scope'>"
-                                    "<strong>ℹ️ Topic Out of Scope:</strong> This matter is outside NyayaMitra's supported civil areas (rental deposits, consumer refunds, wage settlement). "
-                                    "NyayaMitra does not cover criminal cases, family law/divorce, property title disputes, or court filings. "
-                                    "Please consult a licensed advocate or legal aid center."
-                                    "</div>"
-                                )
 
                             standing_text = rights.get("plain_language_standing", "")
                             options = rights.get("action_options", [])
 
-                            response_content = f"{banner_prefix}{standing_text}\n\n"
+                            response_content = f"{standing_text}\n\n"
 
-                            if options and not is_out_of_scope:
+                            if options:
                                 response_content += "### 🎯 Your Immediate Action Steps:\n"
                                 for opt in options[:2]:
                                     response_content += f"- **{opt.get('title')}:** {opt.get('details')} *(Timeline: {opt.get('timeline')}, Cost: {opt.get('cost_estimate')})*\n"
@@ -552,25 +589,12 @@ with col_chat:
 
                     if answer.startswith("ERROR:") or "No model connected" in answer:
                         st.error(f"⚠️ {answer}")
+                        st.session_state.chat_history.append({
+                            "role": "assistant",
+                            "content": f"⚠️ **Model Error:** {answer}\n\nPlease check your model settings."
+                        })
+                        st.rerun()
                     else:
-                        # Prepend escalation or scope banner if newly triggered
-                        banner_prefix = ""
-                        if is_escalation:
-                            banner_prefix = (
-                                "<div class='banner-escalation'>"
-                                "<strong>🚨 Please speak to a lawyer:</strong> This situation involves serious legal or criminal risk. "
-                                "Please consult an advocate immediately or call the free DLSA / NALSA helpline at <strong>15100</strong>."
-                                "</div>"
-                            )
-                        elif is_out_of_scope:
-                            banner_prefix = (
-                                "<div class='banner-scope'>"
-                                "<strong>ℹ️ Topic Out of Scope:</strong> This query falls outside NyayaMitra's supported civil domains."
-                                "</div>"
-                            )
-
-                        full_answer = banner_prefix + answer
-
                         # Dynamically check for newly mentioned evidence
                         msg_lower = incoming_message.lower()
                         evidence_keywords = ["bank statement", "receipt", "invoice", "photo", "video", "whatsapp", "email", "agreement", "job sheet", "bill"]
@@ -619,7 +643,7 @@ with col_side:
             score = 7
         score = max(1, min(10, score))
 
-        st.markdown(f"**🛡️ Evidence Strength: `{score}/10`**")
+        st.markdown(f"**🛡️ Evidence Strength (AI estimate): `{score}/10`**")
         st.progress(float(score) / 10.0)
         st.caption(dossier.get("evidence_strength_explanation", ""))
 

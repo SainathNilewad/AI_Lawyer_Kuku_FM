@@ -225,12 +225,13 @@ def _matches_word_beginning(pattern_phrase: str, text: str) -> bool:
         regex_str = r'\b' + re.escape(pattern_phrase) + r'\w*'
     return bool(re.search(regex_str, text, re.IGNORECASE))
 
-def retrieve_verified_legal_context(query: str, domain_filter: str = None) -> Dict[str, Any]:
+def retrieve_verified_legal_context(query: str, domain_filter: str = None, fallback_category: str = None) -> Dict[str, Any]:
     """
     Deterministically retrieves verified statutory provisions.
     Uses whole-word matching and excludes generic terms.
     If overriding out-of-scope topics match, REFUSES even if a civil domain also matched.
-    If no domain matches, returns an explicit out-of-scope fallback (no guessing).
+    If no domain matches and a fallback_category is provided (from dossier), reuses that category.
+    If no domain matches and no fallback, returns an explicit out-of-scope fallback (no guessing).
     """
     query_str = str(query or "")
 
@@ -241,6 +242,7 @@ def retrieve_verified_legal_context(query: str, domain_filter: str = None) -> Di
                 "matched_count": 0,
                 "entries": [],
                 "out_of_scope": True,
+                "truly_out_of_scope": True,
                 "refusal_reason": f"Topic '{topic}' is outside covered everyday civil domains (family law / writ jurisdiction).",
                 "grounding_text": (
                     "OUT_OF_SCOPE: This query touches upon matters outside NyayaMitra's verified statutory domains "
@@ -258,6 +260,16 @@ def retrieve_verified_legal_context(query: str, domain_filter: str = None) -> Di
     is_consumer = _matches_any_whole_word(query_str, CONSUMER_KEYWORDS)
     is_employment = _matches_any_whole_word(query_str, EMPLOYMENT_KEYWORDS)
     
+    # If no domain keywords in follow-up message, reuse active case category from session dossier
+    if not (is_tenancy or is_consumer or is_employment) and fallback_category:
+        norm_cat = str(fallback_category).lower()
+        if "tenant" in norm_cat or "rent" in norm_cat:
+            is_tenancy = True
+        elif "consumer" in norm_cat:
+            is_consumer = True
+        elif "employ" in norm_cat or "wage" in norm_cat or "salary" in norm_cat or "labor" in norm_cat:
+            is_employment = True
+
     for entry in VERIFIED_STATUTORY_DATABASE:
         if is_tenancy and entry["domain"] == "Tenancy & Rental":
             matched_entries.append(entry)
@@ -272,6 +284,7 @@ def retrieve_verified_legal_context(query: str, domain_filter: str = None) -> Di
             "matched_count": 0,
             "entries": [],
             "out_of_scope": True,
+            "truly_out_of_scope": True,
             "grounding_text": (
                 "OUT_OF_SCOPE: This query does not match any of NyayaMitra's verified statutory domains "
                 "(Tenancy & Rental, Consumer Protection, or Code on Wages Employment). "
@@ -335,10 +348,10 @@ def check_immediate_advocate_escalation(text: str) -> Dict[str, Any]:
 # ==================== FIX 4: SECTION SCANNER & GUARDRAIL ====================
 
 def normalize_section_reference(s: str) -> str:
-    """Normalizes section strings (e.g. 'Section 17(2)' -> '17(2)')."""
+    """Normalizes section strings (e.g. 'Section 17(2)' -> '17(2)', '**Section 17 (2)**' -> '17(2)')."""
     s = s.strip().lower()
-    s = re.sub(r'^(?:section|sec\.?|u/s)\s*', '', s)
-    s = re.sub(r'\s+', '', s)
+    s = re.sub(r'^(?:\*{0,2})(?:section|sec\.?|u/s)(?:\*{0,2})\s*', '', s)
+    s = re.sub(r'[\s\u00a0\u202f\*]', '', s)
     return s
 
 def get_allowed_sections() -> Set[str]:
@@ -395,16 +408,9 @@ def sanitize_banned_acts(text: str) -> str:
         sanitized = re.sub(pat, "[unverified reference removed]", sanitized, flags=re.IGNORECASE)
     return sanitized
 
-# Note on regex limitations (crude scanner):
-# What this regex misses:
-# 1. Spelled-out numbers (e.g. "Section twelve" or "Section four hundred twenty").
-# 2. Roman numerals (e.g. "Section IV").
-# 3. Bare numbers without section prefix (e.g. "under 420 of IPC").
-# 4. Multi-section conjunctions (e.g. "Sections 12, 13 and 14" only captures 12).
-# 5. Act mismatch: checks if section exists in KB, but cannot detect if an allowed section
-#    from one statute is mistakenly cited under another statute.
+# Robust section scanner: handles bold markers, non-breaking spaces (\u00a0, \u202f), and clause spacing
 SECTION_PATTERN = re.compile(
-    r'(?i)\b(?:section|sec\.?|u/s)\s*([0-9]+(?:[\(\[][a-zA-Z0-9]+[\)\]])*(?:[a-zA-Z])*)'
+    r'(?i)\b\*{0,2}(?:section|sec\.?|u/s)\*{0,2}[\s\u00a0\u202f]*\*{0,2}([0-9]+(?:[\s\u00a0\u202f]*[\(\[][a-zA-Z0-9]+[\)\]])*(?:[a-zA-Z])*)'
 )
 
 def scan_unverified_sections(text: str) -> List[str]:
@@ -416,10 +422,17 @@ def scan_unverified_sections(text: str) -> List[str]:
     allowed = get_allowed_sections()
     unverified = []
     for match in SECTION_PATTERN.finditer(text):
-        raw = match.group(0)
+        raw = match.group(0).strip()
         norm = normalize_section_reference(match.group(1))
-        if norm not in allowed:
-            unverified.append(raw)
+        if norm in allowed:
+            continue
+        parent_clause = re.sub(r'\([a-zA-Z0-9]+\)$', '', norm)
+        if parent_clause and parent_clause in allowed:
+            continue
+        base_num = re.match(r'^([0-9]+)', norm)
+        if base_num and base_num.group(1) in allowed:
+            continue
+        unverified.append(raw)
     return unverified
 
 # ==================== CASE-NAME GUARDRAIL ====================
@@ -433,15 +446,60 @@ _VS = r"(?:v\.|v|vs\.?|versus)"
 CASE_NAME_PATTERN_STRICT = re.compile(rf"\b({_PARTY}\s+(?i:{_VS})\s+{_PARTY})\b")
 _PREP_PREFIX = re.compile(r"^(?:in|under|see|also|refer to|citing|as per|as held in)\s+", re.IGNORECASE)
 
+# Reporter citation patterns: e.g. (2000) 4 SCC 68, AIR 1985 SC 123, 1998 SCR 450, 2021 DHC 104
+REPORTER_PATTERNS = [
+    r'\b(?:\(\d{4}\)|\d{4})?\s*\d*\s*(?:SCC|AIR|SCR|DHC)(?:\s+(?:SC|Del|Bom|Cal|Kar|Mad|All|Online))?\s*\d+\b',
+    r'\bAIR\s+\d{4}\s+(?:SC|[A-Z][a-z]+)\s+\d+\b',
+    r'\(\d{4}\)\s*\d+\s+SCC\s+\d+\b'
+]
+
+# Judicial holdings phrases: e.g. "the Supreme Court held", "the High Court held", "courts have held/upheld"
+JUDICIAL_HOLDING_PATTERNS = [
+    r'(?i)[^.\n;!?]*(?:the\s+)?(?:Supreme\s+Court|High\s+Court|courts?)\s+(?:has\s+|have\s+)?(?:held|upheld)[^.\n;!?]*[.\n;!?]?',
+]
+
+# User requests for court case citations / precedents
+CASE_LAW_REQUEST_PATTERNS = [
+    r"\bcourt\s+cases?\b",
+    r"\bcase\s+laws?\b",
+    r"\bwhich\s+(?:court\s+)?case\b",
+    r"\bcite\s+(?:a\s+)?(?:court\s+)?case\b",
+    r"\bcite\s+(?:a\s+)?judgment\b",
+    r"\bjudgm?ents?\b",
+    r"\bprecedents?\b",
+    r"\bSupreme\s+Court\s+says\b",
+    r"\bHigh\s+Court\s+says\b",
+    r"\bSupreme\s+Court\s+held\b",
+    r"\bHigh\s+Court\s+held\b",
+    r"\bcourt\s+held\b",
+    r"\bcourts\s+have\s+held\b",
+    r"\bcourt\s+order\b",
+]
+
+CASE_LAW_FIXED_REPLY = (
+    "I can't cite court cases because I only use a small checked list of laws. "
+    "A lawyer or the DLSA helpline 15100 can help with case law."
+)
+
+def is_case_law_request(text: str) -> bool:
+    """Detects if user is asking for court cases, judgments, or judicial precedents."""
+    if not text or not isinstance(text, str):
+        return False
+    for pat in CASE_LAW_REQUEST_PATTERNS:
+        if re.search(pat, text, re.IGNORECASE):
+            return True
+    return False
+
 def scan_case_names(text: str) -> List[str]:
     """
     Scans text for adversarial or unverified judicial case citations
-    such as 'X v. Y', 'X vs Y', 'X versus Y'.
+    such as 'X v. Y', 'X vs Y', 'X versus Y', reporter citations, or judicial holding sentences.
     Filters out non-case phrases like 'civil vs criminal'.
     """
     if not text or not isinstance(text, str):
         return []
     found = []
+    # 1. Party vs Party matches
     for m in CASE_NAME_PATTERN_STRICT.finditer(text):
         matched_str = m.group(1).strip()
         cleaned = _PREP_PREFIX.sub("", matched_str).strip()
@@ -455,6 +513,21 @@ def scan_case_names(text: str) -> List[str]:
             
         if cleaned and cleaned not in found:
             found.append(cleaned)
+
+    # 2. Reporter citations
+    for pat in REPORTER_PATTERNS:
+        for m in re.finditer(pat, text, re.IGNORECASE):
+            rep = m.group(0).strip()
+            if rep and rep not in found:
+                found.append(rep)
+
+    # 3. Judicial holding statements
+    for pat in JUDICIAL_HOLDING_PATTERNS:
+        for m in re.finditer(pat, text):
+            holding = m.group(0).strip()
+            if holding and holding not in found:
+                found.append(holding)
+
     return found
 
 def sanitize_case_names(text: str) -> str:
@@ -468,7 +541,7 @@ def sanitize_case_names(text: str) -> str:
         return text
     print(f"[SECURITY GUARD] Logged unverified case reference(s): {cases}")
     sanitized = text
-    for c in cases:
+    for c in sorted(cases, key=len, reverse=True):
         pat = re.compile(re.escape(c), re.IGNORECASE)
         sanitized = pat.sub("[unverified case reference removed]", sanitized)
     return sanitized
@@ -497,8 +570,9 @@ def sanitize_unverified_sections(text: str) -> str:
     print(f"[SECURITY GUARD] Logged unverified section reference(s): {unverified}")
 
     sanitized = text
-    for ref in set(unverified):
-        pattern = re.compile(re.escape(ref), re.IGNORECASE)
+    # Replace longer matches first with negative lookahead to prevent partial replacement of verified sections
+    for ref in sorted(set(unverified), key=len, reverse=True):
+        pattern = re.compile(rf"{re.escape(ref)}(?![0-9a-zA-Z\(\[])", re.IGNORECASE)
         sanitized = pattern.sub("[unverified reference removed]", sanitized)
 
     return sanitized

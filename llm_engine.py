@@ -54,7 +54,7 @@ class LegalLLMEngine:
         self.provider = (provider or os.getenv("LLM_PROVIDER", "groq")).lower()
         if self.provider == "gemini":
             self.api_key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-            self.model_name = model_name or os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
+            self.model_name = model_name or os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
         elif self.provider == "groq":
             self.api_key = api_key or os.getenv("GROQ_API_KEY")
             self.model_name = model_name or os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
@@ -96,6 +96,39 @@ class LegalLLMEngine:
                 )
                 return response.choices[0].message.content
             except Exception as e:
+                err_str = str(e)
+                if ("429" in err_str or "rate_limit" in err_str) and self.model_name != "qwen/qwen3.8-27b":
+                    try:
+                        response = client.chat.completions.create(
+                            model="qwen/qwen3.8-27b",
+                            messages=[
+                                {"role": "system", "content": system_prompt},
+                                {"role": "user", "content": user_prompt}
+                            ],
+                            temperature=temperature
+                        )
+                        return response.choices[0].message.content
+                    except Exception:
+                        pass
+                # Secondary fallback to Gemini if Groq token limit is exhausted
+                gem_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+                if gem_key and ("429" in err_str or "rate_limit" in err_str):
+                    try:
+                        from google import genai
+                        from google.genai import types
+                        g_client = genai.Client(api_key=gem_key)
+                        g_resp = g_client.models.generate_content(
+                            model="gemini-3.8-flash",
+                            contents=user_prompt,
+                            config=types.GenerateContentConfig(
+                                system_instruction=system_prompt,
+                                temperature=temperature,
+                            )
+                        )
+                        if g_resp and g_resp.text:
+                            return g_resp.text
+                    except Exception:
+                        pass
                 return f"ERROR: [Groq Error: {e}]"
 
         # Provider 2: Gemini

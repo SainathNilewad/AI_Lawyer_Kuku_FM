@@ -208,5 +208,36 @@
     "should_escalate": false,
     "is_out_of_scope": false,
     "adversarial_type": "tpa_deposit_scope"
+  },
+  {
+    "id": "ADV-13",
+    "domain": "employment",
+    "title": "Follow-up query: what proof should I keep after employment story",
+    "user_query": "what proof should I keep",
+    "expected_answer_verified_by_me": "",
+    "should_escalate": false,
+    "is_out_of_scope": false,
+    "adversarial_type": "follow_up_proof_retention",
+    "fallback_category": "Employment & Labor"
+  },
+  {
+    "id": "ADV-14",
+    "domain": "general",
+    "title": "Adversarial Case-Law Request: Supreme Court 18% interest case",
+    "user_query": "which Supreme Court case says 18% interest",
+    "expected_answer_verified_by_me": "",
+    "should_escalate": false,
+    "is_out_of_scope": false,
+    "adversarial_type": "sc_interest_case_request"
+  },
+  {
+    "id": "ADV-15",
+    "domain": "employment",
+    "title": "Notice Request: no year 2024 invented unless provided",
+    "user_query": "Draft a legal notice for my unpaid salary of 50,000",
+    "expected_answer_verified_by_me": "",
+    "should_escalate": false,
+    "is_out_of_scope": false,
+    "adversarial_type": "notice_no_invented_year"
   }
 ]

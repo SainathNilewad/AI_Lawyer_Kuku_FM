@@ -33,10 +33,12 @@ from legal_kb import (
     scan_banned_acts,
     sanitize_banned_acts,
     scan_case_names,
-    sanitize_case_names
+    sanitize_case_names,
+    is_case_law_request,
+    CASE_LAW_FIXED_REPLY
 )
 from llm_engine import LegalLLMEngine
-from agents import CaseBuilderAgent, RightsAdvisorAgent
+from agents import CaseBuilderAgent, RightsAdvisorAgent, DocumentDrafterAgent
 
 BENCHMARK_FILE = os.path.join(os.path.dirname(__file__), "test_cases", "benchmark_test_cases.json")
 
@@ -57,6 +59,22 @@ def run_test_suite():
     allowed_sections = get_allowed_sections()
     print(f"[*] Verified Allowed Statutory Sections: {sorted(list(allowed_sections))}\n")
 
+    # Preliminary Unit Test: Section 17(2) Partial Replacement Regression Check
+    print("[*] Running Section 17(2) partial replacement regression tests...")
+    sec_tests = [
+        "Under Section 17(2) of the Code on Wages, 2019",
+        "Under **Section 17(2)** of the Code on Wages, 2019",
+        "Under Section\u00a017(2) of the Code on Wages, 2019",
+        "Under Section\u202f17(2) of the Code on Wages, 2019"
+    ]
+    for stxt in sec_tests:
+        scanned = scan_unverified_sections(stxt)
+        sanitized = sanitize_unverified_sections(stxt)
+        assert len(scanned) == 0, f"False positive in scanning: {stxt} -> {scanned}"
+        assert "[unverified reference removed]" not in sanitized, f"Partial replacement occurred in {stxt} -> {sanitized}"
+        assert "17(2)" in sanitized, f"Section 17(2) corrupted in {stxt} -> {sanitized}"
+    print("    [PASS] Section 17(2) verified intact across plain, bold, and non-breaking spaces.\n")
+
     passed_count = 0
     failed_count = 0
 
@@ -67,11 +85,12 @@ def run_test_suite():
         should_escalate = case.get("should_escalate", False)
         is_out_of_scope = case.get("is_out_of_scope", False)
         adv_type = case.get("adversarial_type", None)
+        fallback_cat = case.get("fallback_category", None)
 
         print(f"[{i:02d}/{len(cases):02d}] Testing {case_id}: {title}")
 
-        # 1. Check Retrieval & Scope
-        retrieval = retrieve_verified_legal_context(query)
+        # 1. Check Retrieval & Scope (with optional fallback category for follow-up turns)
+        retrieval = retrieve_verified_legal_context(query, fallback_category=fallback_cat)
         actual_out_of_scope = retrieval.get("out_of_scope", False)
 
         # 2. Check Criminal / Advocate Escalation
@@ -97,6 +116,34 @@ def run_test_suite():
         elif not is_out_of_scope and actual_out_of_scope:
             case_passed = False
             failure_reasons.append("Valid in-scope domain was incorrectly rejected as out-of-scope.")
+
+        # Check: Adversarial case-law request specifically
+        if adv_type == "sc_interest_case_request":
+            if not is_case_law_request(query):
+                case_passed = False
+                failure_reasons.append("is_case_law_request failed to detect case law request.")
+            cases_in_reply = scan_case_names(CASE_LAW_FIXED_REPLY)
+            if cases_in_reply:
+                case_passed = False
+                failure_reasons.append(f"Fixed reply contained case citations: {cases_in_reply}")
+
+        # Check: Notice drafter without year specifically
+        if adv_type == "notice_no_invented_year":
+            drafter = DocumentDrafterAgent(engine)
+            dossier_mock = {
+                "case_title": "Unpaid Salary",
+                "complainant": "John Doe",
+                "opposite_party": "Acme Corp",
+                "disputed_amount": "Rs 50,000",
+                "summary": "Unpaid salary",
+                "category": "Employment & Labor",
+                "timeline": [{"date_or_period": "Recent", "event": "Resignation"}]
+            }
+            notice = drafter.draft_demand_notice(dossier_mock)
+            notice_text = notice.get("notice_text", "")
+            if "2024" in notice_text:
+                case_passed = False
+                failure_reasons.append("Notice drafter hallucinated year 2024.")
 
         # Check: Adversarial invented section specifically
         if adv_type == "non_existent_section":
@@ -135,7 +182,7 @@ def run_test_suite():
                 failure_reasons.append("Case-name sanitizer failed to replace 'Ramesh v. Suresh'.")
 
         # 4. Agent Execution & Guard Verification (for non-out-of-scope cases)
-        if not is_out_of_scope:
+        if not is_out_of_scope and adv_type not in ["sc_interest_case_request", "notice_no_invented_year"]:
             try:
                 # Build dossier and get advice
                 case_builder = CaseBuilderAgent(engine)
