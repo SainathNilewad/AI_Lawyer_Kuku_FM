@@ -61,8 +61,8 @@ TEST_SCENARIOS = [
 ]
 
 def run_real_test_cases():
-    # Use Google Gemini (gemini-3.5-flash-lite) as primary model
-    engine = LegalLLMEngine(provider="gemini", model_name="gemini-3.5-flash-lite")
+    # Use Google Gemini (gemini-3.5-flash) as primary model
+    engine = LegalLLMEngine(provider="gemini", model_name="gemini-3.5-flash")
 
     case_builder = CaseBuilderAgent(engine)
     rights_advisor = RightsAdvisorAgent(engine)

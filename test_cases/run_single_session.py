@@ -162,7 +162,7 @@ def run_session():
             notice_res = document_drafter.draft_demand_notice(case_dossier)
             reply = notice_res.get("notice_text", "")
             step_prov = getattr(engine, "last_used_provider", "Gemini")
-            step_model = getattr(engine, "last_used_model", "gemini-3.5-flash-lite")
+            step_model = getattr(engine, "last_used_model", "gemini-3.5-flash")
             chat_history.append({"role": "assistant", "content": reply, "meta": {"provider": step_prov, "model": step_model}})
             session_output["turns"].append({
                 "step": step_num,
@@ -201,7 +201,7 @@ def run_session():
             reply += "\n👉 **Take a look at the Case Intelligence panel on the right:** I've organized your case timeline and evidence checklist. You can ask follow-up questions, or click **Draft Legal Notice** anytime!"
 
             step_prov = getattr(engine, "last_used_provider", "Gemini")
-            step_model = getattr(engine, "last_used_model", "gemini-3.5-flash-lite")
+            step_model = getattr(engine, "last_used_model", "gemini-3.5-flash")
             chat_history.append({"role": "assistant", "content": reply, "meta": {"provider": step_prov, "model": step_model}})
             session_output["turns"].append({
                 "step": step_num,
@@ -218,7 +218,7 @@ def run_session():
         else:
             answer = counselor.answer_followup(chat_history, case_dossier, incoming_message)
             step_prov = getattr(engine, "last_used_provider", "Gemini")
-            step_model = getattr(engine, "last_used_model", "gemini-3.5-flash-lite")
+            step_model = getattr(engine, "last_used_model", "gemini-3.5-flash")
             chat_history.append({"role": "assistant", "content": answer, "meta": {"provider": step_prov, "model": step_model}})
             session_output["turns"].append({
                 "step": step_num,

@@ -303,7 +303,7 @@ with st.sidebar:
                 groq_key = custom_key
 
         if prov_code == "gemini":
-            default_model = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
+            default_model = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
             gemini_models = get_cached_gemini_models(active_key) if active_key else []
             if gemini_models:
                 m_idx = gemini_models.index(default_model) if default_model in gemini_models else 0

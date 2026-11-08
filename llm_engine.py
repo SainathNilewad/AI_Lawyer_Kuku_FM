@@ -54,7 +54,7 @@ class LegalLLMEngine:
         self.provider = (provider or os.getenv("LLM_PROVIDER", "gemini")).lower()
         if self.provider == "gemini":
             self.api_key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-            self.model_name = model_name or os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
+            self.model_name = model_name or os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
         elif self.provider == "groq":
             self.api_key = api_key or os.getenv("GROQ_API_KEY")
             self.model_name = model_name or os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b")

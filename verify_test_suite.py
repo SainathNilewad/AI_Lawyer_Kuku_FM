@@ -319,7 +319,7 @@ def run_test_suite():
                 case_passed = False
 
         prov = getattr(engine, "last_used_provider", "Gemini")
-        mod = getattr(engine, "last_used_model", "gemini-3.5-flash-lite")
+        mod = getattr(engine, "last_used_model", "gemini-3.5-flash")
         if case_passed:
             print(f"      Status: [PASS] | Model: {prov} ({mod})", flush=True)
             passed_count += 1

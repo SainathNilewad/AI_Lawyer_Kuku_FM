@@ -60,7 +60,7 @@ NyayaMitra strictly enforces that models never invent laws or court judgments:
 NyayaMitra includes an automated benchmark suite (`verify_test_suite.py`) testing 28 distinct scenarios (10 core civil scenarios across tenancy, consumer, and wage disputes, plus 18 adversarial stress tests).
 
 - **Automated Test Run:** **28/28 passed (0 failed)**, logged directly to `test_cases/verification_run.txt`.
-- **Primary Model Evaluated:** **Google Gemini 3.5 Flash** (`gemini-3.5-flash-lite`, free tier) for all statutory and document reasoning tasks. Groq is used exclusively for speech-to-text audio transcription via **Whisper Large v3 Turbo** (`whisper-large-v3-turbo`).
+- **Primary Model Evaluated:** **Google Gemini 3.5 Flash** (`gemini-3.5-flash`, free tier) for all statutory and document reasoning tasks. Groq is used exclusively for speech-to-text audio transcription via **Whisper Large v3 Turbo** (`whisper-large-v3-turbo`).
 - **What the Suite Measures:**
   1. **Code-Level Section & Act-Name Guard:** Strips unverified section citations (e.g., Section 999A, unverified model tenancy sections) and banned/repealed Act names (e.g., Payment of Wages Act, Minimum Wages Act, Indian Penal Code, IPC, CrPC) replacing them with `[unverified reference removed]`.
   2. **Case-Name Guard & TPA Scope Check:** Detects judicial case names (`"X v. Y"`, `"X vs Y"`, `"X versus Y"`) replacing them with `[unverified case reference removed]`, intercepts case-law requests deterministically, and verifies Section 108 of the Transfer of Property Act is not misconstrued as guaranteeing a deposit refund.
@@ -97,7 +97,7 @@ Create a `.env` file with your API keys:
 GEMINI_API_KEY=your_gemini_api_key_here
 GROQ_API_KEY=your_groq_api_key_here  # Used exclusively for Whisper voice transcription
 LLM_PROVIDER=gemini
-GEMINI_MODEL=gemini-3.5-flash-lite
+GEMINI_MODEL=gemini-3.5-flash
 ```
 
 ### 3. Run the Conversational App
