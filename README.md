@@ -124,6 +124,7 @@ Open **`http://localhost:8501`** in your browser.
 ├── solution_doc.md                   # 2-Page Executive Solution Document
 ├── solution_doc.html                 # Print-ready HTML version of solution document
 └── test_cases/
+    ├── README.md                     # Manifest & index of all raw evaluation outputs
     ├── benchmark_test_cases.json     # 28 benchmark & adversarial test cases
     ├── verification_run.txt          # Saved console output of automated test suite (28/28 passed)
     ├── raw_outputs_report.md         # Full Markdown report of live model outputs
@@ -133,5 +134,6 @@ Open **`http://localhost:8501`** in your browser.
     ├── tc_03_employment.json         # Employment live output dossier (post-fix)
     ├── before_fix_tc_01_tenancy.json    # Tenancy baseline evidence (pre-fix)
     ├── before_fix_tc_02_consumer.json   # Consumer baseline evidence (pre-fix)
-    └── before_fix_tc_03_employment.json # Employment baseline evidence (pre-fix)
+    ├── before_fix_tc_03_employment.json # Employment baseline evidence (pre-fix)
+    └── live_chat_screenshots/        # Screenshots of two manual chats (before and after fixes)
 ```
