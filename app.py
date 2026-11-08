@@ -12,6 +12,14 @@ Clean, interview-ready implementation providing:
 
 import streamlit as st
 import os
+import sys
+from pathlib import Path
+
+# Explicitly ensure repo root is in sys.path on Streamlit Cloud / Linux
+_REPO_ROOT = str(Path(__file__).resolve().parent)
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
+
 import json
 import io
 from dotenv import load_dotenv
@@ -27,21 +35,41 @@ try:
 except Exception:
     pass
 
-from legal_kb import (
-    retrieve_verified_legal_context,
-    check_immediate_advocate_escalation,
-    VERIFIED_STATUTORY_DATABASE,
-    is_case_law_request,
-    CASE_LAW_FIXED_REPLY
-)
-from llm_engine import LegalLLMEngine, list_groq_models, list_gemini_models
-from agents import (
-    CaseBuilderAgent,
-    RightsAdvisorAgent,
-    DocumentDrafterAgent,
-    RoleplayOpponentAgent,
-    ConversationalCounselorAgent
-)
+try:
+    from legal_kb import (
+        retrieve_verified_legal_context,
+        check_immediate_advocate_escalation,
+        VERIFIED_STATUTORY_DATABASE,
+        is_case_law_request,
+        CASE_LAW_FIXED_REPLY
+    )
+except ImportError:
+    from .legal_kb import (
+        retrieve_verified_legal_context,
+        check_immediate_advocate_escalation,
+        VERIFIED_STATUTORY_DATABASE,
+        is_case_law_request,
+        CASE_LAW_FIXED_REPLY
+    )
+
+try:
+    from llm_engine import LegalLLMEngine, list_groq_models, list_gemini_models
+    from agents import (
+        CaseBuilderAgent,
+        RightsAdvisorAgent,
+        DocumentDrafterAgent,
+        RoleplayOpponentAgent,
+        ConversationalCounselorAgent
+    )
+except ImportError:
+    from .llm_engine import LegalLLMEngine, list_groq_models, list_gemini_models
+    from .agents import (
+        CaseBuilderAgent,
+        RightsAdvisorAgent,
+        DocumentDrafterAgent,
+        RoleplayOpponentAgent,
+        ConversationalCounselorAgent
+    )
 
 st.set_page_config(
     page_title="NyayaMitra - AI Legal Companion",

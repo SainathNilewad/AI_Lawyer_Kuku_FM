@@ -3,6 +3,9 @@ headless = true
 enableCORS = false
 enableXsrfProtection = true
 
+[client]
+showErrorDetails = "full"
+
 [theme]
 base = "dark"
 primaryColor = "#e63946"

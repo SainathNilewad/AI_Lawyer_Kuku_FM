@@ -10,14 +10,36 @@ Implements the 4 core capabilities for Problem 2 (AI Lawyer):
 from typing import Dict, Any, List, Optional
 import json
 import datetime
-from legal_kb import (
-    retrieve_verified_legal_context,
-    check_immediate_advocate_escalation,
-    sanitize_unverified_sections,
-    scan_unverified_sections,
-    scan_banned_acts
-)
-from llm_engine import LegalLLMEngine
+import sys
+import os
+from pathlib import Path
+
+# Explicitly ensure repo root is in sys.path on Streamlit Cloud / Linux
+_REPO_ROOT = str(Path(__file__).resolve().parent)
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
+
+try:
+    from legal_kb import (
+        retrieve_verified_legal_context,
+        check_immediate_advocate_escalation,
+        sanitize_unverified_sections,
+        scan_unverified_sections,
+        scan_banned_acts
+    )
+except ImportError:
+    from .legal_kb import (
+        retrieve_verified_legal_context,
+        check_immediate_advocate_escalation,
+        sanitize_unverified_sections,
+        scan_unverified_sections,
+        scan_banned_acts
+    )
+
+try:
+    from llm_engine import LegalLLMEngine
+except ImportError:
+    from .llm_engine import LegalLLMEngine
 
 class CaseBuilderAgent:
     """Turn a messy story into what happened, when, and what proof they have."""
