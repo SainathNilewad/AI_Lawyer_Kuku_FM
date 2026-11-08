@@ -73,6 +73,8 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
     },
 
     # ==================== CONSUMER & E-COMMERCE DISPUTES ====================
+    # TODO: Ask user for exact official wording for Section 84 (and platform liability under CPA 2019).
+    # Until exact official wording is provided by user, outputs and notices must NOT state that an e-commerce platform is liable under Section 84 (Section 84 strictly governs product manufacturers).
     {
         "domain": "Consumer Protection",
         "act": "Consumer Protection Act, 2019 (CPA 2019)",
@@ -95,10 +97,12 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
             "misleading repair/replacement promises without reasonable prospect of fulfillment (sub-clause (i)(h)), and refusing to refund consideration "
             "for defective goods or deficient services within the period stipulated in the bill/cash memo or, in the absence of stipulation, "
             "within a period of thirty days (sub-clause (viii)).\n"
+            # TODO: Awaiting user's exact official wording for Section 84.
             "5. Liability of Product Manufacturer (Section 84): A product manufacturer shall be liable in a product liability action if the product: "
             "(a) contains a manufacturing defect, (b) is defective in design, (c) deviates from manufacturing specifications, "
             "(d) does not conform to the express warranty, or (e) fails to contain adequate instructions/warnings to prevent harm; "
-            "and under sub-section (2), is liable even if proving absence of negligence or fraud in making the express warranty.\n"
+            "and under sub-section (2), is liable even if proving absence of negligence or fraud in making the express warranty. "
+            "[Scope Rule: Section 84 applies strictly to product manufacturers; do NOT state that an e-commerce platform is liable under Section 84].\n"
             "6. Filing of Complaint (Section 35): Manner of filing a consumer complaint before the District Commission; "
             "the proviso to Section 35(1) explicitly provides that 'the complaint may also be filed electronically in such manner as may be prescribed' "
             "(statutory basis for electronic filing on e-Daakhil)."
@@ -362,7 +366,7 @@ def retrieve_verified_legal_context(query: str, domain_filter: str = None, fallb
                 "refusal_reason": f"Topic '{topic}' is outside covered everyday civil domains (family law / writ jurisdiction).",
                 "grounding_text": (
                     "OUT_OF_SCOPE: This query touches upon matters outside NyayaMitra's verified statutory domains "
-                    "(Tenancy & Rental, Consumer Protection, or Code on Wages Employment). "
+                    "(Tenancy & Rental, Consumer Protection, or Employment under the Code on Wages). "
                     "Do NOT guess, manufacture legal principles, or invent sections. "
                     "Directly inform the user that this topic is outside what NyayaMitra covers and advise them "
                     "to consult a practicing advocate or contact the free District Legal Services Authority (DLSA) / NALSA Helpline at 15100."
@@ -403,7 +407,7 @@ def retrieve_verified_legal_context(query: str, domain_filter: str = None, fallb
             "truly_out_of_scope": True,
             "grounding_text": (
                 "OUT_OF_SCOPE: This query does not match any of NyayaMitra's verified statutory domains "
-                "(Tenancy & Rental, Consumer Protection, or Code on Wages Employment). "
+                "(Tenancy & Rental, Consumer Protection, or Employment under the Code on Wages). "
                 "Do NOT guess, manufacture legal principles, or invent sections. "
                 "Directly inform the user that this topic is outside what NyayaMitra covers and advise them "
                 "to consult a practicing advocate or contact the free District Legal Services Authority (DLSA) / NALSA Helpline at 15100."
@@ -464,9 +468,9 @@ def check_immediate_advocate_escalation(text: str) -> Dict[str, Any]:
 # ==================== FIX 4: SECTION SCANNER & GUARDRAIL ====================
 
 def normalize_section_reference(s: str) -> str:
-    """Normalizes section strings (e.g. 'Section 17(2)' -> '17(2)', '**Section 17 (2)**' -> '17(2)')."""
+    """Normalizes section strings (e.g. 'Section 17(2)' -> '17(2)', '**Section 17 (2)**' -> '17(2)', 's. 17(2)' -> '17(2)')."""
     s = s.strip().lower()
-    s = re.sub(r'^(?:\*{0,2})(?:section|sec\.?|u/s)(?:\*{0,2})\s*', '', s)
+    s = re.sub(r'^(?:\*{0,2})(?:section|sec\.?|s\.|u/s)(?:\*{0,2})\s*', '', s)
     s = re.sub(r'[\s\u00a0\u202f\*]', '', s)
     return s
 
@@ -487,46 +491,87 @@ def get_allowed_sections() -> Set[str]:
                         allowed.add(base.group(1))
     return allowed
 
-# Banned/repealed/unverified Act names that must never appear in AI legal outputs
-BANNED_ACT_PATTERNS = [
-    r"\bPayment of Wages Act(?:\s*,\s*\d{4})?\b",
-    r"\bMinimum Wages Act(?:\s*,\s*\d{4})?\b",
-    r"\bPayment of Bonus Act(?:\s*,\s*\d{4})?\b",
-    r"\bEqual Remuneration Act(?:\s*,\s*\d{4})?\b",
-    r"\bIndian Penal Code(?:\s*,\s*\d{4})?\b",
-    r"\bIPC\b",
-    r"\bCrPC\b",
-    r"\bCode of Criminal Procedure(?:\s*,\s*\d{4})?\b",
-]
+# ==================== ACT-NAME ALLOW-LIST GUARDRAIL ====================
+# Any "<Name> Act" or "<Name> Code" that is not in this verified allow-list is flagged and sanitized as [unverified reference removed].
+ALLOWED_ACT_CANONICAL = {
+    "model tenancy act",
+    "transfer of property act",
+    "consumer protection act",
+    "code on wages"
+}
 
-def scan_banned_acts(text: str) -> List[str]:
-    """Scans text for banned or repealed Act names."""
+ACT_CODE_PATTERNS = [
+    # Explicit match for Code on Wages to avoid capturing trailing words
+    r'\bCode\s+on\s+Wages(?:\s*,\s*\d{4})?\b',
+    # X Act or X Y Act or X of/and/on Y Act (e.g. Model Tenancy Act, Industrial Disputes Act, Shops and Establishment Act)
+    r'\b(?!(?:Under|In|Citing|As|Per|According|By|The|An|A)\b)(?:[A-Z][A-Za-z0-9&]*(?:\s+(?:of|and|on|for|&|[A-Z][A-Za-z0-9&]*)){0,4}\s+Act)(?:\s*,\s*\d{4})?\b',
+    # X Code (e.g. Indian Penal Code)
+    r'\b(?!(?:Under|In|Citing|As|Per|According|By|The|An|A)\b)(?:[A-Z][A-Za-z0-9&]*(?:\s+[A-Z][A-Za-z0-9&]*){0,3}\s+Code)(?:\s*,\s*\d{4})?\b',
+    # Other Code on / Code of (e.g. Code of Criminal Procedure)
+    r'\b(?:Code\s+(?:on|of)\s+[A-Z][A-Za-z0-9&]*(?:\s+[A-Z][A-Za-z0-9&]*){0,2})(?:\s*,\s*\d{4})?\b',
+    # Legacy abbreviations representing unverified criminal codes
+    r'\b(?:IPC|CrPC)\b'
+]
+COMBINED_ACT_RE = re.compile('|'.join(ACT_CODE_PATTERNS))
+
+def is_allowed_act(act_str: str) -> bool:
+    """Checks whether an Act or Code candidate belongs to the verified statutory database."""
+    if not act_str:
+        return False
+    s = act_str.strip()
+    s = re.sub(r'^(?:the)\s+', '', s, flags=re.IGNORECASE)
+    s = re.sub(r',?\s*\d{4}$', '', s).strip().lower()
+    return s in ALLOWED_ACT_CANONICAL
+
+NON_STATUTORY_CODES = {"ifsc", "pin", "postal", "zip", "qr", "bar", "swift", "area", "promo", "coupon", "source"}
+
+def is_statutory_code_candidate(code_str: str) -> bool:
+    """Filters out non-statutory metadata codes (e.g. IFSC Code, PIN Code, Postal Code)."""
+    words = code_str.lower().split()
+    if any(w in NON_STATUTORY_CODES for w in words):
+        return False
+    return True
+
+def scan_unverified_acts(text: str) -> List[str]:
+    """Scans text for any Act or Code name not present in the verified statutory allow-list."""
     if not text or not isinstance(text, str):
         return []
     found = []
-    for pat in BANNED_ACT_PATTERNS:
-        matches = re.findall(pat, text, re.IGNORECASE)
-        for m in matches:
-            if m not in found:
-                found.append(m)
+    for m in COMBINED_ACT_RE.finditer(text):
+        raw = m.group(0).strip()
+        # Exclude non-statutory codes like IFSC Code, PIN Code, Postal Code
+        if not is_statutory_code_candidate(raw):
+            continue
+        if not is_allowed_act(raw):
+            if raw not in found:
+                found.append(raw)
     return found
 
-def sanitize_banned_acts(text: str) -> str:
-    """Replaces banned Act names with [unverified reference removed] and logs the event."""
+def sanitize_unverified_acts(text: str) -> str:
+    """Replaces unverified Act and Code names with [unverified reference removed] and logs the event."""
     if not text or not isinstance(text, str):
         return text
-    banned = scan_banned_acts(text)
-    if not banned:
+    unverified = scan_unverified_acts(text)
+    if not unverified:
         return text
-    print(f"[SECURITY GUARD] Logged unverified Act name reference(s): {banned}")
+    print(f"[SECURITY GUARD] Logged unverified Act name reference(s): {unverified}")
     sanitized = text
-    for pat in BANNED_ACT_PATTERNS:
-        sanitized = re.sub(pat, "[unverified reference removed]", sanitized, flags=re.IGNORECASE)
+    for act_name in sorted(set(unverified), key=len, reverse=True):
+        pat = re.compile(r'\b' + re.escape(act_name) + r'\b', re.IGNORECASE)
+        sanitized = pat.sub("[unverified reference removed]", sanitized)
     return sanitized
 
+# Backward compatibility aliases
+def scan_banned_acts(text: str) -> List[str]:
+    return scan_unverified_acts(text)
+
+def sanitize_banned_acts(text: str) -> str:
+    return sanitize_unverified_acts(text)
+
 # Robust section scanner: handles bold markers, non-breaking spaces (\u00a0, \u202f), and clause spacing
+# STRICT: Requires explicit Section / Sec. / s. / u/s prefix; never matches bare numbers.
 SECTION_PATTERN = re.compile(
-    r'(?i)\b\*{0,2}(?:section|sec\.?|u/s)\*{0,2}[\s\u00a0\u202f]*\*{0,2}([0-9]+(?:[\s\u00a0\u202f]*[\(\[][a-zA-Z0-9]+[\)\]])*(?:[a-zA-Z])*)'
+    r'(?i)\b\*{0,2}(?:section|sec\.?|s\.|u/s)\*{0,2}[\s\u00a0\u202f]*\*{0,2}([0-9]+(?:[\s\u00a0\u202f]*[\(\[][a-zA-Z0-9]+[\)\]])*(?:[a-zA-Z])*)'
 )
 
 def scan_unverified_sections(text: str) -> List[str]:
@@ -732,8 +777,8 @@ def sanitize_unverified_sections(text: str, context_text: str = "") -> str:
         c_lower = context_text.lower()
         has_deduction = any(t in c_lower for t in SEC_18_TRIGGERS)
         if not has_deduction:
-            # Strip Section 18 citations
-            text = re.sub(r'(?i)\b\*{0,2}(?:section|sec\.?|u/s)?\*{0,2}\s*18(?:\([1-3]\))?\b', '[unverified reference removed]', text)
+            # Strip Section 18 citations ONLY when preceded by real section keywords (Section / Sec. / s. / u/s), NEVER bare numbers
+            text = re.sub(r'(?i)\b\*{0,2}(?:section|sec\.?|s\.|u/s)\*{0,2}[\s\u00a0\u202f]*18(?:\([1-3]\))?\b', '[unverified reference removed]', text)
 
     # Step 7: Sanitize unverified section references
     unverified = scan_unverified_sections(text)

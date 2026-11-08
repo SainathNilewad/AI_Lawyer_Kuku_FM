@@ -34,6 +34,9 @@ from legal_kb import (
     sanitize_unverified_sections,
     scan_banned_acts,
     sanitize_banned_acts,
+    scan_unverified_acts,
+    sanitize_unverified_acts,
+    is_allowed_act,
     scan_case_names,
     sanitize_case_names,
     is_case_law_request,
@@ -97,6 +100,33 @@ def run_test_suite():
         assert "[unverified reference removed]" not in sanitized, f"Partial replacement occurred in {stxt} -> {sanitized}"
         assert "17(2)" in sanitized, f"Section 17(2) corrupted in {stxt} -> {sanitized}"
     print("    [PASS] Section 17(2) verified intact across plain, bold, and non-breaking spaces.\n")
+
+    # Preliminary Unit Test: Section Guard False-Positive Number Check ("an 18-month tenure", "within 15 days")
+    print("[*] Running Section guard false-positive tests ('an 18-month tenure', 'within 15 days')...")
+    fp_tests = [
+        ("I completed an 18-month tenure with the company.", "salary unpaid delayed"),
+        ("Please refund the deposit within 15 days of notice.", "")
+    ]
+    for raw_s, ctx in fp_tests:
+        scanned = scan_unverified_sections(raw_s)
+        sanitized = sanitize_unverified_sections(raw_s, context_text=ctx)
+        assert len(scanned) == 0, f"False positive in scanning: {raw_s} -> {scanned}"
+        assert "[unverified reference removed]" not in sanitized, f"False positive sanitization: {raw_s} -> {sanitized}"
+        assert raw_s == sanitized, f"Text was modified: {raw_s} != {sanitized}"
+    print("    [PASS] 'an 18-month tenure' and 'within 15 days' pass through completely unchanged.\n")
+
+    # Preliminary Unit Test: Act-Name Allow-List Checks ("Industrial Disputes Act", "Shops and Establishment Act")
+    print("[*] Running Act-name allow-list tests ('Industrial Disputes Act', 'Shops and Establishment Act')...")
+    coach_texts = [
+        "Coach advice: You should mention your rights under the Industrial Disputes Act.",
+        "Coach advice: Cite the Shops and Establishment Act for timely settlement."
+    ]
+    for c_txt in coach_texts:
+        flagged = scan_unverified_acts(c_txt)
+        assert len(flagged) > 0, f"Coach unverified Act was not flagged in: {c_txt}"
+        sanitized_c = sanitize_unverified_sections(c_txt)
+        assert "[unverified reference removed]" in sanitized_c, f"Coach unverified Act was not sanitized in: {sanitized_c}"
+    print("    [PASS] Unverified Acts flagged and sanitized properly in coach text.\n")
 
     passed_count = 0
     failed_count = 0
@@ -324,6 +354,27 @@ def run_test_suite():
                 if cases_found:
                     case_passed = False
                     failure_reasons.append(f"AI response contained unverified case citation(s): {cases_found}")
+
+                # Check: TC-01 Notice voice and facts check (first person, [Your Name], no interest-free, no breach of trust)
+                if case_id == "TC-01":
+                    drafter = DocumentDrafterAgent(engine)
+                    notice_obj = drafter.draft_demand_notice(dossier, advice)
+                    n_txt = notice_obj.get("notice_text", "")
+                    if "429" in n_txt or "quota" in n_txt.lower() or "resource_exhausted" in n_txt.lower():
+                        print(f"\n[FATAL QUOTA ERROR in {case_id}]: {n_txt}", flush=True)
+                        sys.exit(1)
+                    if "interest-free" in n_txt.lower():
+                        case_passed = False
+                        failure_reasons.append("TC-01 Notice contained unstated 'interest-free'.")
+                    if "breach of trust" in n_txt.lower():
+                        case_passed = False
+                        failure_reasons.append("TC-01 Notice contained embellished 'breach of trust'.")
+                    if "my client" in n_txt.lower() or "under instructions" in n_txt.lower() or "the undersigned" in n_txt.lower():
+                        case_passed = False
+                        failure_reasons.append("TC-01 Notice used third-person advocate voice instead of first person.")
+                    if "[Your Name]" not in n_txt:
+                        case_passed = False
+                        failure_reasons.append("TC-01 Notice signature block missing '[Your Name]'.")
 
                 # Check: TPA Section 108 deposit scope check
                 if adv_type == "tpa_deposit_scope":

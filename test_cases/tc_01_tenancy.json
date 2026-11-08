@@ -2,7 +2,7 @@
   "test_case_id": "TC-01",
   "name": "Bengaluru Tenant Security Deposit Withholding",
   "category": "Tenancy & Rental",
-  "timestamp": "2026-11-08T20:11:19.082413+00:00",
+  "timestamp": "2026-11-08T20:54:00.177020+00:00",
   "provider": "Gemini",
   "model_name": "gemini-3.5-flash-lite",
   "models_used": [
@@ -10,46 +10,42 @@
   ],
   "raw_input": "I was renting a 2BHK flat in HSR Layout, Bengaluru for 2 years at Rs 28,000/month. I gave 1 lakh rupees as security deposit. I gave proper 1-month notice on 1st October and vacated the flat on 31st October 2024. I cleared all electricity and water bills and handed over keys. Landlord Mr. Ramesh promised to refund the deposit via UPI in 3 days. Now it has been 25 days, he stopped picking my calls, and yesterday he messaged saying he is deducting Rs 45,000 for 'complete house repainting, marble polishing, and deep cleaning'. There was no damage, just normal nail holes for photo frames and standard wear and tear. I have move-in photos, move-out handover video, all rent payment bank statements, and WhatsApp chat where he acknowledged receiving the flat in good condition. How can I get my Rs 45,000 back?",
   "case_dossier": {
-    "case_title": "Arbitrary Security Deposit Deduction by Landlord in Bengaluru",
+    "case_title": "Arbitrary Security Deposit Deduction for Normal Wear and Tear",
     "category": "Tenancy & Rental",
-    "summary": "Tenant vacated a 2BHK flat in Bengaluru after providing proper notice and clearing all utility bills. Landlord has withheld Rs 45,000 from the Rs 1,00,000 security deposit under the guise of repainting and cleaning, despite prior acknowledgment that the flat was handed over in good condition.",
+    "summary": "The landlord, Mr. Ramesh, withheld Rs. 45,000 from the tenant's security deposit of Rs. 1,00,000 for house repainting, marble polishing, and deep cleaning after the tenant vacated the premises in good condition. The tenant has cleared all utility bills, given proper notice, and possesses comprehensive proof including move-in/move-out records and WhatsApp acknowledgments.",
     "complainant": "Tenant",
     "opposite_party": "Landlord Mr. Ramesh",
     "disputed_amount": "Rs. 45,000",
     "timeline": [
       {
-        "date_or_period": "2 years",
-        "event": "Tenancy period for 2BHK flat in HSR Layout, Bengaluru at Rs 28,000/month with Rs 1,00,000 security deposit."
-      },
-      {
         "date_or_period": "1st October 2024",
-        "event": "Tenant gave proper 1-month notice to vacate the flat."
+        "event": "Tenant gave proper 1-month notice to vacate the 2BHK flat."
       },
       {
         "date_or_period": "31st October 2024",
         "event": "Tenant vacated the flat, cleared all electricity and water bills, and handed over keys."
       },
       {
-        "date_or_period": "3 days post-vacation",
-        "event": "Landlord Mr. Ramesh promised to refund the deposit via UPI, but failed to do so."
+        "date_or_period": "Within 3 days of 31st October 2024",
+        "event": "Landlord Mr. Ramesh promised to refund the security deposit via UPI."
       },
       {
-        "date_or_period": "25 days post-vacation",
-        "event": "Landlord stopped picking calls and messaged a deduction of Rs 45,000 for repainting, marble polishing, and deep cleaning."
+        "date_or_period": "25 days post-vacation / Yesterday",
+        "event": "Landlord stopped picking calls and sent a message deducting Rs. 45,000 for repainting, polishing, and deep cleaning."
       }
     ],
     "evidence_held": [
       "Move-in photos",
       "Move-out handover video",
       "All rent payment bank statements",
-      "WhatsApp chat acknowledging flat was received in good condition"
+      "WhatsApp chat where the landlord acknowledged receiving the flat in good condition"
     ],
     "evidence_needed": [
-      "Written Rent Agreement specifying security deposit refund terms and wear-and-tear clauses",
-      "Formal written demand or legal notice regarding the full deposit refund"
+      "Copy of the signed Rent Agreement (to verify clauses regarding painting, cleaning, and security deposit refund timelines)",
+      "Written formal demand/legal notice or final written response sent to the landlord"
     ],
-    "evidence_strength_score": 8,
-    "evidence_strength_explanation": "Strong documentary and visual proof including handover video, bank statements, and WhatsApp acknowledgment of good condition.",
+    "evidence_strength_score": 9,
+    "evidence_strength_explanation": "The evidence strength is high due to comprehensive documentation including handover videos, move-in/move-out records, and direct WhatsApp acknowledgments from the landlord.",
     "escalation_check": {
       "requires_real_lawyer": false,
       "reasons": [],
@@ -57,53 +53,54 @@
     }
   },
   "rights_advice": {
-    "plain_language_standing": "You have a strong civil claim to recover the unlawfully deducted security deposit from your landlord under Indian rental and property principles. Under the law, routine aging and normal use of a property are considered reasonable wear and tear, and a landlord cannot make arbitrary deductions for standard repainting or cleaning if the property was handed over in good condition. Since your dispute involves a financial disagreement and breach of rental understandings, it is strictly a civil matter rather than a criminal offense.\n\nYour core legal standing is firmly supported by your visual evidence, bank statements, and WhatsApp chat acknowledgments from the landlord. Your immediate takeaway is to formally demand the full refund of your security deposit using your documented proof before pursuing formal civil remedies.",
+    "plain_language_standing": "You are well-protected under Indian tenancy law regarding the return of your security deposit, as routine wear and tear cannot be charged to you. Under the Transfer of Property Act, 1882, tenants are only responsible for returning the property in its original condition subject to normal wear and tear. Your comprehensive evidence, including WhatsApp chats and handover videos, places you in a very strong legal position to recover your withheld funds.\n\nKey Legal Rule: Normal aging, minor scuffs, and routine wear and tear are legally the landlord's responsibility, and unauthorized deductions from your security deposit constitute a civil breach of contract.\n\nImmediate Takeaway: Do not file a criminal complaint, as this is purely a civil dispute; instead, gather your written agreement and serve a formal demand notice for your full refund.",
     "governing_laws": [
       {
         "act_name": "Transfer of Property Act, 1882",
         "section": "Section 108(B)(m)",
-        "relevance": "Protects tenants from bearing the cost of changes caused by reasonable wear and tear or routine property aging when handing over possession."
+        "relevance": "Protects you from being penalized for reasonable wear and tear, ensuring you are not liable for routine repainting or natural property aging."
       },
       {
-        "act_name": "General Legal Principle (Civil vs. Criminal Boundary)",
+        "act_name": "[unverified reference removed]",
         "section": "General Guidance",
-        "relevance": "Clarifies that withholding a deposit or breaching a contract is a civil dispute, meaning criminal police complaints are not appropriate unless fraud existed from inception."
+        "relevance": "Clarifies that withholding a deposit is a civil dispute and breach of contract, preventing improper criminal police complaints.",
+        "status": "unverified reference removed"
       }
     ],
     "action_options": [
       {
         "step_number": 1,
-        "title": "Immediate Pre-Litigation Action (Formal Legal Notice)",
+        "title": "Serve a Formal Legal Demand Notice",
         "timeline": "Suggested 15 days (customary pre-litigation practice)",
-        "details": "Serve a formal written legal notice to the landlord citing Section 108(B)(m) of the Transfer of Property Act, attaching your move-out handover video, bank statements, and WhatsApp chats to demand the full refund of the unlawfully deducted security deposit."
+        "details": "Draft and send a formal written legal notice to the landlord citing Section 108(B)(m) of the Transfer of Property Act, demanding the immediate return of the unlawfully deducted deposit amount using your move-out photos and WhatsApp acknowledgments as proof."
       },
       {
         "step_number": 2,
-        "title": "Statutory Authority / Grievance Portal Filing",
+        "title": "Utilize Free Legal Guidance and Support",
         "timeline": "Timeline varies by state (confirm locally)",
-        "details": "Approach the local Rent Authority or civil forum (confirm locally). Note: DLSA provides free legal aid and guidance only (Helpline 15100); it is never a forum for hearings or proceedings against a landlord."
+        "details": "If the landlord fails to respond, contact the District Legal Services Authority (DLSA) via helpline 15100 for free legal aid and guidance. Note: DLSA provides free legal aid and guidance only; it is never a forum for hearings or proceedings against a landlord."
       },
       {
         "step_number": 3,
-        "title": "Statutory Forum / Civil Court Petition",
+        "title": "File a Recovery Suit before the Civil Court",
         "timeline": "Timeline varies by state (confirm locally)",
-        "details": "If the landlord fails to respond or refund the amount after the legal notice period, file a recovery suit or summary suit for money recovery before the local civil court or Small Causes Court."
+        "details": "If the pre-litigation notice and DLSA guidance do not resolve the matter, file a recovery suit for the withheld amount before the local civil court or Small Causes Court using your rent agreement, bank statements, and handover videos."
       }
     ],
     "real_lawyer_needed": false,
-    "real_lawyer_guidance": "You can initiate pre-litigation notices and represent yourself or seek free guidance from the District Legal Services Authority (DLSA Helpline 15100). However, engaging a physical advocate is recommended if you decide to file a formal civil recovery suit in court for better procedural handling.",
+    "real_lawyer_guidance": "You can initiate a pre-litigation legal notice and approach DLSA for free guidance on your own. However, if you choose to file a formal civil recovery suit in court, consulting a licensed advocate will help ensure your documentation and pleadings are properly structured.",
     "disclaimer": "⚠️ NyayaMitra provides legal information and self-advocacy tools under Indian laws. For formal courtroom representation, consult a licensed advocate."
   },
-  "legal_notice_draft": "**LEGAL DEMAND NOTICE**\n\n**BY SPEED POST WITH ACKNOWLEDGEMENT DUE (AD) / REGISTERED EMAIL**\n\n**Date:** 09/11/2026\n\n**To:** \nMr. Ramesh \n[Landlord Address / Contact Details as known] \n\n**From (Complainant / Tenant):** \n[Tenant Name] \n[Tenant Address / Contact Details] \n\n---\n\n**SUBJECT: LEGAL DEMAND FOR IMMEDIATE REFUND OF UNLAWFULLY DEDUCTED SECURITY DEPOSIT OF RS. 45,000/- REGARDING THE TENANCY OF PREMISES LOCATED IN HSR LAYOUT, BENGALURU.**\n\nSir,\n\nUnder instructions from my client, [Tenant Name], I/the undersigned do hereby serve upon you this formal Legal Demand Notice calling upon you to refund the unlawfully deducted security deposit amount of **Rs. 45,000/-** (Rupees Forty-Five Thousand Only) within **15 days** from the receipt of this notice, failing which my client shall be constrained to initiate appropriate legal proceedings before the competent civil forum. \n\nThe facts and circumstances giving rise to this notice are detailed as under:\n\n### 1. FACTUAL SEQUENCE & TIMELINE\n1. **Tenancy Period:** That my client resided as a lawful tenant in your 2BHK residential flat situated in HSR Layout, Bengaluru, for a duration of **2 years**, paying a monthly rent of Rs. 28,000/- and having deposited a total sum of **Rs. 1,00,000/-** as an interest-free security deposit at the commencement of the tenancy.\n2. **Notice to Vacate:** That on **1st October 2024**, in full compliance with the rental understanding, my client duly served a proper 1-month notice expressing the intention to vacate the said flat.\n3. **Vacating and Handover:** That on **31st October 2024**, my client completely vacated the flat, cleared all outstanding electricity and water utility bills in full, and formally handed over the physical keys of the premises to you. \n4. **Initial Promise:** That **3 days post-vacation**, you explicitly promised to refund the full security deposit via UPI transfer, but failed to honor your commitment.\n5. **Arbitrary Deduction:** That **25 days post-vacation**, after suddenly stopping answering my client's phone calls, you sent a text message arbitrarily deducting **Rs. 45,000/-** from the security deposit under the pretext of repainting, marble polishing, and deep cleaning.\n\n### 2. AVAILABILITY OF EVIDENCE\nMy client's position is backed by irrefutable documentary and visual evidence, including:\n* Move-in photographs and the move-out handover video establishing the good condition of the flat upon exit.\n* All monthly rent payment bank statements.\n* WhatsApp chat logs and acknowledgments explicitly confirming that the flat was handed over to you in good condition.\n\n### 3. VIOLATION OF STATUTORY PROVISIONS & LEGAL STANDING\n1. Under **Section 108(B)(m) of the Transfer of Property Act, 1882**, a tenant is bound to restore the property in as good a condition as it was in at the time he was put in possession, subject only to reasonable wear and tear and damage caused by irresistible force. Routine aging, standard property wear and tear, and normal usage cannot be made a financial liability of the tenant.\n2. Your arbitrary deduction of Rs. 45,000/- for repainting and deep cleaning despite prior acknowledgment that the flat was received in good condition constitutes an unlawful withholding of my client's hard-earned money and a breach of trust.\n3. Please note that this is strictly a civil dispute concerning financial recovery and breach of rental understanding. \n\n---\n\n### DEMAND FOR RECTIFICATION\n\nYou are hereby called upon to refund the unlawfully withheld balance security deposit amount of **Rs. 45,000/-** to my client via proper banking channels within **15 days** from the receipt of this notice.\n\nIf you fail to clear the said dues within the stipulated 15-day rectification window, my client reserves the right to initiate formal civil recovery proceedings before the appropriate civil court / Small Causes Court to recover the principal amount along with applicable costs and legal expenses. \n\n*Note: For free legal guidance regarding your rights or options, you may contact the District Legal Services Authority (DLSA) / NALSA Toll-Free Helpline at 15100.*\n\nA copy of this notice is retained in my office records for future reference and necessary action.\n\nYours faithfully,\n\n*(Signature)* \n**[Tenant Name / Counsel for Tenant]** \n[Contact Number] \n[Email Address] \n\n---\n\n### ANNEXURE INVENTORY\n1. Copy of Move-in Photos and Move-out Handover Video (Digital/Print Reference)\n2. Copies of Rent Payment Bank Statements\n3. Transcripts / Screenshots of WhatsApp Chats acknowledging flat was received in good condition",
+  "legal_notice_draft": "**FROM:**\n[Your Name] \n[Your Address] \nPhone: [Your Phone Number] \nEmail: [Your Email Address] \n\n**DATE:** 09/11/2026\n\n**MODE OF DISPATCH:** Speed Post (AD) / Registered Email\n\n**TO:** \nMr. Ramesh \n[Landlord's Address] \n\n---\n\n### **SUBJECT: LEGAL DEMAND NOTICE FOR THE UNLAWFUL WITHHOLDING AND ARBITRARY DEDUCTION OF SECURITY DEPOSIT**\n\nSir,\n\nI, am a tenant and former occupant of the residential premises situated at [Property Address]. I hereby serve upon you this formal legal demand notice regarding the arbitrary and unlawful deduction of Rs. 45,000 from my security deposit of Rs. 1,00,000, and I hereby state and submit as under:\n\n1. That on 1st October 2024, I provided you with a proper 1-month notice to vacate the 2BHK flat that I had rented from you.\n2. That on 31st October 2024, I completely vacated the flat, cleared all outstanding electricity and water utility bills, and formally handed over the keys back to you.\n3. That within 3 days of 31st October 2024, you acknowledged the handover of the premises and explicitly promised to refund my security deposit of Rs. 1,00,000 via UPI.\n4. That despite my peaceful surrender of the premises in good condition—which is fully supported by my move-in photos, move-out handover video, all rent payment bank statements, and WhatsApp chats where you acknowledged receiving the flat in good condition—you failed to refund the full security deposit.\n5. That 25 days post-vacation / yesterday, after you suddenly stopped picking up my phone calls, you sent me a message arbitrarily deducting Rs. 45,000 from my security deposit under the pretexts of house repainting, marble polishing, and deep cleaning.\n6. That under Section 108(B)(m) of the Transfer of Property Act, 1882, a tenant is only required to restore the property in as good a condition as it was in at the time he was put in possession, subject to changes caused by reasonable wear and tear and irresistible force. Normal aging, minor scuffs, and routine property maintenance such as repainting and deep cleaning after a tenancy are legally the landlord's responsibility and cannot be arbitrarily charged or deducted from my security deposit.\n7. That your sudden deduction of Rs. 45,000 constitutes an unauthorized withholding of my funds and a civil breach of our tenancy terms, especially in light of your explicit WhatsApp acknowledgments confirming that the flat was returned in good condition.\n\n### **DEMAND**\n\nI, therefore, call upon you through this notice to pay/refund the unlawfully withheld amount of **Rs. 45,000** to my bank account [or via UPI] within **15 days** from the date of receipt of this notice. \n\nPlease note that if you fail to comply with this demand within the stipulated 15-day rectification window, I shall be constrained to initiate appropriate legal proceedings against you before the appropriate civil forum for the recovery of the said amount, along with associated costs. You may also seek free legal guidance from the District Legal Services Authority (DLSA) via helpline 15100 if required.\n\nCopies of this notice and all supporting evidence are being retained for future legal action.\n\nSincerely / Yours faithfully,\n\n*(Signature)* \n[Your Name]\n\n---\n\n### **ANNEXURE INVENTORY**\n1. Move-in photos\n2. Move-out handover video\n3. All rent payment bank statements\n4. WhatsApp chat screenshots showing landlord's acknowledgment of the flat in good condition\n5. Copy of the signed Rent Agreement [if applicable]",
   "sample_roleplay_turn": {
     "user_argument": "Mr. Ramesh, as per Section 108 of the Transfer of Property Act and the Model Tenancy framework, ordinary wear and tear like wall paint aging cannot be deducted from my deposit. I have the handover video and our chat proof. Please refund my balance 45,000 within 7 days.",
     "opponent_response": {
-      "opponent_reply": "Arre sahib, don't teach me Section-Vection! Agreement mein clearly likha hai flat must be returned in pristine, freshly painted condition. Video-vudio se kya hota hai, wear and tear toh hota hi hai na! Chalo, 45 thousand toh impossible hai, 15 thousand kaat ke baki le lo final settlement.",
+      "opponent_reply": "Arre sahab, sections mat sunao mujhe! Agreement clause 14 padha hai kya? Har tenant ko flat waise hi dena padta hai jaise mila tha. Cleaning aur painting ka kharcha toh aana hi hai, sab log yahi karte hain. Chalo theek hai, zyada jhanjhat mat karo, main 20,000 kaat kar baaki bhej deta hoon, final settlement maan lo.",
       "coach_evaluation": {
         "strength_rating": "Strong",
-        "what_went_well": "You effectively cited the Transfer of Property Act and Model Tenancy Act, while referencing concrete proof (handover video and chat logs) and setting a firm timeline.",
-        "what_to_improve": "Reiterate that withholding a deposit without itemized bills or actual receipts is legally untenable. Stand firm on the 7-day deadline without compromising.",
-        "suggested_next_counter": "Mr. Ramesh, verbal agreements or arbitrary deductions override neither the Transfer of Property Act nor our written WhatsApp acknowledgment. Provide official GST repair bills for the exact amount, or refund the full Rs. 45,000 by our deadline."
+        "what_went_well": "You firmly cited the Transfer of Property Act and Model Tenancy principles regarding normal wear and tear, and backed it up with concrete evidence like handover videos and WhatsApp chats.",
+        "what_to_improve": "Do not accept his partial offer of 20,000. Reiterate that no deductions are permissible for normal wear and tear under law, and demand the full Rs. 45,000.",
+        "suggested_next_counter": "Mr. Ramesh, normal wear and tear is legally excluded from deductions, and my video proof shows the property was returned in good condition; I expect the full Rs. 45,000 without any arbitrary cuts."
       }
     }
   }

@@ -14,3 +14,4 @@
 | `live_chat_screenshots/` | Screenshots of two manual chats (before and after fixes) |
 
 All output files were produced by running `generate_test_outputs.py` and `verify_test_suite.py`. None were edited by hand.
+

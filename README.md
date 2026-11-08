@@ -61,7 +61,7 @@ NyayaMitra includes an automated benchmark suite (`verify_test_suite.py`) testin
 
 - **Automated Test Run:** **28/28 passed (0 failed)**, logged directly to `test_cases/verification_run.txt`.
 - **Primary Model Evaluated:** **Google Gemini 3.5 Flash Lite** (`gemini-3.5-flash-lite`, free tier) for all statutory and document reasoning tasks. Groq is used exclusively for speech-to-text audio transcription via **Whisper Large v3 Turbo** (`whisper-large-v3-turbo`).
-- **Execution Metrics:** **42 LLM calls** made to `gemini-3.5-flash-lite`; **0 fallback calls**; **0 quota errors** under strict evaluation mode (`EVAL_STRICT=1`) with a 12 requests/min throttle.
+- **Execution Metrics:** **40 LLM calls** made to `gemini-3.5-flash-lite`; **0 fallback calls**; **0 quota errors** under strict evaluation mode (`EVAL_STRICT=1`) with a 12 requests/min throttle.
 - **What the Suite Measures:**
   1. **Code-Level Section & Act-Name Guard:** Strips unverified section citations (e.g., Section 999A, unverified model tenancy sections) and banned/repealed Act names (e.g., Payment of Wages Act, Minimum Wages Act, Indian Penal Code, IPC, CrPC) replacing them with `[unverified reference removed]`.
   2. **Case-Name Guard & TPA Scope Check:** Detects judicial case names (`"X v. Y"`, `"X vs Y"`, `"X versus Y"`) replacing them with `[unverified case reference removed]`, intercepts case-law requests deterministically, and verifies Section 108 of the Transfer of Property Act is not misconstrued as guaranteeing a deposit refund.

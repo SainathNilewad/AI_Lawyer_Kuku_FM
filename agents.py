@@ -25,7 +25,10 @@ try:
         check_immediate_advocate_escalation,
         sanitize_unverified_sections,
         scan_unverified_sections,
-        scan_banned_acts
+        scan_banned_acts,
+        scan_unverified_acts,
+        sanitize_unverified_acts,
+        is_allowed_act
     )
 except ImportError:
     from .legal_kb import (
@@ -33,7 +36,10 @@ except ImportError:
         check_immediate_advocate_escalation,
         sanitize_unverified_sections,
         scan_unverified_sections,
-        scan_banned_acts
+        scan_banned_acts,
+        scan_unverified_acts,
+        sanitize_unverified_acts,
+        is_allowed_act
     )
 
 try:
@@ -128,7 +134,7 @@ class RightsAdvisorAgent:
             return {
                 "plain_language_standing": (
                     "This legal matter falls outside the verified everyday domains currently covered by NyayaMitra "
-                    "(Tenancy & Rental, Consumer Protection, and Code on Wages Employment). "
+                    "(Tenancy & Rental, Consumer Protection, and Employment under the Code on Wages). "
                     "NyayaMitra strictly avoids guessing or inventing law for uncovered domains. "
                     "Please consult a practicing advocate or contact the free District Legal Services Authority (DLSA) / NALSA Helpline at 15100."
                 ),
@@ -244,8 +250,7 @@ Output format MUST be valid JSON with this structure:
             for item in result["governing_laws"]:
                 if isinstance(item, dict):
                     act_name = str(item.get("act_name", ""))
-                    banned_a = scan_banned_acts(act_name)
-                    if banned_a:
+                    if not is_allowed_act(act_name) or scan_banned_acts(act_name):
                         item["status"] = "unverified reference removed"
                         item["act_name"] = "[unverified reference removed]"
                     sec = str(item.get("section", ""))
@@ -291,26 +296,52 @@ class DocumentDrafterAgent:
 
         system_prompt = f"""
 You are the Expert Legal Drafter at NyayaMitra India.
-Your job is to draft a rigorous, professionally formatted Indian Legal Document that an ordinary citizen 
-can immediately print, sign, and serve via Speed Post with Acknowledgement Due (AD) or registered email.
+Your job is to draft a rigorous, professionally formatted Indian Legal Demand Notice that an ordinary citizen 
+can immediately print, sign, and serve themselves via Speed Post with Acknowledgement Due (AD) or registered email.
+
+NOTICE VOICE (FIRST PERSON ONLY - STRICT):
+The aggrieved citizen writes and serves this legal demand notice THEMSELVES (acting in person / self-representation).
+- Write strictly and consistently in the FIRST PERSON ("I", "my", "me").
+- PROHIBITED PHRASES (STRICT): NEVER use "my client", "the undersigned", "under instructions from my client", "under instructions", "on behalf of my client", or any third-person lawyer representation language. Do NOT write as if you are an advocate representing someone. Write directly: "I hereby state and submit as under:", "My security deposit of...", "My salary of...".
+- SENDER DETAILS IN HEADER:
+  FROM:
+  [Your Name]
+  [Your Address]
+  Phone: [Your Phone Number]
+  Email: [Your Email Address]
+- CLOSING & SIGNATURE BLOCK (STRICT):
+  Must end with:
+  Sincerely / Yours faithfully,
+
+  *(Signature)*
+  [Your Name]
 
 DOCUMENT STANDARDS:
-1. Professional Indian Legal Notice / Grievance format.
+1. Professional Indian Legal Notice format.
 2. Include: Header, Date, Mode of Dispatch (Speed Post / Email), Details of Sender and Recipient.
-3. Structured Factual Sequence: 'Under instructions from my client / The undersigned submits as under...'
+3. Structured Factual Sequence: "I hereby state and submit as under:" followed by chronological numbered paragraphs.
 4. Clear recital of facts, timeline, amounts, and violation of statutory provisions.
 5. Strict 15-Day Rectification Demand Window (suggested customary pre-litigation practice).
 6. Warning of further legal action before the appropriate statutory forum: for wage claims, before the competent labour authority (confirm locally).
 7. DATE RULES: Today's date is {today_str}. Never invent a year or date. Use only the specific dates provided in the case timeline ({', '.join(timeline_dates) if timeline_dates else 'none provided'}) or the user's story; if a date is unknown, use the placeholder '[DD/MM/YYYY]'. Do NOT assume the year is 2024 or any other year unless explicitly stated in the case facts.
-8. FACT INTEGRITY (STRICT): Use ONLY facts explicitly stated by the user or present in the case dossier. NEVER invent or assume facts. Specifically:
-   - Do NOT invent a job title / designation (e.g. Software Engineer, Marketing Associate) unless the user stated it; use '[Job Title / Designation]' or leave it out.
-   - Do NOT invent emails sent or reminder dates (e.g. do NOT write 'despite multiple emails sent on...', 'as per my email dated...', 'email reminders') unless the user explicitly provided dates/copies of emails sent.
+8. FACT INTEGRITY (STRICT - NO EMBELLISHMENT):
+   Use ONLY facts explicitly stated by the user or present in the case dossier. NEVER invent, embellish, or assume unstated details.
+   Specifically:
+   - Do NOT add "interest-free" (e.g. do NOT write "interest-free security deposit") unless the user explicitly stated "interest-free".
+   - Do NOT state where or how an inspection took place (e.g. do not invent "joint inspection of premises") unless explicitly mentioned in the user's story.
+   - Do NOT use legally loaded or embellished phrases such as "breach of trust", "criminal breach of trust", "irrefutable", "irrefutable evidence", or "malafide".
+   - Do NOT invent a job title / designation unless stated; use '[Job Title]' or omit it.
+   - Do NOT invent emails sent or reminder dates (no 'email reminders', 'despite multiple emails sent on...') unless explicitly provided in the case facts.
    - Do NOT invent demands for unmentioned documents like 'Experience Certificate' unless explicitly requested by the user.
-   Anything not explicitly stated by the user must be a [bracketed placeholder] or left out.
-9. DLSA & FORUM RULES: DLSA provides free legal aid and guidance only (Helpline: 15100). NEVER describe DLSA as a forum for proceedings against an employer. For wage claims, state that proceedings will be filed before 'the competent labour authority (confirm locally)'.
-10. UNVERIFIED SPECIFICS: Do not state court fees, interest rates, processing times, penalties or portal names unless they appear in the provided knowledge base or in the user's message. If needed, say 'confirm this locally or with a lawyer / DLSA 15100.' {'(Note: For employment disputes, do NOT mention e-Daakhil; e-Daakhil is strictly for consumer cases).' if is_emp else ''}
-11. Space for signatures and annexure inventory.
-12. Output formatted in clean Markdown.
+   Anything not explicitly stated by the user must be omitted or written as a [bracketed placeholder].
+9. SECTION 84 SCOPE RULE (STRICT):
+   # TODO: Ask user for exact official wording for Section 84 of Consumer Protection Act, 2019.
+   Under Section 84 of the Consumer Protection Act, 2019, liability applies strictly to the product manufacturer.
+   The notice must NEVER state or imply that an e-commerce platform or online marketplace is liable under Section 84.
+10. DLSA & FORUM RULES: DLSA provides free legal aid and guidance only (Helpline: 15100). NEVER describe DLSA as a forum for proceedings against an employer. For wage claims, state that proceedings will be filed before 'the competent labour authority (confirm locally)'.
+11. UNVERIFIED SPECIFICS: Do not state court fees, interest rates, processing times, penalties or portal names unless they appear in the provided knowledge base or in the user's message. If needed, say 'confirm this locally or with a lawyer / DLSA 15100.' {'(Note: For employment disputes, do NOT mention e-Daakhil; e-Daakhil is strictly for consumer cases).' if is_emp else ''}
+12. Space for signatures with [Your Name] and annexure inventory.
+13. Output formatted in clean Markdown.
 """
         user_prompt = f"""
 Draft Document Type: {doc_type}
@@ -324,19 +355,42 @@ Legal Standing & Grounded Laws:
 Today's Date: {today_str}
 Dossier Timeline Dates: {', '.join(timeline_dates) if timeline_dates else 'Use [DD/MM/YYYY]'}
 
-Please write the complete, unedited, ready-to-send document.
+Please write the complete, unedited, ready-to-send document in the FIRST PERSON ("I", "my") with signature "[Your Name]".
 """
         raw_draft = self.engine.generate(system_prompt, user_prompt, temperature=0.2)
         
-        # Post-processing fact integrity check: Remove hallucinated email reminders or experience certificate if user did not provide them
+        # Post-processing voice enforcement: Ensure first person only, never advocate phrasing
+        raw_draft = re.sub(r'(?i)\bunder\s+instructions\s+from\s+my\s+client,?\s*(?:the\s+undersigned\s+submits\s+as\s+under:?)?', 'I hereby state and submit as under:', raw_draft)
+        raw_draft = re.sub(r'(?i)\bunder\s+instructions\s+(?:from\s+my\s+client\b)?', 'I hereby state', raw_draft)
+        raw_draft = re.sub(r'(?i)\bI,\s+(?:I|the\s+undersigned),?\b', 'I', raw_draft)
+        raw_draft = re.sub(r'(?i)\bmy\s+client\b', 'I', raw_draft)
+        raw_draft = re.sub(r'(?i)\bthe\s+undersigned\b', 'I', raw_draft)
+        raw_draft = re.sub(r'\bI,\s+I\b', 'I', raw_draft)
+        # Signature block enforcement: Ensure [Your Name] is used
+        raw_draft = re.sub(r'\[(?:Complainant|Tenant|Consumer|Employee|Sender|Aggrieved\s+Citizen)(?:\s*/\s*[^\]]+)?\s*Name\]', '[Your Name]', raw_draft)
+        if "[Your Name]" not in raw_draft:
+            raw_draft = re.sub(r'(?i)(\n\s*(?:Sincerely|Yours\s+faithfully|Yours\s+truly),?\s*\n+)(?:[^\n]+\n+)?', r'\1*(Signature)*\n[Your Name]\n', raw_draft)
+
+        # Fact integrity post-processing: Remove unstated embellishments
         dossier_text = json.dumps(case_dossier).lower()
+        if "interest-free" not in dossier_text:
+            raw_draft = re.sub(r'(?i)\binterest-free\s+', '', raw_draft)
+        if "breach of trust" not in dossier_text:
+            raw_draft = re.sub(r'(?i)\b(?:criminal\s+)?breach\s+of\s+trust\b', 'breach of agreement', raw_draft)
+        if "irrefutable" not in dossier_text:
+            raw_draft = re.sub(r'(?i)\birrefutable\s+', '', raw_draft)
         if "experience certificate" not in dossier_text:
             raw_draft = re.sub(r'(?i)(?:and\s+)?experience\s+certificate', '', raw_draft)
             raw_draft = re.sub(r'(?i)experience\s+and\s+relieving\s+certificate', 'relieving letter', raw_draft)
         if "email reminder" not in dossier_text and "email reminders" not in dossier_text and "reminder email" not in dossier_text:
             raw_draft = re.sub(r'(?i)email\s+reminders?', '[reminders, if any]', raw_draft)
-        raw_draft = re.sub(r'  +', ' ', raw_draft)
 
+        # Section 84 scope enforcement: The notice must never say the platform is liable under Section 84
+        # TODO: Awaiting user's exact official wording for Section 84.
+        raw_draft = re.sub(r'(?i)(?:and\s+platform\s+(?:is|are)|platform\s+is)\s+liable\s+under\s+Section\s+84', 'product manufacturer is liable under Section 84', raw_draft)
+        raw_draft = re.sub(r'(?i)under\s+Section\s+84[^.\n]*platform[^.\n]*', 'Under Section 84 of the Consumer Protection Act, 2019, the product manufacturer is liable for manufacturing defects.', raw_draft)
+
+        raw_draft = re.sub(r'  +', ' ', raw_draft)
         return sanitize_unverified_sections(raw_draft, context_text=dossier_text)
 
 
@@ -361,13 +415,24 @@ Your character traits:
 
 You must also act as a 'Coach' to evaluate the user's argument.
 
+STRICT STATUTORY GROUNDING & NO UNSOURCED RULES FOR COACH & OPPONENT:
+- Verified statutory database contains ONLY:
+  1. Model Tenancy Act, 2021
+  2. Transfer of Property Act, 1882 (Section 108)
+  3. Consumer Protection Act, 2019
+  4. Code on Wages, 2019
+- NEVER advise or tell the user to cite Acts, Codes, or sections that are not in the verified list above.
+- Specifically, NEVER mention or suggest citing 'Industrial Disputes Act', 'Shops and Establishment Act', 'Payment of Wages Act', 'RERA', or any state rent control enactments.
+- NEVER mention 'RBI guidelines', 'RBI circulars', or any other unsourced rules or guidelines.
+- Only reference statutory rights from the verified list above.
+
 Output format MUST be valid JSON with this structure:
 {{
   "opponent_reply": "What the opposing party says back to the user in direct dialogue (in the conversational language/tone)",
   "coach_evaluation": {{
     "strength_rating": "Strong / Moderate / Weak",
     "what_went_well": "Specific compliment on user's argument",
-    "what_to_improve": "Specific advice on what facts or laws the user forgot to mention",
+    "what_to_improve": "Specific advice on what facts or verified laws the user forgot to mention",
     "suggested_next_counter": "A powerful 1-line retort the user can use next"
   }}
 }}
@@ -400,11 +465,13 @@ User's Latest Statement/Argument:
         # Code-level guard: Sanitize opponent reply and coach feedback
         if isinstance(res, dict):
             if "opponent_reply" in res and isinstance(res["opponent_reply"], str):
-                res["opponent_reply"] = sanitize_unverified_sections(res["opponent_reply"])
+                cleaned_opp = re.sub(r'(?i)\bRBI\s+guidelines?\b', 'applicable statutory rules', res["opponent_reply"])
+                res["opponent_reply"] = sanitize_unverified_sections(cleaned_opp)
             if "coach_evaluation" in res and isinstance(res["coach_evaluation"], dict):
                 for k, v in res["coach_evaluation"].items():
                     if isinstance(v, str):
-                        res["coach_evaluation"][k] = sanitize_unverified_sections(v)
+                        cleaned_v = re.sub(r'(?i)\bRBI\s+guidelines?\b', 'applicable statutory rules', v)
+                        res["coach_evaluation"][k] = sanitize_unverified_sections(cleaned_v)
 
         return res
 
@@ -425,7 +492,7 @@ class ConversationalCounselorAgent:
         if kb_result.get("out_of_scope"):
             return (
                 "This topic falls outside the verified everyday legal domains covered by NyayaMitra "
-                "(Tenancy & Rental, Consumer Protection, and Code on Wages Employment). "
+                "(Tenancy & Rental, Consumer Protection, and Employment under the Code on Wages). "
                 "To ensure you receive accurate guidance, NyayaMitra does not answer queries outside verified domains. "
                 "Please consult a practicing advocate or call the free District Legal Services Authority (DLSA) / NALSA Helpline at 15100."
             )
@@ -462,8 +529,10 @@ INSTRUCTIONS FOR MULTI-TURN CHAT:
 8. PROVISION RELEVANCE: Never cite Section 18 unless deduction/fine/advance triggers were mentioned. Never describe Section 18(3) as preventing an employer from withholding wages; it only caps deductions.
 9. If the user shares new facts or evidence, acknowledge them and incorporate them into your advice.
 10. Keep the language natural, reassuring, and conversational.
-11. Never invent fake section numbers or fake case laws.
-12. If a physical courtroom appearance or high-risk criminal step is needed, tell them clearly to consult an advocate.
+11. Never invent fake section numbers, fake case laws, or unverified Acts (do NOT cite Industrial Disputes Act, Shops and Establishment Act, Payment of Wages Act, or Indian Penal Code). Do NOT cite 'RBI guidelines' or any unsourced rules.
+12. If advising on legal notices, explain that the user drafts the notice in their own name in the first person ("I", "my") with signature "[Your Name]", without third-person advocate phrasing ("my client").
+13. Under Section 84 of CPA 2019, liability applies strictly to product manufacturers; do NOT describe an e-commerce platform as liable under Section 84.
+14. If a physical courtroom appearance or high-risk criminal step is needed, tell them clearly to consult an advocate.
 """
         # Format recent conversation history (last 8 turns for context)
         recent_history = chat_history[-8:] if len(chat_history) > 8 else chat_history

@@ -6,6 +6,14 @@
 [*] Running Section 17(2) partial replacement regression tests...
     [PASS] Section 17(2) verified intact across plain, bold, and non-breaking spaces.
 
+[*] Running Section guard false-positive tests ('an 18-month tenure', 'within 15 days')...
+    [PASS] 'an 18-month tenure' and 'within 15 days' pass through completely unchanged.
+
+[*] Running Act-name allow-list tests ('Industrial Disputes Act', 'Shops and Establishment Act')...
+[SECURITY GUARD] Logged unverified Act name reference(s): ['Industrial Disputes Act']
+[SECURITY GUARD] Logged unverified Act name reference(s): ['Shops and Establishment Act']
+    [PASS] Unverified Acts flagged and sanitized properly in coach text.
+
 [01/28] Testing TC-01: Landlord withholding security deposit after move-out
       Status: [PASS] | Model: Gemini (gemini-3.5-flash-lite)
 --------------------------------------------------------------------------------
@@ -96,6 +104,6 @@
 
 ================================================================================
  Verification Summary: 28/28 Passed | 0 Failed
-Calls by model: gemini-3.5-flash-lite: 42; fallback calls: 0
+Calls by model: gemini-3.5-flash-lite: 40; fallback calls: 0
  Verbatim console output saved to: test_cases/verification_run.txt
 ================================================================================
