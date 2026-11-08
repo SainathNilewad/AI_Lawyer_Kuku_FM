@@ -10,6 +10,7 @@ Implements the 4 core capabilities for Problem 2 (AI Lawyer):
 from typing import Dict, Any, List, Optional
 import json
 import datetime
+import re
 import sys
 import os
 from pathlib import Path
@@ -169,6 +170,9 @@ STRICT HALLUCINATION PREVENTION RULES:
 4. Clearly state whether the issue is Civil or Criminal. (Remind users that monetary/contract disputes are NOT criminal cheating).
 5. Answer length & structure: Lead with a concise 3-line summary (core legal standing, key statutory rule, immediate takeaway), followed by clear details.
 6. Do not state court fees, interest rates, processing times, penalties or portal names unless they appear in the provided knowledge base or in the user's message. If needed, say 'confirm this locally or with a lawyer / DLSA 15100.' (Note: e-Daakhil applies strictly to consumer disputes, NEVER to employment or salary matters).
+7. PROVISION RELEVANCE: Only cite provisions that appear in the VERIFIED STATUTORY GROUNDING. If Section 18 is not in the grounding, do NOT cite Section 18 or deduction rules. Never describe Section 18(3) as preventing an employer from withholding wages; it only caps deductions.
+8. DLSA & FORUM RULES: Describe DLSA strictly as free legal aid and guidance (Helpline 15100). NEVER describe DLSA as a forum for hearings or proceedings against an employer. For wage claims, direct the user to 'the competent labour authority (confirm locally)'.
+9. COSTS & TIMELINES RULE: Do NOT include any fee, court fee, or cost estimates (do NOT state 'Cost: Nominal / Free', 'Cost: Free / Speed Post', or specific rupee amounts for filing). Any deadline or timeline must be explicitly labelled 'Suggested' (e.g. 'Suggested 15 days (customary pre-litigation notice period)').
 
 VERIFIED STATUTORY GROUNDING:
 {grounding_text}
@@ -183,22 +187,19 @@ Output format MUST be valid JSON with this structure:
     {{
       "step_number": 1,
       "title": "Immediate Pre-Litigation Action (e.g. Formal Legal Notice)",
-      "timeline": "e.g. 15 Days",
-      "cost_estimate": "Free to minimal (Speed Post / Email)",
+      "timeline": "Suggested 15 days (customary pre-litigation practice)",
       "details": "Concrete instructions on what to do"
     }},
     {{
       "step_number": 2,
       "title": "Statutory Authority / Grievance Portal Filing",
-      "timeline": "e.g. 30-45 Days (or confirm locally)",
-      "cost_estimate": "Zero to nominal",
-      "details": "Instructions on proper forum: e-Daakhil for consumer, Rent Authority for tenancy, Labor Commissioner / DLSA for employment (never e-Daakhil for employment)"
+      "timeline": "Timeline varies by state (confirm locally)",
+      "details": "Instructions on proper forum: e-Daakhil for consumer, Rent Authority for tenancy, the competent labour authority (confirm locally) for wage claims. Note: DLSA provides free legal aid and guidance only; it is never a forum for hearings or proceedings against an employer."
     }},
     {{
       "step_number": 3,
       "title": "Statutory Forum / Consumer Commission Petition",
-      "timeline": "Confirm locally / with DLSA",
-      "cost_estimate": "Nominal",
+      "timeline": "Timeline varies by state (confirm locally)",
       "details": "How to proceed if earlier steps fail"
     }}
   ],
@@ -214,29 +215,34 @@ Output format MUST be valid JSON with this structure:
         if not isinstance(result, dict) or "plain_language_standing" not in result:
             raw_txt = result.get("raw_text", str(result)) if isinstance(result, dict) else str(result)
             is_emp = "employ" in str(case_dossier.get("category", "")).lower() or "wage" in str(case_dossier.get("category", "")).lower()
-            step_2_title = "File Claim with Labor Commissioner / DLSA" if is_emp else "File on Government Grievance Portal"
-            step_2_details = "Register claim before local Labor Commissioner or seek free assistance via DLSA Helpline 15100." if is_emp else "Register on statutory portal (e.g. e-Daakhil for consumer disputes, Rent Authority for tenancy)."
+            step_2_title = "Approach the Competent Labour Authority (Confirm Locally)" if is_emp else "File on Government Grievance Portal"
+            step_2_details = "Register claim before the competent labour authority (confirm locally), or seek free legal aid and guidance via DLSA Helpline 15100." if is_emp else "Register on statutory portal (e.g. e-Daakhil for consumer disputes, Rent Authority for tenancy)."
 
             result = {
                 "plain_language_standing": raw_txt if raw_txt else "Under Indian Law, you have a strong statutory claim to seek full recovery or refund, as arbitrary withholding or deficient services are unlawful.",
                 "governing_laws": [
-                    {"act_name": "Indian Statutory Law", "section": "Governing Provisions", "relevance": "Protects against unfair deduction and deficiency in service"}
+                    {"act_name": "Indian Statutory Law", "section": "Governing Provisions", "relevance": "Protects against arbitrary withholding and deficient services"}
                 ],
                 "action_options": [
-                    {"step_number": 1, "title": "Serve Formal 15-Day Legal Demand Notice", "timeline": "15 Days", "cost_estimate": "Free / Speed Post", "details": "Issue notice via Speed Post and Email."},
-                    {"step_number": 2, "title": step_2_title, "timeline": "Varies by state", "cost_estimate": "Zero to nominal", "details": step_2_details}
+                    {"step_number": 1, "title": "Serve Formal 15-Day Legal Demand Notice", "timeline": "Suggested 15 days (customary pre-litigation practice)", "details": "Issue notice via Speed Post and Email."},
+                    {"step_number": 2, "title": step_2_title, "timeline": "Timeline varies by state (confirm locally)", "details": step_2_details}
                 ],
                 "real_lawyer_needed": False,
                 "real_lawyer_guidance": "You can pursue pre-litigation notice and statutory portals yourself without an advocate.",
                 "disclaimer": "⚠️ NyayaMitra provides legal information and self-advocacy tools under Indian laws."
             }
 
+        context_text = f"{case_dossier.get('category', '')} {case_dossier.get('summary', '')}"
+        is_emp_case = "employ" in str(case_dossier.get("category", "")).lower() or "wage" in str(case_dossier.get("category", "")).lower()
+        has_deduction = any(t in context_text.lower() for t in ["deduct", "deduction", "fine", "advance", "cut from salary", "deductions", "deducted", "fines", "advances", "salary cut"])
+
         # Code-level guard: Sanitize plain language standing for unverified section references & banned Acts
         if isinstance(result, dict) and "plain_language_standing" in result:
-            result["plain_language_standing"] = sanitize_unverified_sections(result["plain_language_standing"])
+            result["plain_language_standing"] = sanitize_unverified_sections(result["plain_language_standing"], context_text=context_text)
 
         # Code-level guard: Check governing laws list against allowed statutory sections & banned Acts
         if isinstance(result, dict) and "governing_laws" in result and isinstance(result["governing_laws"], list):
+            filtered_laws = []
             for item in result["governing_laws"]:
                 if isinstance(item, dict):
                     act_name = str(item.get("act_name", ""))
@@ -249,15 +255,22 @@ Output format MUST be valid JSON with this structure:
                     if unv:
                         item["status"] = "unverified reference removed"
                         item["section"] = "[unverified reference removed]"
+                    # If employment dispute with NO deduction mentioned, do NOT cite Section 18
+                    if is_emp_case and not has_deduction and re.search(r'\b18\b', sec):
+                        continue
+                    filtered_laws.append(item)
+            result["governing_laws"] = filtered_laws
 
-        # Code-level guard: Sanitize action options
+        # Code-level guard: Sanitize action options and remove unsourced cost estimates
         if isinstance(result, dict) and "action_options" in result and isinstance(result["action_options"], list):
             for opt in result["action_options"]:
                 if isinstance(opt, dict):
+                    if "cost_estimate" in opt:
+                        del opt["cost_estimate"]
                     if "details" in opt and isinstance(opt["details"], str):
-                        opt["details"] = sanitize_unverified_sections(opt["details"])
+                        opt["details"] = sanitize_unverified_sections(opt["details"], context_text=context_text)
                     if "title" in opt and isinstance(opt["title"], str):
-                        opt["title"] = sanitize_unverified_sections(opt["title"])
+                        opt["title"] = sanitize_unverified_sections(opt["title"], context_text=context_text)
 
         return result
 
@@ -288,12 +301,18 @@ DOCUMENT STANDARDS:
 2. Include: Header, Date, Mode of Dispatch (Speed Post / Email), Details of Sender and Recipient.
 3. Structured Factual Sequence: 'Under instructions from my client / The undersigned submits as under...'
 4. Clear recital of facts, timeline, amounts, and violation of statutory provisions.
-5. Strict 15-Day Rectification Demand Window (established pre-litigation practice).
-6. Warning of further legal action before the appropriate statutory forum.
+5. Strict 15-Day Rectification Demand Window (suggested customary pre-litigation practice).
+6. Warning of further legal action before the appropriate statutory forum: for wage claims, before the competent labour authority (confirm locally).
 7. DATE RULES: Today's date is {today_str}. Never invent a year or date. Use only the specific dates provided in the case timeline ({', '.join(timeline_dates) if timeline_dates else 'none provided'}) or the user's story; if a date is unknown, use the placeholder '[DD/MM/YYYY]'. Do NOT assume the year is 2024 or any other year unless explicitly stated in the case facts.
-8. UNVERIFIED SPECIFICS: Do not state court fees, interest rates, processing times, penalties or portal names unless they appear in the provided knowledge base or in the user's message. If needed, say 'confirm this locally or with a lawyer / DLSA 15100.' {'(Note: For employment disputes, do NOT mention e-Daakhil; e-Daakhil is strictly for consumer cases).' if is_emp else ''}
-9. Space for signatures and annexure inventory.
-10. Output formatted in clean Markdown.
+8. FACT INTEGRITY (STRICT): Use ONLY facts explicitly stated by the user or present in the case dossier. NEVER invent or assume facts. Specifically:
+   - Do NOT invent a job title / designation (e.g. Software Engineer, Marketing Associate) unless the user stated it; use '[Job Title / Designation]' or leave it out.
+   - Do NOT invent emails sent or reminder dates (e.g. do NOT write 'despite multiple emails sent on...', 'as per my email dated...', 'email reminders') unless the user explicitly provided dates/copies of emails sent.
+   - Do NOT invent demands for unmentioned documents like 'Experience Certificate' unless explicitly requested by the user.
+   Anything not explicitly stated by the user must be a [bracketed placeholder] or left out.
+9. DLSA & FORUM RULES: DLSA provides free legal aid and guidance only (Helpline: 15100). NEVER describe DLSA as a forum for proceedings against an employer. For wage claims, state that proceedings will be filed before 'the competent labour authority (confirm locally)'.
+10. UNVERIFIED SPECIFICS: Do not state court fees, interest rates, processing times, penalties or portal names unless they appear in the provided knowledge base or in the user's message. If needed, say 'confirm this locally or with a lawyer / DLSA 15100.' {'(Note: For employment disputes, do NOT mention e-Daakhil; e-Daakhil is strictly for consumer cases).' if is_emp else ''}
+11. Space for signatures and annexure inventory.
+12. Output formatted in clean Markdown.
 """
         user_prompt = f"""
 Draft Document Type: {doc_type}
@@ -310,7 +329,17 @@ Dossier Timeline Dates: {', '.join(timeline_dates) if timeline_dates else 'Use [
 Please write the complete, unedited, ready-to-send document.
 """
         raw_draft = self.engine.generate(system_prompt, user_prompt, temperature=0.2)
-        return sanitize_unverified_sections(raw_draft)
+        
+        # Post-processing fact integrity check: Remove hallucinated email reminders or experience certificate if user did not provide them
+        dossier_text = json.dumps(case_dossier).lower()
+        if "experience certificate" not in dossier_text:
+            raw_draft = re.sub(r'(?i)(?:and\s+)?experience\s+certificate', '', raw_draft)
+            raw_draft = re.sub(r'(?i)experience\s+and\s+relieving\s+certificate', 'relieving letter', raw_draft)
+        if "email reminder" not in dossier_text and "email reminders" not in dossier_text and "reminder email" not in dossier_text:
+            raw_draft = re.sub(r'(?i)email\s+reminders?', '[reminders, if any]', raw_draft)
+        raw_draft = re.sub(r'  +', ' ', raw_draft)
+
+        return sanitize_unverified_sections(raw_draft, context_text=dossier_text)
 
 
 class RoleplayOpponentAgent:
@@ -430,10 +459,13 @@ INSTRUCTIONS FOR MULTI-TURN CHAT:
 3. If the user asks 'what if...', 'can I...', 'how do I...', or about proofs/threats/police/courts, give them clear, step-by-step practical guidance under Indian law.
 4. DATE & TIME RULES: Today's date is {today_str}. Never invent years or dates. Use only dates provided in the case facts or [DD/MM/YYYY]. Do not assume 2024 or any year unless stated in the case facts.
 5. UNVERIFIED SPECIFICS: Do not state court fees, interest rates, processing times, penalties or portal names unless they appear in the provided knowledge base or in the user's message. If needed, say 'confirm this locally or with a lawyer / DLSA 15100.' {'(Note: For employment disputes, do NOT mention e-Daakhil; e-Daakhil is strictly for consumer cases).' if is_emp else ''}
-6. If the user shares new facts or evidence, acknowledge them and incorporate them into your advice.
-7. Keep the language natural, reassuring, and conversational.
-8. Never invent fake section numbers or fake case laws.
-9. If a physical courtroom appearance or high-risk criminal step is needed, tell them clearly to consult an advocate.
+6. FACT INTEGRITY (STRICT): Use ONLY facts the user stated or the dossier contains. NEVER invent job titles, dates of reminders, emails sent, or unmentioned documents like 'Experience Certificate' unless the user stated them. Use bracketed placeholders like '[Job Title]' or leave them out.
+7. DLSA & FORUM RULES: Describe DLSA strictly as free legal aid and guidance (Helpline 15100). NEVER describe DLSA as a forum for hearings or proceedings against an employer. For wage claims, refer to 'the competent labour authority (confirm locally)'.
+8. PROVISION RELEVANCE: Never cite Section 18 unless deduction/fine/advance triggers were mentioned. Never describe Section 18(3) as preventing an employer from withholding wages; it only caps deductions.
+9. If the user shares new facts or evidence, acknowledge them and incorporate them into your advice.
+10. Keep the language natural, reassuring, and conversational.
+11. Never invent fake section numbers or fake case laws.
+12. If a physical courtroom appearance or high-risk criminal step is needed, tell them clearly to consult an advocate.
 """
         # Format recent conversation history (last 8 turns for context)
         recent_history = chat_history[-8:] if len(chat_history) > 8 else chat_history
@@ -452,5 +484,5 @@ Please respond naturally to the user's question with practical Indian legal coun
         if not ans or not ans.strip():
             ans = "I understand your point. Based on the facts established in your case and relevant Indian statutes, you are legally entitled to press for your rightful refund or dues. Would you like me to generate your ready-to-send Legal Demand Notice now?"
         # Code-level guard: Sanitize conversational follow-up response
-        return sanitize_unverified_sections(ans)
+        return sanitize_unverified_sections(ans, context_text=f"{category} {summary} {user_message}")
 

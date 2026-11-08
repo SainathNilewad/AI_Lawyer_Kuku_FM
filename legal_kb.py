@@ -118,6 +118,44 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
         "verified_on": "2026-11-07",
         "status": "verified",
         "sections": ["Section 17(1)", "Section 17(2)", "Section 17(4)", "Section 18(1)", "Section 18(2)", "Section 18(3)"],
+        "provisions": [
+            {
+                "section": "Section 17(1)",
+                "title": "Time Limit for Wage Payment",
+                "text": "Wages must be paid: daily (at the end of the shift), weekly (on the last working day before the weekly holiday), fortnightly (before the end of the second day after the end of the fortnight), or monthly (before the expiry of the seventh day of the succeeding month).",
+                "triggers": ["salary", "wage", "wages", "pay", "monthly", "delayed", "withheld", "stopped", "due", "unpaid"]
+            },
+            {
+                "section": "Section 17(2)",
+                "title": "Payment on Removal, Dismissal or Resignation",
+                "text": "Wages of an employee who is removed, dismissed, retrenched or resigns must be paid within two working days of that event.",
+                "triggers": ["resign", "relieving", "final settlement", "f&f", "notice period", "terminated", "resigned", "resignation", "fnf", "dismissed", "retrenched"]
+            },
+            {
+                "section": "Section 17(4)",
+                "title": "Other Laws Preserved",
+                "text": "The Code does not affect any time limit for payment of wages given in any other law (state rules may differ).",
+                "triggers": ["state law", "other law", "overtime", "rule"]
+            },
+            {
+                "section": "Section 18(1), 18(2)",
+                "title": "Authorised Deductions Only",
+                "text": "No deductions from wages except those authorised under Section 18(2) of the Code (e.g. fines, absence from duty, damage or loss directly attributable to neglect or default, house-accommodation, amenities, advances/loans, statutory tax/provident fund).",
+                "triggers": ["deduct", "deduction", "fine", "advance", "cut from salary", "deductions", "deducted", "fines", "advances", "salary cut"]
+            },
+            {
+                "section": "Section 18(3)",
+                "title": "Statutory 50% Deduction Cap",
+                "text": "The total amount of deductions which may be made in any wage period from the wages of an employee shall not exceed fifty per cent. (50%) of such wages. [Statutory Scope Rule: Section 18(3) only caps deductions at 50% of wages; it does not prevent an employer from withholding wages. Never describe Section 18(3) as preventing an employer from withholding wages; it only caps deductions].",
+                "triggers": ["deduct", "deduction", "fine", "advance", "cut from salary", "deductions", "deducted", "fines", "advances", "salary cut"]
+            },
+            {
+                "section": "Claims and Forum",
+                "title": "Competent Labour Authority & DLSA Legal Aid",
+                "text": "For formal proceedings or recovery of unpaid wages, approach the competent labour authority (confirm locally). The District Legal Services Authority (DLSA) / NALSA Helpline 15100 provides free legal aid and guidance only (it is not an adjudicating forum for proceedings against an employer).",
+                "triggers": ["all"]
+            }
+        ],
         "key_provisions": (
             "1. Time Limit for Wage Payment (Section 17(1)): Wages must be paid: daily (at the end of the shift), "
             "weekly (on the last working day before the weekly holiday), fortnightly (before the end of the second day after the end of the fortnight), "
@@ -127,12 +165,14 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
             "3. Other Laws Preserved (Section 17(4)): The Code does not affect any time limit for payment of wages given in any other law (state rules may differ).\n"
             "4. Authorised Deductions Only (Section 18(1), 18(2)): No deductions from wages except those authorised under Section 18(2) of the Code "
             "(e.g. fines, absence from duty, damage or loss directly attributable to neglect or default, house-accommodation, amenities, advances/loans, statutory tax/provident fund).\n"
-            "5. Statutory 50% Deduction Cap (Section 18(3)): The total amount of deductions which may be made in any wage period from the wages of an employee shall not exceed fifty per cent. (50%) of such wages.\n"
-            "6. Claims and Forum: Procedure and forum vary; confirm from the official text or ask a lawyer / DLSA 15100."
+            "5. Statutory 50% Deduction Cap (Section 18(3)): The total amount of deductions which may be made in any wage period from the wages of an employee shall not exceed fifty per cent. (50%) of such wages. "
+            "[Statutory Scope Rule: Section 18(3) only caps deductions at 50% of wages; it does not prevent an employer from withholding wages. Never describe Section 18(3) as preventing an employer from withholding wages; it only caps deductions].\n"
+            "6. Claims and Forum: For formal proceedings or recovery of unpaid wages, approach the competent labour authority (confirm locally). "
+            "The District Legal Services Authority (DLSA) / NALSA Helpline 15100 provides free legal aid and guidance only (it is not an adjudicating forum for proceedings against an employer)."
         ),
         "remedy_steps": [
-            "Send formal written demand email to employer citing Sections 17(2) and 18(3) requesting immediate release of unpaid wages and relieving documents within statutory timelines.",
-            "Procedure and forum vary; confirm from the official text or ask a lawyer / DLSA 15100."
+            "Send formal written demand email to employer citing Section 17(2) requesting immediate release of unpaid wages and relieving documents within statutory timelines.",
+            "For formal proceedings, approach the competent labour authority (confirm locally). The District Legal Services Authority (DLSA) / NALSA Helpline 15100 provides free legal aid and guidance only."
         ]
     },
 
@@ -225,6 +265,82 @@ def _matches_word_beginning(pattern_phrase: str, text: str) -> bool:
         regex_str = r'\b' + re.escape(pattern_phrase) + r'\w*'
     return bool(re.search(regex_str, text, re.IGNORECASE))
 
+# Provision Trigger Lists for Employment & Labor (Code on Wages, 2019)
+SEC_17_2_TRIGGERS = [
+    "resign", "resigned", "resignation", "relieving", "final settlement",
+    "f&f", "fnf", "notice period", "terminated", "termination", "dismissed", "retrenched"
+]
+
+SEC_18_TRIGGERS = [
+    "deduct", "deduction", "deductions", "deducted", "fine", "fines",
+    "advance", "advances", "cut from salary", "salary cut", "salary deduction", "cuts"
+]
+
+def filter_employment_entry(entry: Dict[str, Any], query_text: str) -> Dict[str, Any]:
+    """
+    Filters employment provisions so only triggered provisions are included in the prompt and answer.
+    Section 17(2) triggers: resign, relieving, final settlement, F&F, notice period, terminated.
+    Section 18 triggers: deduct, deduction, fine, advance, cut from salary.
+    """
+    query_lower = (query_text or "").lower()
+    
+    has_17_2 = any(t in query_lower for t in SEC_17_2_TRIGGERS)
+    has_18 = any(t in query_lower for t in SEC_18_TRIGGERS)
+    
+    filtered_sections = []
+    filtered_provisions = []
+    
+    # 1. Section 17 provisions
+    if has_17_2:
+        filtered_sections.append("Section 17(2)")
+        filtered_provisions.append(
+            "1. Payment on Removal, Dismissal or Resignation (Section 17(2)): Wages of an employee who is removed, dismissed, "
+            "retrenched or resigns must be paid within two working days of that event."
+        )
+    else:
+        filtered_sections.append("Section 17(1)")
+        filtered_provisions.append(
+            "1. Time Limit for Wage Payment (Section 17(1)): Wages must be paid: daily (at the end of the shift), "
+            "weekly (on the last working day before the weekly holiday), fortnightly (before the end of the second day after the end of the fortnight), "
+            "or monthly (before the expiry of the seventh day of the succeeding month)."
+        )
+        
+    # 2. Section 18 provisions - included ONLY if deduction triggers match
+    if has_18:
+        filtered_sections.extend(["Section 18(1)", "Section 18(2)", "Section 18(3)"])
+        filtered_provisions.append(
+            "2. Authorised Deductions Only (Section 18(1), 18(2)): No deductions from wages except those authorised under Section 18(2) of the Code "
+            "(e.g. fines, absence from duty, damage or loss directly attributable to neglect or default, house-accommodation, amenities, advances/loans, statutory tax/provident fund)."
+        )
+        filtered_provisions.append(
+            "3. Statutory 50% Deduction Cap (Section 18(3)): The total amount of deductions which may be made in any wage period from the wages of an employee shall not exceed fifty per cent. (50%) of such wages. "
+            "[Statutory Scope Rule: Section 18(3) only caps deductions at 50% of wages; it does not prevent an employer from withholding wages. Never describe Section 18(3) as preventing an employer from withholding wages; it only caps deductions]."
+        )
+
+    # 3. Claims & Forum
+    filtered_provisions.append(
+        "4. Claims and Forum: For formal proceedings or recovery of unpaid wages, approach the competent labour authority (confirm locally). "
+        "The District Legal Services Authority (DLSA) / NALSA Helpline 15100 provides free legal aid and guidance only (it is not an adjudicating forum for proceedings against an employer)."
+    )
+
+    remedy_steps = []
+    if has_17_2 and has_18:
+        remedy_steps.append("Send formal written demand email to employer citing Sections 17(2) and 18(3) requesting immediate release of unpaid wages and refund of unauthorized deductions.")
+    elif has_17_2:
+        remedy_steps.append("Send formal written demand email to employer citing Section 17(2) requesting immediate release of unpaid wages and relieving documents within two working days.")
+    elif has_18:
+        remedy_steps.append("Send formal written demand email to employer citing Section 18(3) contesting unlawful deductions exceeding statutory 50% cap.")
+    else:
+        remedy_steps.append("Send formal written demand email to employer citing Section 17(1) requesting immediate release of unpaid wages.")
+
+    remedy_steps.append("For formal proceedings, approach the competent labour authority (confirm locally). The District Legal Services Authority (DLSA) / NALSA Helpline 15100 provides free legal aid and guidance only.")
+
+    filtered_entry = dict(entry)
+    filtered_entry["sections"] = filtered_sections
+    filtered_entry["key_provisions"] = "\n".join(filtered_provisions)
+    filtered_entry["remedy_steps"] = remedy_steps
+    return filtered_entry
+
 def retrieve_verified_legal_context(query: str, domain_filter: str = None, fallback_category: str = None) -> Dict[str, Any]:
     """
     Deterministically retrieves verified statutory provisions.
@@ -276,7 +392,7 @@ def retrieve_verified_legal_context(query: str, domain_filter: str = None, fallb
         elif is_consumer and entry["domain"] == "Consumer Protection":
             matched_entries.append(entry)
         elif is_employment and entry["domain"] == "Employment & Labor":
-            matched_entries.append(entry)
+            matched_entries.append(filter_employment_entry(entry, query_str))
     
     # FIX 5: If no domain matches, DO NOT guess.
     if not matched_entries:
@@ -546,11 +662,52 @@ def sanitize_case_names(text: str) -> str:
         sanitized = pat.sub("[unverified case reference removed]", sanitized)
     return sanitized
 
-def sanitize_unverified_sections(text: str) -> str:
+def sanitize_dlsa_references(text: str) -> str:
+    """
+    Ensures DLSA is described strictly as free legal aid and guidance,
+    never as a forum, court, or tribunal hearing proceedings against an employer.
+    """
+    if not text or not isinstance(text, str):
+        return text
+    patterns = [
+        r'(?i)\b(?:file\s+(?:a\s+)?claim\s+before\s+(?:the\s+)?DLSA)\b',
+        r'(?i)\b(?:file\s+proceedings\s+before\s+(?:the\s+)?DLSA)\b',
+        r'(?i)\b(?:DLSA\s+(?:will\s+)?(?:hear|conduct\s+hearings?|decide|adjudicate|summon\s+your\s+employer))\b',
+        r'(?i)\b(?:hearings?\s+before\s+(?:the\s+)?DLSA)\b',
+        r'(?i)\b(?:DLSA\s+court)\b',
+        r'(?i)\b(?:forum\s*:\s*DLSA)\b',
+        r'(?i)\b(?:approach\s+DLSA\s+for\s+proceedings)\b'
+    ]
+    sanitized = text
+    for pat in patterns:
+        sanitized = re.sub(pat, "approach the competent labour authority (confirm locally) or seek free legal aid from DLSA 15100", sanitized)
+    return sanitized
+
+def sanitize_sec18_misconceptions(text: str) -> str:
+    """
+    Ensures Section 18(3) is never described as preventing wage withholding.
+    Section 18(3) strictly caps deductions at 50%.
+    """
+    if not text or not isinstance(text, str):
+        return text
+    pat = re.compile(r'(?i)\b(?:Section\s*18(?:\([1-3]\))?)\s*(?:prohibits|prevents|bars|stops)\s*(?:an\s+employer\s+from\s+)?withholding\s+(?:wages|salary)', re.IGNORECASE)
+    sanitized = pat.sub("Section 17(2) requires payment within two working days of resignation, while Section 18(3) strictly caps deductions", text)
+    return sanitized
+
+def sanitize_cost_and_fee_text(text: str) -> str:
+    """Removes unsourced cost/fee estimates such as 'Cost: Nominal / Free' or 'Cost: Free / Speed Post'."""
+    if not text or not isinstance(text, str):
+        return text
+    text = re.sub(r'(?i)\*?\s*\(?Cost:\s*[^)]+\)?\*?', '', text)
+    text = re.sub(r'(?i)\bCost:\s*(?:Nominal\s*/\s*Free|Free\s*/\s*Speed\s*Post|Zero\s+to\s+nominal|Nominal)\b', '', text)
+    return text
+
+def sanitize_unverified_sections(text: str, context_text: str = "") -> str:
     """
     Scans an AI answer for unverified section references, banned Act names, and unverified case citations.
     Replaces any unverified section or banned Act with '[unverified reference removed]',
     and any unverified case citation with '[unverified case reference removed]', and logs it.
+    Also strips unsourced costs, corrects DLSA forum mischaracterizations, and guards Section 18 relevance.
     """
     if not text or not isinstance(text, str):
         return text
@@ -561,7 +718,24 @@ def sanitize_unverified_sections(text: str) -> str:
     # Step 2: Sanitize unverified case citations
     text = sanitize_case_names(text)
 
-    # Step 3: Sanitize unverified section references
+    # Step 3: Sanitize DLSA forum mischaracterizations
+    text = sanitize_dlsa_references(text)
+
+    # Step 4: Sanitize Section 18 misconceptions
+    text = sanitize_sec18_misconceptions(text)
+
+    # Step 5: Sanitize unsourced cost/fee text
+    text = sanitize_cost_and_fee_text(text)
+
+    # Step 6: If context_text provided and it has NO deduction triggers, sanitize any cited Section 18
+    if context_text:
+        c_lower = context_text.lower()
+        has_deduction = any(t in c_lower for t in SEC_18_TRIGGERS)
+        if not has_deduction:
+            # Strip Section 18 citations
+            text = re.sub(r'(?i)\b\*{0,2}(?:section|sec\.?|u/s)?\*{0,2}\s*18(?:\([1-3]\))?\b', '[unverified reference removed]', text)
+
+    # Step 7: Sanitize unverified section references
     unverified = scan_unverified_sections(text)
     if not unverified:
         return text

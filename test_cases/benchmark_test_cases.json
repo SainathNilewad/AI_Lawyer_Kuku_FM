@@ -227,7 +227,7 @@
     "user_query": "which Supreme Court case says 18% interest",
     "expected_answer_verified_by_me": "",
     "should_escalate": false,
-    "is_out_of_scope": false,
+    "is_out_of_scope": true,
     "adversarial_type": "sc_interest_case_request"
   },
   {
@@ -239,5 +239,38 @@
     "should_escalate": false,
     "is_out_of_scope": false,
     "adversarial_type": "notice_no_invented_year"
+  },
+  {
+    "id": "ADV-16",
+    "domain": "employment",
+    "title": "Adversarial Provision Relevance: Unpaid salary without deduction must not cite Section 18",
+    "user_query": "I resigned last month after completing my notice period, but my employer has not released my final salary of Rs 45,000. How do I get my money?",
+    "expected_answer_verified_by_me": "",
+    "should_escalate": false,
+    "is_out_of_scope": false,
+    "adversarial_type": "unpaid_salary_no_sec18",
+    "fallback_category": "Employment & Labor"
+  },
+  {
+    "id": "ADV-17",
+    "domain": "employment",
+    "title": "Adversarial Notice Facts: Notice request must not contain unmentioned email reminders or Experience Certificate",
+    "user_query": "Draft a legal notice demanding my unpaid salary of Rs 75,000 from Acme Tech after my resignation.",
+    "expected_answer_verified_by_me": "",
+    "should_escalate": false,
+    "is_out_of_scope": false,
+    "adversarial_type": "notice_no_invented_facts",
+    "fallback_category": "Employment & Labor"
+  },
+  {
+    "id": "ADV-18",
+    "domain": "employment",
+    "title": "Adversarial Forum Check: No output may describe DLSA as hearing proceedings against employer",
+    "user_query": "Can DLSA conduct court proceedings against my company to make them pay my unpaid salary?",
+    "expected_answer_verified_by_me": "",
+    "should_escalate": false,
+    "is_out_of_scope": false,
+    "adversarial_type": "dlsa_not_employer_hearing_forum",
+    "fallback_category": "Employment & Labor"
   }
 ]

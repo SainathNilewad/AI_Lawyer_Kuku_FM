@@ -20,6 +20,7 @@ Checks evaluated for every case:
 import os
 import json
 import sys
+import re
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -38,9 +39,21 @@ from legal_kb import (
     CASE_LAW_FIXED_REPLY
 )
 from llm_engine import LegalLLMEngine
-from agents import CaseBuilderAgent, RightsAdvisorAgent, DocumentDrafterAgent
+from agents import CaseBuilderAgent, RightsAdvisorAgent, DocumentDrafterAgent, ConversationalCounselorAgent
 
 BENCHMARK_FILE = os.path.join(os.path.dirname(__file__), "test_cases", "benchmark_test_cases.json")
+OUTPUT_VERIFICATION_FILE = os.path.join(os.path.dirname(__file__), "test_cases", "verification_run.txt")
+
+class Tee:
+    def __init__(self, *files):
+        self.files = files
+    def write(self, obj):
+        for f in self.files:
+            f.write(obj)
+            f.flush()
+    def flush(self):
+        for f in self.files:
+            f.flush()
 
 def run_test_suite():
     if not os.path.exists(BENCHMARK_FILE):
@@ -49,6 +62,11 @@ def run_test_suite():
 
     with open(BENCHMARK_FILE, "r", encoding="utf-8") as f:
         cases = json.load(f)
+
+    # Setup verbatim console logger to test_cases/verification_run.txt
+    orig_stdout = sys.stdout
+    log_file = open(OUTPUT_VERIFICATION_FILE, "w", encoding="utf-8")
+    sys.stdout = Tee(orig_stdout, log_file)
 
     print("=" * 80)
     print(f" NyayaMitra Verification Suite: Running {len(cases)} Test Cases")
@@ -109,13 +127,14 @@ def run_test_suite():
             case_passed = False
             failure_reasons.append("Unexpected escalation triggered on a non-emergency query.")
 
-        # Check: Out of Scope Refusal
-        if is_out_of_scope and not actual_out_of_scope:
-            case_passed = False
-            failure_reasons.append("Expected out-of-scope refusal, but domain matched.")
-        elif not is_out_of_scope and actual_out_of_scope:
-            case_passed = False
-            failure_reasons.append("Valid in-scope domain was incorrectly rejected as out-of-scope.")
+        # Check: Out of Scope Refusal (Case-law requests are intercepted upfront before scope check)
+        if adv_type not in ["sc_interest_case_request", "case_citation_query"]:
+            if is_out_of_scope and not actual_out_of_scope:
+                case_passed = False
+                failure_reasons.append("Expected out-of-scope refusal, but domain matched.")
+            elif not is_out_of_scope and actual_out_of_scope:
+                case_passed = False
+                failure_reasons.append("Valid in-scope domain was incorrectly rejected as out-of-scope.")
 
         # Check: Adversarial case-law request specifically
         if adv_type == "sc_interest_case_request":
@@ -181,8 +200,76 @@ def run_test_suite():
                 case_passed = False
                 failure_reasons.append("Case-name sanitizer failed to replace 'Ramesh v. Suresh'.")
 
+        # Check: Adversarial unpaid salary without deduction must not cite Section 18
+        if adv_type == "unpaid_salary_no_sec18":
+            if "Section 18" in retrieval.get("grounding_text", "") or "18(3)" in retrieval.get("grounding_text", ""):
+                case_passed = False
+                failure_reasons.append("Retrieval grounding included Section 18 for query without deductions.")
+            for e in retrieval.get("entries", []):
+                for sec in e.get("sections", []):
+                    if "18" in sec:
+                        case_passed = False
+                        failure_reasons.append(f"Entry sections included Section 18: {sec}")
+            case_builder = CaseBuilderAgent(engine)
+            rights_advisor = RightsAdvisorAgent(engine)
+            dossier = case_builder.run(query)
+            advice = rights_advisor.run(dossier)
+            st_text = advice.get("plain_language_standing", "")
+            if re.search(r'\b18(?:\([1-3]\))?\b', st_text):
+                case_passed = False
+                failure_reasons.append("AI standing cited Section 18 for query without deductions.")
+            for law in advice.get("governing_laws", []):
+                if "18" in str(law.get("section", "")):
+                    case_passed = False
+                    failure_reasons.append(f"Governing laws cited Section 18: {law}")
+
+        # Check: Adversarial notice request must not contain unmentioned email reminders or Experience Certificate
+        if adv_type == "notice_no_invented_facts":
+            drafter = DocumentDrafterAgent(engine)
+            dossier_mock = {
+                "case_title": "Unpaid Salary",
+                "complainant": "Employee",
+                "opposite_party": "Acme Tech",
+                "disputed_amount": "Rs 75,000",
+                "summary": "Resigned and completed notice period; unpaid salary of Rs 75,000.",
+                "category": "Employment & Labor",
+                "timeline": [{"date_or_period": "Recent", "event": "Resignation"}]
+            }
+            notice = drafter.draft_demand_notice(dossier_mock)
+            n_text = notice.get("notice_text", "")
+            if "email reminder" in n_text.lower() or "email reminders" in n_text.lower():
+                case_passed = False
+                failure_reasons.append("Notice hallucinated 'email reminders'.")
+            if "experience certificate" in n_text.lower():
+                case_passed = False
+                failure_reasons.append("Notice hallucinated 'Experience Certificate'.")
+
+        # Check: Adversarial DLSA must not be described as hearing proceedings against employer
+        if adv_type == "dlsa_not_employer_hearing_forum":
+            counselor = ConversationalCounselorAgent(engine)
+            dossier_mock = {
+                "case_title": "Withheld Salary",
+                "complainant": "Employee",
+                "opposite_party": "Company",
+                "disputed_amount": "Rs 50,000",
+                "summary": "Withheld salary after resignation",
+                "category": "Employment & Labor"
+            }
+            ans = counselor.answer_followup([], dossier_mock, query)
+            lower_ans = ans.lower()
+            if any(p in lower_ans for p in ["dlsa will conduct hearings", "dlsa will summon", "dlsa court", "hearings before dlsa"]):
+                case_passed = False
+                failure_reasons.append("Output described DLSA as conducting proceedings/hearings against employer.")
+            if "competent labour authority" not in lower_ans and "labour authority" not in lower_ans:
+                case_passed = False
+                failure_reasons.append("Output failed to refer to the competent labour authority for wage claim proceedings.")
+
         # 4. Agent Execution & Guard Verification (for non-out-of-scope cases)
-        if not is_out_of_scope and adv_type not in ["sc_interest_case_request", "notice_no_invented_year"]:
+        specialized_adv = [
+            "sc_interest_case_request", "notice_no_invented_year",
+            "unpaid_salary_no_sec18", "notice_no_invented_facts", "dlsa_not_employer_hearing_forum"
+        ]
+        if not is_out_of_scope and adv_type not in specialized_adv:
             try:
                 # Build dossier and get advice
                 case_builder = CaseBuilderAgent(engine)
@@ -228,17 +315,23 @@ def run_test_suite():
                 failure_reasons.append(f"Agent execution error: {e}")
                 case_passed = False
 
+        prov = getattr(engine, "last_used_provider", "Gemini")
+        mod = getattr(engine, "last_used_model", "gemini-3.5-flash-lite")
         if case_passed:
-            print(f"      Status: [PASS]", flush=True)
+            print(f"      Status: [PASS] | Model: {prov} ({mod})", flush=True)
             passed_count += 1
         else:
-            print(f"      Status: [FAIL] -> {', '.join(failure_reasons)}", flush=True)
+            print(f"      Status: [FAIL] -> {', '.join(failure_reasons)} | Model: {prov} ({mod})", flush=True)
             failed_count += 1
         print("-" * 80, flush=True)
 
     print("\n" + "=" * 80, flush=True)
     print(f" Verification Summary: {passed_count}/{len(cases)} Passed | {failed_count} Failed", flush=True)
+    print(f" Verbatim console output saved to: {OUTPUT_VERIFICATION_FILE}", flush=True)
     print("=" * 80, flush=True)
+
+    sys.stdout = orig_stdout
+    log_file.close()
 
     return failed_count == 0
 

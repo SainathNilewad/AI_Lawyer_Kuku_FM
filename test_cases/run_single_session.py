@@ -70,6 +70,11 @@ def run_session():
          "Draft a legal notice for my unpaid salary")
     ]
 
+    session_output = {
+        "title": "NyayaMitra - Single Session Run of 6 Messages",
+        "turns": []
+    }
+
     for step_num, (label, incoming_message) in enumerate(messages, 1):
         print(f"\n{'='*80}")
         print(f"STEP {step_num}: {label}")
@@ -80,10 +85,24 @@ def run_session():
         if not chat_history or chat_history[-1].get("content") != incoming_message:
             chat_history.append({"role": "user", "content": incoming_message})
 
+        step_prov = ""
+        step_model = ""
+
         # Pre-flight 1: Case-law request check (Fixed reply, no LLM call)
         if is_case_law_request(incoming_message):
             reply = CASE_LAW_FIXED_REPLY
-            chat_history.append({"role": "assistant", "content": reply})
+            step_prov = "Deterministic Guard (No LLM)"
+            step_model = "Statutory Rule Engine"
+            chat_history.append({"role": "assistant", "content": reply, "meta": {"provider": step_prov, "model": step_model}})
+            session_output["turns"].append({
+                "step": step_num,
+                "label": label,
+                "user": incoming_message,
+                "assistant": reply,
+                "provider": step_prov,
+                "model": step_model
+            })
+            print(f"\n[Model Used]: Provider: {step_prov} | Model: {step_model}")
             print(f"\nASSISTANT (Deterministic Case-Law Interception):\n{reply}")
             continue
 
@@ -95,7 +114,18 @@ def run_session():
                 "NyayaMitra does not cover criminal cases, family law/divorce, property title disputes, or court filings. "
                 "Please consult a licensed advocate or contact the free District Legal Services Authority (DLSA) / NALSA helpline at 15100."
             )
-            chat_history.append({"role": "assistant", "content": reply})
+            step_prov = "Deterministic Guard (No LLM)"
+            step_model = "Statutory Scope Engine"
+            chat_history.append({"role": "assistant", "content": reply, "meta": {"provider": step_prov, "model": step_model}})
+            session_output["turns"].append({
+                "step": step_num,
+                "label": label,
+                "user": incoming_message,
+                "assistant": reply,
+                "provider": step_prov,
+                "model": step_model
+            })
+            print(f"\n[Model Used]: Provider: {step_prov} | Model: {step_model}")
             print(f"\nASSISTANT (Deterministic Scope Interception):\n{reply}")
             continue
 
@@ -112,7 +142,18 @@ def run_session():
                 f"- **Do not sign anything:** Do not sign any settlement, resignation, or admission under threat or pressure.\n"
                 f"- **Speak to a lawyer or DLSA 15100:** NyayaMitra cannot predict what police or courts will do. Please contact your local District Legal Services Authority or call 15100 for official legal protection."
             )
-            chat_history.append({"role": "assistant", "content": reply})
+            step_prov = "Deterministic Guard (No LLM)"
+            step_model = "Safety Escalation Rule"
+            chat_history.append({"role": "assistant", "content": reply, "meta": {"provider": step_prov, "model": step_model}})
+            session_output["turns"].append({
+                "step": step_num,
+                "label": label,
+                "user": incoming_message,
+                "assistant": reply,
+                "provider": step_prov,
+                "model": step_model
+            })
+            print(f"\n[Model Used]: Provider: {step_prov} | Model: {step_model}")
             print(f"\nASSISTANT (Deterministic Emergency Escalation):\n{reply}")
             continue
 
@@ -120,7 +161,18 @@ def run_session():
         if "draft" in incoming_message.lower() and "notice" in incoming_message.lower() and case_dossier:
             notice_res = document_drafter.draft_demand_notice(case_dossier)
             reply = notice_res.get("notice_text", "")
-            chat_history.append({"role": "assistant", "content": reply})
+            step_prov = getattr(engine, "last_used_provider", "Gemini")
+            step_model = getattr(engine, "last_used_model", "gemini-3.5-flash-lite")
+            chat_history.append({"role": "assistant", "content": reply, "meta": {"provider": step_prov, "model": step_model}})
+            session_output["turns"].append({
+                "step": step_num,
+                "label": label,
+                "user": incoming_message,
+                "assistant": reply,
+                "provider": step_prov,
+                "model": step_model
+            })
+            print(f"\n[Model Used]: Provider: {step_prov} | Model: {step_model}")
             print(f"\nASSISTANT (Generated Pre-Litigation Legal Notice):\n{reply}")
             continue
 
@@ -138,17 +190,51 @@ def run_session():
             if options:
                 reply += "### 🎯 Your Immediate Action Steps:\n"
                 for opt in options[:2]:
-                    reply += f"- **{opt.get('title')}:** {opt.get('details')} *(Timeline: {opt.get('timeline')}, Cost: {opt.get('cost_estimate')})*\n"
+                    tl = opt.get('suggested_timeline') or opt.get('timeline')
+                    if tl:
+                        if "suggest" not in tl.lower():
+                            tl = f"Suggested: {tl}"
+                        reply += f"- **{opt.get('title')}:** {opt.get('details')} *({tl})*\n"
+                    else:
+                        reply += f"- **{opt.get('title')}:** {opt.get('details')}\n"
+
             reply += "\n👉 **Take a look at the Case Intelligence panel on the right:** I've organized your case timeline and evidence checklist. You can ask follow-up questions, or click **Draft Legal Notice** anytime!"
 
-            chat_history.append({"role": "assistant", "content": reply})
+            step_prov = getattr(engine, "last_used_provider", "Gemini")
+            step_model = getattr(engine, "last_used_model", "gemini-3.5-flash-lite")
+            chat_history.append({"role": "assistant", "content": reply, "meta": {"provider": step_prov, "model": step_model}})
+            session_output["turns"].append({
+                "step": step_num,
+                "label": label,
+                "user": incoming_message,
+                "assistant": reply,
+                "provider": step_prov,
+                "model": step_model
+            })
+            print(f"\n[Model Used]: Provider: {step_prov} | Model: {step_model}")
             print(f"\nASSISTANT (Turn 1 Intake & Advice - Category Inherited: '{case_category}'):\n{reply}")
 
         # Subsequent Turns: Multi-Turn Dialogue
         else:
             answer = counselor.answer_followup(chat_history, case_dossier, incoming_message)
-            chat_history.append({"role": "assistant", "content": answer})
+            step_prov = getattr(engine, "last_used_provider", "Gemini")
+            step_model = getattr(engine, "last_used_model", "gemini-3.5-flash-lite")
+            chat_history.append({"role": "assistant", "content": answer, "meta": {"provider": step_prov, "model": step_model}})
+            session_output["turns"].append({
+                "step": step_num,
+                "label": label,
+                "user": incoming_message,
+                "assistant": answer,
+                "provider": step_prov,
+                "model": step_model
+            })
+            print(f"\n[Model Used]: Provider: {step_prov} | Model: {step_model}")
             print(f"\nASSISTANT (Follow-up Turn):\n{answer}")
+
+    out_json_path = os.path.join(os.path.dirname(__file__), "single_session_output.json")
+    with open(out_json_path, "w", encoding="utf-8") as f:
+        json.dump(session_output, f, indent=2, ensure_ascii=False)
+    print(f"\n[Saved Session Provenance and Outputs to {out_json_path}]")
 
     print("\n" + "=" * 80)
     print(" Session Completed Successfully!")

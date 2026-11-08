@@ -61,6 +61,8 @@ class LegalLLMEngine:
         else:
             self.api_key = api_key
             self.model_name = model_name or os.getenv("LLM_MODEL", "")
+        self.last_used_provider = "Gemini" if self.provider == "gemini" else ("Groq" if self.provider == "groq" else self.provider)
+        self.last_used_model = self.model_name
 
     def check_model_exists(self) -> tuple:
         """Verifies if self.model_name exists in the provider's active model catalog."""
@@ -94,6 +96,8 @@ class LegalLLMEngine:
                     ],
                     temperature=temperature
                 )
+                self.last_used_provider = "Groq"
+                self.last_used_model = self.model_name
                 return response.choices[0].message.content
             except Exception as e:
                 err_str = str(e)
@@ -107,6 +111,8 @@ class LegalLLMEngine:
                             ],
                             temperature=temperature
                         )
+                        self.last_used_provider = "Groq"
+                        self.last_used_model = "qwen/qwen3.8-27b"
                         return response.choices[0].message.content
                     except Exception:
                         pass
@@ -126,6 +132,8 @@ class LegalLLMEngine:
                             )
                         )
                         if g_resp and g_resp.text:
+                            self.last_used_provider = "Gemini (fallback)"
+                            self.last_used_model = "gemini-3.8-flash"
                             return g_resp.text
                     except Exception:
                         pass
@@ -146,6 +154,8 @@ class LegalLLMEngine:
                     )
                 )
                 if response and response.text:
+                    self.last_used_provider = "Gemini"
+                    self.last_used_model = self.model_name
                     return response.text
                 return "ERROR: [Gemini Error: Empty response received from model]"
             except Exception as e:
@@ -165,6 +175,8 @@ class LegalLLMEngine:
                             ],
                             temperature=temperature
                         )
+                        self.last_used_provider = "Groq (fallback)"
+                        self.last_used_model = "qwen/qwen3.8-27b"
                         return g_resp.choices[0].message.content
                     except Exception as e2:
                         print(f"[Groq Fallback also failed]: {e2}")

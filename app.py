@@ -237,6 +237,8 @@ if "practice_history" not in st.session_state:
     st.session_state.practice_history = []
 if "pending_user_text" not in st.session_state:
     st.session_state.pending_user_text = None
+if "model_provenance_log" not in st.session_state:
+    st.session_state.model_provenance_log = []
 
 @st.cache_data(ttl=3600)
 def get_cached_groq_models(key: str):
@@ -330,6 +332,15 @@ with st.sidebar:
     else:
         st.caption("🔴 **API Key missing** (Add in Secrets or under Model settings)")
 
+    # Model Provenance Tracking per message
+    st.markdown("---")
+    with st.expander("🤖 Model Provenance Log", expanded=False):
+        if st.session_state.get("model_provenance_log"):
+            for item in st.session_state.model_provenance_log:
+                st.caption(f"**Msg #{item['turn']}**: {item['provider']} (`{item['model']}`)")
+        else:
+            st.caption("No AI responses generated yet.")
+
     # Reset button
     st.markdown("---")
     if st.button("🔄 Reset Conversation", use_container_width=True):
@@ -341,6 +352,7 @@ with st.sidebar:
         st.session_state.practice_mode = False
         st.session_state.practice_history = []
         st.session_state.pending_user_text = None
+        st.session_state.model_provenance_log = []
         st.rerun()
 
 # ==============================================================================
@@ -384,7 +396,7 @@ with col_chat:
             "I resigned, served my full 60-day notice period, but my employer is withholding my Rs 1,65,000 final settlement and relieving letter. What are my statutory rights?"
         ),
         (
-            "🇮🇳 मकान मालिक डिपॉजिट (Hindi)",
+            "मकान मालिक डिपॉजिट (Hindi)",
             "मेरा मकान मालिक ₹40,000 का सिक्योरिटी डिपॉजिट वापस नहीं कर रहा है और कह रहा है कि पेंटिंग का खर्चा कटेगा। मैं अपने पैसे कैसे वापस लूँ?"
         )
     ]
@@ -477,9 +489,15 @@ with col_chat:
 
         # Pre-flight Check 1: Case-law request check (Fixed reply, no LLM call)
         if is_case_law_request(incoming_message):
+            st.session_state.model_provenance_log.append({
+                "turn": len(st.session_state.chat_history) + 1,
+                "provider": "Deterministic Guard",
+                "model": "Statutory Rule Engine (No LLM)"
+            })
             st.session_state.chat_history.append({
                 "role": "assistant",
-                "content": CASE_LAW_FIXED_REPLY
+                "content": CASE_LAW_FIXED_REPLY,
+                "meta": {"provider": "Deterministic Guard", "model": "Statutory Rule Engine (No LLM)"}
             })
             st.rerun()
 
@@ -494,7 +512,16 @@ with col_chat:
                 "Please consult a licensed advocate or contact the free District Legal Services Authority (DLSA) / NALSA helpline at <strong>15100</strong>."
                 "</div>"
             )
-            st.session_state.chat_history.append({"role": "assistant", "content": scope_reply})
+            st.session_state.model_provenance_log.append({
+                "turn": len(st.session_state.chat_history) + 1,
+                "provider": "Deterministic Guard",
+                "model": "Statutory Scope Engine (No LLM)"
+            })
+            st.session_state.chat_history.append({
+                "role": "assistant",
+                "content": scope_reply,
+                "meta": {"provider": "Deterministic Guard", "model": "Statutory Scope Engine (No LLM)"}
+            })
             st.rerun()
 
         # Pre-flight Check 3: Immediate Escalation check (Short fixed advice, no predictions, no LLM call)
@@ -512,7 +539,16 @@ with col_chat:
                 f"- **Do not sign anything:** Do not sign any settlement, resignation, or admission under threat or pressure.\n"
                 f"- **Speak to a lawyer or DLSA 15100:** NyayaMitra cannot predict what police or courts will do. Please contact your local District Legal Services Authority or call 15100 for official legal protection."
             )
-            st.session_state.chat_history.append({"role": "assistant", "content": escalation_reply})
+            st.session_state.model_provenance_log.append({
+                "turn": len(st.session_state.chat_history) + 1,
+                "provider": "Deterministic Guard",
+                "model": "Safety Escalation Rule (No LLM)"
+            })
+            st.session_state.chat_history.append({
+                "role": "assistant",
+                "content": escalation_reply,
+                "meta": {"provider": "Deterministic Guard", "model": "Safety Escalation Rule (No LLM)"}
+            })
             st.rerun()
 
         # Handle Roleplay Mode
@@ -552,7 +588,18 @@ with col_chat:
 > - **Tactical Tip:** {coach.get('what_to_improve', '')}
 > - **💡 Powerful Counter:** *\"{coach.get('suggested_next_counter', '')}\"*
 """
-                    st.session_state.chat_history.append({"role": "assistant", "content": reply_markdown})
+                    actual_p = getattr(engine, "last_used_provider", provider_choice)
+                    actual_m = getattr(engine, "last_used_model", model_name)
+                    st.session_state.model_provenance_log.append({
+                        "turn": len(st.session_state.chat_history) + 1,
+                        "provider": actual_p,
+                        "model": actual_m
+                    })
+                    st.session_state.chat_history.append({
+                        "role": "assistant",
+                        "content": reply_markdown,
+                        "meta": {"provider": actual_p, "model": actual_m}
+                    })
                     st.rerun()
 
         # Handle Standard Legal Assistant Flow
@@ -598,11 +645,28 @@ with col_chat:
                             if options:
                                 response_content += "### 🎯 Your Immediate Action Steps:\n"
                                 for opt in options[:2]:
-                                    response_content += f"- **{opt.get('title')}:** {opt.get('details')} *(Timeline: {opt.get('timeline')}, Cost: {opt.get('cost_estimate')})*\n"
+                                    tl = opt.get('suggested_timeline') or opt.get('timeline')
+                                    if tl:
+                                        if "suggest" not in tl.lower():
+                                            tl = f"Suggested: {tl}"
+                                        response_content += f"- **{opt.get('title')}:** {opt.get('details')} *({tl})*\n"
+                                    else:
+                                        response_content += f"- **{opt.get('title')}:** {opt.get('details')}\n"
 
                             response_content += "\n👉 **Take a look at the Case Intelligence panel on the right:** I've organized your case timeline and evidence checklist. You can ask follow-up questions, or click **Draft Legal Notice** anytime!"
 
-                            st.session_state.chat_history.append({"role": "assistant", "content": response_content})
+                            actual_p = getattr(engine, "last_used_provider", provider_choice)
+                            actual_m = getattr(engine, "last_used_model", model_name)
+                            st.session_state.model_provenance_log.append({
+                                "turn": len(st.session_state.chat_history) + 1,
+                                "provider": actual_p,
+                                "model": actual_m
+                            })
+                            st.session_state.chat_history.append({
+                                "role": "assistant",
+                                "content": response_content,
+                                "meta": {"provider": actual_p, "model": actual_m}
+                            })
                             st.rerun()
 
             # Subsequent Turns: Multi-Turn Dialogue
@@ -641,7 +705,18 @@ with col_chat:
                                     if curr_score < 10:
                                         st.session_state.case_dossier["evidence_strength_score"] = curr_score + 1
 
-                        st.session_state.chat_history.append({"role": "assistant", "content": answer})
+                        actual_p = getattr(engine, "last_used_provider", provider_choice)
+                        actual_m = getattr(engine, "last_used_model", model_name)
+                        st.session_state.model_provenance_log.append({
+                            "turn": len(st.session_state.chat_history) + 1,
+                            "provider": actual_p,
+                            "model": actual_m
+                        })
+                        st.session_state.chat_history.append({
+                            "role": "assistant",
+                            "content": answer,
+                            "meta": {"provider": actual_p, "model": actual_m}
+                        })
                         st.rerun()
 
 # ==============================================================================
