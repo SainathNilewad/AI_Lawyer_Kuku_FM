@@ -62,6 +62,8 @@ Output MUST be a valid JSON object with EXACTLY this structure:
 """
         user_prompt = f"User's Messy Story:\n\"\"\"{raw_story}\"\"\"\n\nPreferred Language: {language}"
         result = self.engine.generate_json(system_prompt, user_prompt)
+        if isinstance(result, dict) and ("error" in result or result.get("status") == "error"):
+            return result
         
         if not isinstance(result, dict) or "case_title" not in result:
             raw_txt = result.get("raw_text", str(result)) if isinstance(result, dict) else str(result)
@@ -181,6 +183,8 @@ Output format MUST be valid JSON with this structure:
 """
         user_prompt = f"Case Dossier:\n{json.dumps(case_dossier, indent=2)}\n\nLanguage: {language}"
         result = self.engine.generate_json(system_prompt, user_prompt)
+        if isinstance(result, dict) and ("error" in result or result.get("status") == "error"):
+            return result
         if not isinstance(result, dict) or "plain_language_standing" not in result:
             raw_txt = result.get("raw_text", str(result)) if isinstance(result, dict) else str(result)
             result = {

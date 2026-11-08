@@ -247,24 +247,30 @@ with st.sidebar:
     env_prov = os.getenv("LLM_PROVIDER", "groq").lower()
     default_p_idx = 0 if env_prov == "groq" else 1
 
-    # 2. Compact single status line
-    st.markdown("---")
-    if groq_key:
-        st.caption("🟢 **Groq connected, voice ready**")
-    elif gemini_key:
-        st.caption("🟢 **Gemini connected** (Voice requires Groq key)")
-    else:
-        st.caption("🔴 **API Key missing in .env**")
-
     # 3. Model settings inside collapsed expander
     with st.expander("⚙️ Model settings (advanced)", expanded=False):
         provider_choice = st.selectbox("LLM Provider:", ["Groq", "Gemini"], index=default_p_idx)
         prov_code = provider_choice.lower()
         active_key = groq_key if prov_code == "groq" else gemini_key
 
+        # API key input field for cloud deployment or UI entry
+        custom_key = st.text_input(
+            f"{provider_choice} API Key:",
+            value=active_key,
+            type="password",
+            placeholder=f"Paste {provider_choice} API key here...",
+            help="Pre-filled if set in Streamlit Secrets or .env. You can also paste your key directly here."
+        )
+        if custom_key:
+            active_key = custom_key
+            if prov_code == "groq":
+                groq_key = custom_key
+            else:
+                gemini_key = custom_key
+
         if prov_code == "groq":
             default_model = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
-            groq_models = get_cached_groq_models(groq_key) if groq_key else []
+            groq_models = get_cached_groq_models(active_key) if active_key else []
             if groq_models:
                 m_idx = groq_models.index(default_model) if default_model in groq_models else 0
                 model_name = st.selectbox("Model:", groq_models, index=m_idx)
@@ -272,7 +278,7 @@ with st.sidebar:
                 model_name = st.text_input("Model:", value=default_model)
         else:
             default_model = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
-            gemini_models = get_cached_gemini_models(gemini_key) if gemini_key else []
+            gemini_models = get_cached_gemini_models(active_key) if active_key else []
             if gemini_models:
                 m_idx = gemini_models.index(default_model) if default_model in gemini_models else 0
                 model_name = st.selectbox("Model:", gemini_models, index=m_idx)
@@ -280,6 +286,16 @@ with st.sidebar:
                 model_name = st.text_input("Model:", value=default_model)
 
         st.caption(f"Active Provider: **{provider_choice}** | Model: `{model_name}`")
+
+    # 2. Compact single status line
+    st.markdown("---")
+    if active_key:
+        if prov_code == "groq":
+            st.caption("🟢 **Groq connected, voice ready**")
+        else:
+            st.caption("🟢 **Gemini connected** (Voice requires Groq key)")
+    else:
+        st.caption("🔴 **API Key missing** (Add in Secrets or under Model settings)")
 
     # Reset button
     st.markdown("---")
@@ -397,6 +413,29 @@ with col_chat:
 
     # Process Message
     if incoming_message:
+        # Pre-check: Ensure an active API key is connected before invoking agents
+        if not active_key:
+            st.session_state.chat_history.append({"role": "user", "content": incoming_message})
+            st.session_state.chat_history.append({
+                "role": "assistant",
+                "content": (
+                    "⚠️ **No API Key Connected:**\n\n"
+                    "To generate AI legal analysis, please configure your API key:\n\n"
+                    "1. **On Streamlit Community Cloud (Recommended):**\n"
+                    "   - Open your app on [share.streamlit.io](https://share.streamlit.io)\n"
+                    "   - Click **⚙️ Settings** (bottom-right or via top menu) → **Secrets**\n"
+                    "   - Paste:\n"
+                    "     ```toml\n"
+                    "     GROQ_API_KEY = \"your-groq-key-here\"\n"
+                    "     GEMINI_API_KEY = \"your-gemini-key-here\"\n"
+                    "     ```\n"
+                    "   - Click **Save**.\n\n"
+                    "2. **Or enter it directly in this session:**\n"
+                    "   - Expand **⚙️ Model settings (advanced)** in the left sidebar and paste your key into the text field!"
+                )
+            })
+            st.rerun()
+
         # Append User Message to history
         st.session_state.chat_history.append({"role": "user", "content": incoming_message})
 
@@ -668,14 +707,17 @@ with col_side:
 
         # 1. Legal Notice Generator Button (Standard Pre-Litigation Practice)
         if st.button("📝 Draft Ready-to-Send Legal Notice", use_container_width=True, type="primary"):
-            engine = LegalLLMEngine(provider=prov_code, model_name=model_name, api_key=active_key)
-            drafter = DocumentDrafterAgent(engine)
-            with st.spinner("Drafting formal legal demand notice (established pre-litigation practice)..."):
-                notice = drafter.run(dossier, rights)
-                if notice.startswith("ERROR:") or "No model connected" in notice:
-                    st.error(f"⚠️ {notice}")
-                else:
-                    st.session_state.notice_draft = notice
+            if not active_key:
+                st.error("⚠️ Please configure an API key in Secrets or under Model settings to draft legal notices.")
+            else:
+                engine = LegalLLMEngine(provider=prov_code, model_name=model_name, api_key=active_key)
+                drafter = DocumentDrafterAgent(engine)
+                with st.spinner("Drafting formal legal demand notice (established pre-litigation practice)..."):
+                    notice = drafter.run(dossier, rights)
+                    if notice.startswith("ERROR:") or "No model connected" in notice:
+                        st.error(f"⚠️ {notice}")
+                    else:
+                        st.session_state.notice_draft = notice
                     st.session_state.chat_history.append({
                         "role": "assistant",
                         "content": "📄 **I have generated your Formal Legal Demand Notice!**\n\nYou can review, copy, or download it from the Action Center on the right."
