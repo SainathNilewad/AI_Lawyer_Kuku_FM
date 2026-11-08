@@ -301,7 +301,7 @@ with st.sidebar:
                 groq_key = custom_key
 
         if prov_code == "gemini":
-            default_model = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+            default_model = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
             gemini_models = get_cached_gemini_models(active_key) if active_key else []
             if gemini_models:
                 m_idx = gemini_models.index(default_model) if default_model in gemini_models else 0
@@ -309,7 +309,7 @@ with st.sidebar:
             else:
                 model_name = st.text_input("Model:", value=default_model)
         else:
-            default_model = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
+            default_model = os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b")
             groq_models = get_cached_groq_models(active_key) if active_key else []
             if groq_models:
                 m_idx = groq_models.index(default_model) if default_model in groq_models else 0

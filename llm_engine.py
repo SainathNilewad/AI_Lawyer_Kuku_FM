@@ -54,10 +54,10 @@ class LegalLLMEngine:
         self.provider = (provider or os.getenv("LLM_PROVIDER", "gemini")).lower()
         if self.provider == "gemini":
             self.api_key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-            self.model_name = model_name or os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+            self.model_name = model_name or os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
         elif self.provider == "groq":
             self.api_key = api_key or os.getenv("GROQ_API_KEY")
-            self.model_name = model_name or os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
+            self.model_name = model_name or os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b")
         else:
             self.api_key = api_key
             self.model_name = model_name or os.getenv("LLM_MODEL", "")
@@ -150,9 +150,10 @@ class LegalLLMEngine:
                 return "ERROR: [Gemini Error: Empty response received from model]"
             except Exception as e:
                 err_str = str(e)
-                # Fallback to Groq if Gemini hits quota/network limits
+                print(f"[Gemini Exception, attempting Groq fallback]: {err_str[:120]}")
+                # Immediate fallback to Groq if Gemini hits any error (503, timeout, quota, etc.)
                 groq_k = os.getenv("GROQ_API_KEY")
-                if groq_k and ("429" in err_str or "quota" in err_str.lower() or "503" in err_str):
+                if groq_k:
                     try:
                         from groq import Groq
                         g_client = Groq(api_key=groq_k)
@@ -165,8 +166,8 @@ class LegalLLMEngine:
                             temperature=temperature
                         )
                         return g_resp.choices[0].message.content
-                    except Exception:
-                        pass
+                    except Exception as e2:
+                        print(f"[Groq Fallback also failed]: {e2}")
                 return f"ERROR: [Gemini Error: {e}]"
 
         return "ERROR: Unknown or unsupported provider configured."
