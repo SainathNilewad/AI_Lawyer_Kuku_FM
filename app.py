@@ -640,7 +640,7 @@ with col_chat:
                                     if curr_score < 10:
                                         st.session_state.case_dossier["evidence_strength_score"] = curr_score + 1
 
-                        st.session_state.chat_history.append({"role": "assistant", "content": full_answer})
+                        st.session_state.chat_history.append({"role": "assistant", "content": answer})
                         st.rerun()
 
 # ==============================================================================
