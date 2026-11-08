@@ -1,11 +1,11 @@
 # NyayaMitra - Official Unedited Raw Outputs for Test Cases
 
-> **Execution Metadata:** Generated on `2026-11-08T13:32:11.499904+00:00` using Provider: `Gemini`, Model: `gemini-3.5-flash-lite`.
+> **Execution Metadata:** Generated on `2026-11-08T20:12:15.744108+00:00` using Provider: `Gemini`, Model: `gemini-3.5-flash-lite`.
 > **Strict Ground Rule:** Real agent calls only. No post-editing, no mock datasets.
 
 ## TC-01: Bengaluru Tenant Security Deposit Withholding
 
-- **Timestamp:** `2026-11-08T13:29:13.820925+00:00`
+- **Timestamp:** `2026-11-08T20:11:19.082413+00:00`
 - **Provider / Model:** `Gemini` / `gemini-3.5-flash-lite`
 - **Category:** `Tenancy & Rental`
 
@@ -17,43 +17,46 @@ I was renting a 2BHK flat in HSR Layout, Bengaluru for 2 years at Rs 28,000/mont
 ### 2. Extracted Case Dossier (Direct Model Output)
 ```json
 {
-  "case_title": "Arbitrary Security Deposit Deduction for Normal Wear and Tear",
+  "case_title": "Arbitrary Security Deposit Deduction by Landlord in Bengaluru",
   "category": "Tenancy & Rental",
-  "summary": "The landlord, Mr. Ramesh, is arbitrarily withholding Rs. 45,000 from the user's Rs. 1,00,000 security deposit for repainting, marble polishing, and deep cleaning after the flat was vacated in good condition following proper notice.",
+  "summary": "Tenant vacated a 2BHK flat in Bengaluru after providing proper notice and clearing all utility bills. Landlord has withheld Rs 45,000 from the Rs 1,00,000 security deposit under the guise of repainting and cleaning, despite prior acknowledgment that the flat was handed over in good condition.",
   "complainant": "Tenant",
   "opposite_party": "Landlord Mr. Ramesh",
   "disputed_amount": "Rs. 45,000",
   "timeline": [
     {
+      "date_or_period": "2 years",
+      "event": "Tenancy period for 2BHK flat in HSR Layout, Bengaluru at Rs 28,000/month with Rs 1,00,000 security deposit."
+    },
+    {
       "date_or_period": "1st October 2024",
-      "event": "User provided proper 1-month notice to vacate the 2BHK flat."
+      "event": "Tenant gave proper 1-month notice to vacate the flat."
     },
     {
       "date_or_period": "31st October 2024",
-      "event": "User vacated the flat, cleared all utility bills, and handed over the keys."
+      "event": "Tenant vacated the flat, cleared all electricity and water bills, and handed over keys."
     },
     {
-      "date_or_period": "Early November 2024 (Within 3 days of vacation)",
-      "event": "Landlord Mr. Ramesh promised to refund the deposit via UPI in 3 days but failed to do so and stopped picking calls."
+      "date_or_period": "3 days post-vacation",
+      "event": "Landlord Mr. Ramesh promised to refund the deposit via UPI, but failed to do so."
     },
     {
-      "date_or_period": "25 days post-vacation (Yesterday)",
-      "event": "Landlord sent a message claiming a deduction of Rs. 45,000 for house repainting, marble polishing, and deep cleaning."
+      "date_or_period": "25 days post-vacation",
+      "event": "Landlord stopped picking calls and messaged a deduction of Rs 45,000 for repainting, marble polishing, and deep cleaning."
     }
   ],
   "evidence_held": [
     "Move-in photos",
     "Move-out handover video",
     "All rent payment bank statements",
-    "WhatsApp chat acknowledging receipt of the flat in good condition",
-    "Proof of cleared electricity and water bills"
+    "WhatsApp chat acknowledging flat was received in good condition"
   ],
   "evidence_needed": [
-    "Copy of the signed Rent Agreement (to verify clauses regarding painting and security deposit deductions)",
-    "Written formal demand/legal notice sent to the landlord (if any)"
+    "Written Rent Agreement specifying security deposit refund terms and wear-and-tear clauses",
+    "Formal written demand or legal notice regarding the full deposit refund"
   ],
-  "evidence_strength_score": 9,
-  "evidence_strength_explanation": "The user possesses strong visual and documentary proof including move-in/out media, payment statements, and WhatsApp acknowledgments from the landlord.",
+  "evidence_strength_score": 8,
+  "evidence_strength_explanation": "Strong documentary and visual proof including handover video, bank statements, and WhatsApp acknowledgment of good condition.",
   "escalation_check": {
     "requires_real_lawyer": false,
     "reasons": [],
@@ -65,17 +68,17 @@ I was renting a 2BHK flat in HSR Layout, Bengaluru for 2 years at Rs 28,000/mont
 ### 3. Plain-Language Rights & Statutory Standing (Direct Model Output)
 ```json
 {
-  "plain_language_standing": "You have a strong legal standing to recover your unlawfully deducted security deposit under Indian tenancy principles. Routine wear and tear like normal paint aging or cleaning is legally excluded from tenant liability, and your video and photographic evidence heavily support your claim. This is a civil dispute and a breach of contract rather than a criminal offense.\n\nUnder the Transfer of Property Act, 1882, a tenant is only required to return the property subject to reasonable wear and tear. Your comprehensive evidence, including move-in/out media and bank statements, places you in a secure position to demand your full refund.\n\nYour immediate takeaway is to formally document your demand for the remaining security deposit using your collected proof before pursuing civil resolution.",
+  "plain_language_standing": "You have a strong civil claim to recover the unlawfully deducted security deposit from your landlord under Indian rental and property principles. Under the law, routine aging and normal use of a property are considered reasonable wear and tear, and a landlord cannot make arbitrary deductions for standard repainting or cleaning if the property was handed over in good condition. Since your dispute involves a financial disagreement and breach of rental understandings, it is strictly a civil matter rather than a criminal offense.\n\nYour core legal standing is firmly supported by your visual evidence, bank statements, and WhatsApp chat acknowledgments from the landlord. Your immediate takeaway is to formally demand the full refund of your security deposit using your documented proof before pursuing formal civil remedies.",
   "governing_laws": [
     {
       "act_name": "Transfer of Property Act, 1882",
       "section": "Section 108(B)(m)",
-      "relevance": "Protects you from liability for changes caused by reasonable wear and tear when returning property possession."
+      "relevance": "Protects tenants from bearing the cost of changes caused by reasonable wear and tear or routine property aging when handing over possession."
     },
     {
       "act_name": "General Legal Principle (Civil vs. Criminal Boundary)",
       "section": "General Guidance",
-      "relevance": "Establishes that deposit withholding is a civil matter of contract breach, meaning criminal police complaints are not appropriate."
+      "relevance": "Clarifies that withholding a deposit or breaching a contract is a civil dispute, meaning criminal police complaints are not appropriate unless fraud existed from inception."
     }
   ],
   "action_options": [
@@ -83,99 +86,106 @@ I was renting a 2BHK flat in HSR Layout, Bengaluru for 2 years at Rs 28,000/mont
       "step_number": 1,
       "title": "Immediate Pre-Litigation Action (Formal Legal Notice)",
       "timeline": "Suggested 15 days (customary pre-litigation practice)",
-      "details": "Serve a formal written legal notice citing Section 108(B)(m) to demand the full refund of your unlawfully deducted deposit amount, attaching copies of your move-out video, WhatsApp chats, and bank statements."
+      "details": "Serve a formal written legal notice to the landlord citing Section 108(B)(m) of the Transfer of Property Act, attaching your move-out handover video, bank statements, and WhatsApp chats to demand the full refund of the unlawfully deducted security deposit."
     },
     {
       "step_number": 2,
-      "title": "Statutory Authority / Grievance Guidance",
+      "title": "Statutory Authority / Grievance Portal Filing",
       "timeline": "Timeline varies by state (confirm locally)",
-      "details": "If the landlord fails to respond, seek free legal aid and guidance from the District Legal Services Authority (DLSA) via Helpline 15100. Note: DLSA provides free legal aid and guidance only; it is never a forum for hearings or proceedings against a landlord."
+      "details": "Approach the local Rent Authority or civil forum (confirm locally). Note: DLSA provides free legal aid and guidance only (Helpline 15100); it is never a forum for hearings or proceedings against a landlord."
     },
     {
       "step_number": 3,
-      "title": "Statutory Forum / Civil Suit Filing",
+      "title": "Statutory Forum / Civil Court Petition",
       "timeline": "Timeline varies by state (confirm locally)",
-      "details": "If informal notices and DLSA guidance do not resolve the issue, file a recovery suit for the remaining security deposit before the local civil court or Small Causes Court."
+      "details": "If the landlord fails to respond or refund the amount after the legal notice period, file a recovery suit or summary suit for money recovery before the local civil court or Small Causes Court."
     }
   ],
   "real_lawyer_needed": false,
-  "real_lawyer_guidance": "You can represent yourself in many lower civil forums and consumer courts without an advocate, but consulting a licensed advocate or utilizing DLSA free legal aid is recommended for drafting formal legal notices and navigating civil court procedures.",
+  "real_lawyer_guidance": "You can initiate pre-litigation notices and represent yourself or seek free guidance from the District Legal Services Authority (DLSA Helpline 15100). However, engaging a physical advocate is recommended if you decide to file a formal civil recovery suit in court for better procedural handling.",
   "disclaimer": "⚠️ NyayaMitra provides legal information and self-advocacy tools under Indian laws. For formal courtroom representation, consult a licensed advocate."
 }
 ```
 
 ### 4. Generated Legal Demand Notice (Direct Model Output)
-**BY SPEED POST / REGISTERED EMAIL**
-
 **LEGAL DEMAND NOTICE**
 
-**Date:** 08/11/2026
+**BY SPEED POST WITH ACKNOWLEDGEMENT DUE (AD) / REGISTERED EMAIL**
 
-**To,** 
+**Date:** 09/11/2026
+
+**To:** 
 Mr. Ramesh 
 [Landlord Address / Contact Details as known] 
 
-**From,** 
-[Tenant Name / Complainant] 
-[Tenant Address] 
-[Tenant Contact Number / Email Address] 
+**From (Complainant / Tenant):** 
+[Tenant Name] 
+[Tenant Address / Contact Details] 
 
 ---
 
-**SUBJECT: LEGAL DEMAND NOTICE FOR UNLAWFUL WITHHOLDING AND ARBITRARY DEDUCTION OF SECURITY DEPOSIT AMOUNTING TO RS. 45,000/- IN RESPECT OF THE VACATED 2BHK FLAT.**
+**SUBJECT: LEGAL DEMAND FOR IMMEDIATE REFUND OF UNLAWFULLY DEDUCTED SECURITY DEPOSIT OF RS. 45,000/- REGARDING THE TENANCY OF PREMISES LOCATED IN HSR LAYOUT, BENGALURU.**
 
 Sir,
 
-Under instructions from and on behalf of my client, the Tenant, I do hereby serve upon you this formal Legal Demand Notice under the applicable provisions of Indian law, and submit as under:
+Under instructions from my client, [Tenant Name], I/the undersigned do hereby serve upon you this formal Legal Demand Notice calling upon you to refund the unlawfully deducted security deposit amount of **Rs. 45,000/-** (Rupees Forty-Five Thousand Only) within **15 days** from the receipt of this notice, failing which my client shall be constrained to initiate appropriate legal proceedings before the competent civil forum. 
 
-1. That my client was a lawful tenant residing in your 2BHK flat pursuant to the terms of tenancy between you and my client. 
-2. That on **1st October 2024**, my client provided proper 1-month notice to vacate the said 2BHK flat.
-3. That on **31st October 2024**, my client successfully vacated the flat, cleared all utility bills (including electricity and water bills), and formally handed over the keys to you.
-4. That **Early November 2024 (Within 3 days of vacation)**, you explicitly promised to refund the full security deposit of Rs. 1,00,000/- via UPI within 3 days, but failed to do so and subsequently stopped picking up phone calls from my client.
-5. That **25 days post-vacation (Yesterday)**, after maintaining silence and avoiding communication for weeks, you sent a message claiming an arbitrary and unlawful deduction of Rs. 45,000/- from the total security deposit towards house repainting, marble polishing, and deep cleaning.
-6. That my client is holding comprehensive evidence substantiating the good condition in which the flat was returned, including move-in photos, a move-out handover video, all rent payment bank statements, WhatsApp chats acknowledging receipt of the flat in good condition, and proof of cleared utility bills.
+The facts and circumstances giving rise to this notice are detailed as under:
 
-**VIOLATION OF STATUTORY PROVISIONS:**
-* Your arbitrary deduction of Rs. 45,000/- for routine house repainting, marble polishing, and deep cleaning is completely illegal, unjustified, and contrary to established legal principles governing tenancies in India.
-* Under **Section 108(B)(m) of the Transfer of Property Act, 1882**, a tenant is only required to return the property subject to reasonable wear and tear. Normal paint aging and routine cleaning constitute standard wear and tear and cannot be legally charged to a departing tenant.
-* Withholding my client’s security deposit without lawful justification constitutes a civil wrong and a breach of the tenancy arrangement.
+### 1. FACTUAL SEQUENCE & TIMELINE
+1. **Tenancy Period:** That my client resided as a lawful tenant in your 2BHK residential flat situated in HSR Layout, Bengaluru, for a duration of **2 years**, paying a monthly rent of Rs. 28,000/- and having deposited a total sum of **Rs. 1,00,000/-** as an interest-free security deposit at the commencement of the tenancy.
+2. **Notice to Vacate:** That on **1st October 2024**, in full compliance with the rental understanding, my client duly served a proper 1-month notice expressing the intention to vacate the said flat.
+3. **Vacating and Handover:** That on **31st October 2024**, my client completely vacated the flat, cleared all outstanding electricity and water utility bills in full, and formally handed over the physical keys of the premises to you. 
+4. **Initial Promise:** That **3 days post-vacation**, you explicitly promised to refund the full security deposit via UPI transfer, but failed to honor your commitment.
+5. **Arbitrary Deduction:** That **25 days post-vacation**, after suddenly stopping answering my client's phone calls, you sent a text message arbitrarily deducting **Rs. 45,000/-** from the security deposit under the pretext of repainting, marble polishing, and deep cleaning.
 
-**CALL TO ACTION AND 15-DAY RECTIFICATION DEMAND:**
+### 2. AVAILABILITY OF EVIDENCE
+My client's position is backed by irrefutable documentary and visual evidence, including:
+* Move-in photographs and the move-out handover video establishing the good condition of the flat upon exit.
+* All monthly rent payment bank statements.
+* WhatsApp chat logs and acknowledgments explicitly confirming that the flat was handed over to you in good condition.
 
-I, therefore, through this Notice, call upon you to remit the full unlawfully deducted amount of **Rs. 45,000/-** to my client via proper banking channels within **15 (fifteen) days** from the receipt of this Notice, failing which my client shall be constrained to initiate appropriate legal proceedings.
-
-**WARNING OF FURTHER LEGAL ACTION:**
-
-Please take notice that if you fail to comply with the demand within the stipulated 15-day period, my client reserves the right to:
-1. Approach the District Legal Services Authority (DLSA) for free legal aid and guidance (Helpline: 15100). *Note: DLSA provides free legal aid and guidance only and is not a forum for proceedings against a landlord.*
-2. File a formal civil suit for recovery of the withheld security deposit along with applicable costs and interest before the appropriate civil court or Small Causes Court.
-
-This Notice is issued without prejudice to my client's rights and remedies available under law.
-
-Sincerely,
-
-*(Signature)* 
-**[Tenant Name / Complainant]** 
+### 3. VIOLATION OF STATUTORY PROVISIONS & LEGAL STANDING
+1. Under **Section 108(B)(m) of the Transfer of Property Act, 1882**, a tenant is bound to restore the property in as good a condition as it was in at the time he was put in possession, subject only to reasonable wear and tear and damage caused by irresistible force. Routine aging, standard property wear and tear, and normal usage cannot be made a financial liability of the tenant.
+2. Your arbitrary deduction of Rs. 45,000/- for repainting and deep cleaning despite prior acknowledgment that the flat was received in good condition constitutes an unlawful withholding of my client's hard-earned money and a breach of trust.
+3. Please note that this is strictly a civil dispute concerning financial recovery and breach of rental understanding. 
 
 ---
 
-### **ANNEXURE INVENTORY (Evidence Attached):**
-1. Copy of move-in photos.
-2. Copy of move-out handover video.
-3. Copies of all rent payment bank statements.
-4. Copies of WhatsApp chats acknowledging receipt of the flat in good condition.
-5. Proof of cleared electricity and water bills.
+### DEMAND FOR RECTIFICATION
+
+You are hereby called upon to refund the unlawfully withheld balance security deposit amount of **Rs. 45,000/-** to my client via proper banking channels within **15 days** from the receipt of this notice.
+
+If you fail to clear the said dues within the stipulated 15-day rectification window, my client reserves the right to initiate formal civil recovery proceedings before the appropriate civil court / Small Causes Court to recover the principal amount along with applicable costs and legal expenses. 
+
+*Note: For free legal guidance regarding your rights or options, you may contact the District Legal Services Authority (DLSA) / NALSA Toll-Free Helpline at 15100.*
+
+A copy of this notice is retained in my office records for future reference and necessary action.
+
+Yours faithfully,
+
+*(Signature)* 
+**[Tenant Name / Counsel for Tenant]** 
+[Contact Number] 
+[Email Address] 
+
+---
+
+### ANNEXURE INVENTORY
+1. Copy of Move-in Photos and Move-out Handover Video (Digital/Print Reference)
+2. Copies of Rent Payment Bank Statements
+3. Transcripts / Screenshots of WhatsApp Chats acknowledging flat was received in good condition
 
 ### 5. Roleplay Negotiation Arena (Direct Model Output)
 - **User Argument:** *"Mr. Ramesh, as per Section 108 of the Transfer of Property Act and the Model Tenancy framework, ordinary wear and tear like wall paint aging cannot be deducted from my deposit. I have the handover video and our chat proof. Please refund my balance 45,000 within 7 days."*
-- **Opponent Reaction:** Arre yaar, law and section mat batao mujhe! Yeh sab kitabein baatein hain. Video-vidio kya dikha rahe ho, flat ka halat dekha hai kya? Marble pe scratches hain, deep cleaning ka kharcha toh lagega na! Chalo theek hai, zyada mat bolo, 45,000 nahi... ek kaam karo, 25,000 kaat ke baaki le lo. Final offer hai mera, court-kachhari mat karo.
+- **Opponent Reaction:** Arre sahib, don't teach me Section-Vection! Agreement mein clearly likha hai flat must be returned in pristine, freshly painted condition. Video-vudio se kya hota hai, wear and tear toh hota hi hai na! Chalo, 45 thousand toh impossible hai, 15 thousand kaat ke baki le lo final settlement.
 - **Coach Feedback:**
 ```json
 {
   "strength_rating": "Strong",
-  "what_went_well": "You firmly cited the relevant legal principles (Transfer of Property Act/Model Tenancy framework), distinguished wear and tear, and provided evidence (handover video and chats) with a clear deadline.",
-  "what_to_improve": "Do not accept his partial offer of settlement immediately. Reiterate that structural or cleaning costs for normal usage are the landlord's responsibility and demand the full amount.",
-  "suggested_next_counter": "Mr. Ramesh, normal wear and tear is legally non-deductible; please release the full Rs. 45,000 or I will escalate this to the DLSA or local authorities."
+  "what_went_well": "You effectively cited the Transfer of Property Act and Model Tenancy Act, while referencing concrete proof (handover video and chat logs) and setting a firm timeline.",
+  "what_to_improve": "Reiterate that withholding a deposit without itemized bills or actual receipts is legally untenable. Stand firm on the 7-day deadline without compromising.",
+  "suggested_next_counter": "Mr. Ramesh, verbal agreements or arbitrary deductions override neither the Transfer of Property Act nor our written WhatsApp acknowledgment. Provide official GST repair bills for the exact amount, or refund the full Rs. 45,000 by our deadline."
 }
 ```
 
@@ -183,7 +193,7 @@ Sincerely,
 
 ## TC-02: E-Commerce Defective Smartphone Refund Denial
 
-- **Timestamp:** `2026-11-08T13:30:50.703975+00:00`
+- **Timestamp:** `2026-11-08T20:11:35.752550+00:00`
 - **Provider / Model:** `Gemini` / `gemini-3.5-flash-lite`
 - **Category:** `Consumer & E-Commerce`
 
@@ -195,51 +205,50 @@ I ordered a Samsung Galaxy smartphone worth Rs 26,999 on an e-commerce app on 10
 ### 2. Extracted Case Dossier (Direct Model Output)
 ```json
 {
-  "case_title": "Defective Smartphone Delivery and Refused Replacement",
+  "case_title": "Defective Smartphone Delivery & Arbitrary Return Cancellation",
   "category": "Consumer & E-Commerce",
-  "summary": "The complainant purchased a Samsung Galaxy smartphone for Rs 26,999, which arrived with a manufacturing defect. Although a technician verified the defect within the return window, customer support later cancelled the replacement request claiming the return window expired.",
+  "summary": "The user purchased a Samsung Galaxy smartphone for Rs 26,999, which arrived with a manufacturing defect. Although a replacement request was raised within 24 hours of delivery and a technician verified the hardware defect within the 7-day window, customer support arbitrarily cancelled the return citing expiration of the window.",
   "complainant": "Consumer",
-  "opposite_party": "E-Commerce App / Seller",
+  "opposite_party": "E-Commerce Platform / Seller",
   "disputed_amount": "Rs. 26,999",
   "timeline": [
     {
       "date_or_period": "10th November 2024",
-      "event": "Ordered Samsung Galaxy smartphone on the e-commerce app."
+      "event": "Ordered Samsung Galaxy smartphone worth Rs 26,999 on the e-commerce app."
     },
     {
       "date_or_period": "14th November 2024",
-      "event": "Smartphone was delivered."
+      "event": "Smartphone was delivered to the user."
     },
     {
       "date_or_period": "Within 24 hours of delivery",
-      "event": "Screen started flickering with green lines and touch stopped working."
+      "event": "Screen started flickering with green lines and touch stopped working; user noticed the defect."
     },
     {
       "date_or_period": "15th November 2024",
-      "event": "Raised a replacement request on the app."
+      "event": "Raised a replacement request on the e-commerce app."
     },
     {
       "date_or_period": "21st November 2024",
-      "event": "Technician inspected the device, confirmed the manufacturing hardware defect, and took a signature on the job sheet."
+      "event": "Technician sent by the app inspected the phone, confirmed the manufacturing hardware defect, and took a signature on the job sheet."
     },
     {
       "date_or_period": "23rd November 2024",
-      "event": "Customer support cancelled the return request stating the 7-day return window expired on 21st November."
+      "event": "Customer support cancelled the return request claiming the 7-day return window expired on 21st November and directed the user to a brand service center."
     }
   ],
   "evidence_held": [
-    "Invoice",
+    "Tax invoice",
     "Delivery receipt",
     "Technician inspection job sheet copy",
-    "Chat screenshots with customer support"
+    "Customer support chat screenshots"
   ],
   "evidence_needed": [
-    "Unboxing video (if any exists)",
-    "Payment transaction receipt/bank statement",
-    "Written emails sent to customer support"
+    "Unboxing video or photos showing the defect immediately upon delivery (if available)",
+    "Written refusal email or chat log from customer support showing the cancellation reason"
   ],
   "evidence_strength_score": 8,
-  "evidence_strength_explanation": "Strong documentary proof including invoice, delivery receipt, and an official technician job sheet confirming the manufacturing defect.",
+  "evidence_strength_explanation": "Strong documentary evidence including tax invoice, delivery receipt, and an official technician job sheet confirming the manufacturing defect.",
   "escalation_check": {
     "requires_real_lawyer": false,
     "reasons": [],
@@ -251,52 +260,61 @@ I ordered a Samsung Galaxy smartphone worth Rs 26,999 on an e-commerce app on 10
 ### 3. Plain-Language Rights & Statutory Standing (Direct Model Output)
 ```json
 {
-  "plain_language_selling": null,
-  "plain_language_standing": "Your consumer rights are fully protected under Indian law, as you reported a manufacturing defect within the permitted timeframe and possess an official technician's verification. Under the Consumer Protection Act, supplying a defective product and refusing to refund or replace it constitutes both a 'defect in goods' and an 'unfair trade practice'. Your immediate takeaway is that you have strong documentary evidence (invoice, job sheet, chats) to challenge the e-commerce platform's unfair refusal of your replacement.",
+  "plain_language_standing": "You have a strong consumer protection claim because your smartphone arrived with a verified manufacturing defect and your return request was initiated on time. Under Indian consumer law, selling defective goods and arbitrarily cancelling a valid return amounts to unfair trade practices and deficiency in service. You can successfully seek a full refund or replacement, along with compensation, through consumer dispute forums without needing a lawyer.",
   "governing_laws": [
     {
       "act_name": "Consumer Protection Act, 2019",
       "section": "Section 2(7)",
-      "relevance": "Protects you as a consumer who bought goods for consideration through an online e-commerce transaction."
+      "relevance": "Defines you as a consumer since you purchased goods for consideration."
     },
     {
       "act_name": "Consumer Protection Act, 2019",
       "section": "Section 2(10)",
-      "relevance": "Defines a 'defect' as any fault, imperfection, or shortcoming in the quality, quantity, or standard required under a contract."
+      "relevance": "Covers manufacturing defects and shortcomings in product quality."
+    },
+    {
+      "act_name": "Consumer Protection Act, 2019",
+      "section": "Section 2(11)",
+      "relevance": "Defines deficiency in service for arbitrary cancellation of return and poor customer support."
     },
     {
       "act_name": "Consumer Protection Act, 2019",
       "section": "Section 2(47)",
-      "relevance": "Classifies refusing to refund or replace defective goods within the stipulated or reasonable period as an 'unfair trade practice'."
+      "relevance": "Classifies deceptive practices and refusal to refund/replace within stipulated timelines as an unfair trade practice."
     },
     {
       "act_name": "Consumer Protection Act, 2019",
       "section": "Section 84",
-      "relevance": "Establishes product manufacturer and seller liability for manufacturing and design defects."
+      "relevance": "Establishes product manufacturer liability for manufacturing defects regardless of negligence."
+    },
+    {
+      "act_name": "Consumer Protection Act, 2019",
+      "section": "Section 35",
+      "relevance": "Provides the statutory right and electronic filing mechanism for a consumer complaint before the District Commission."
     }
   ],
   "action_options": [
     {
       "step_number": 1,
-      "title": "Immediate Pre-Litigation Action (Formal Legal Notice / Helpline)",
+      "title": "Immediate Pre-Litigation Action",
       "timeline": "Suggested 15 days (customary pre-litigation practice)",
-      "details": "Lodge a formal grievance on the National Consumer Helpline (NCH) toll-free at 1915 or via consumerhelpline.gov.in. Additionally, serve a formal Legal Demand Notice to the seller and e-commerce platform highlighting the technician's job sheet and your timely reporting."
+      "details": "Serve a formal Legal Demand Notice to the e-commerce platform and seller enclosing your tax invoice, delivery receipt, and the technician inspection job sheet."
     },
     {
       "step_number": 2,
       "title": "Statutory Authority / Grievance Portal Filing",
       "timeline": "Timeline varies by state (confirm locally)",
-      "details": "File an electronic consumer complaint online on e-Daakhil (edaakhil.nic.in) attaching your order invoice, defect photos, technician job sheet, and communication history. Note: DLSA Helpline 15100 provides free legal aid and guidance only; it is never a forum for hearings or proceedings."
+      "details": "Lodge a formal complaint on the National Consumer Helpline (NCH) toll-free number 1915 or via consumerhelpline.gov.in. Note: DLSA helpline 15100 provides free legal aid and guidance only; it is never a forum for hearings or proceedings."
     },
     {
       "step_number": 3,
       "title": "Statutory Forum / Consumer Commission Petition",
       "timeline": "Timeline varies by state (confirm locally)",
-      "details": "If the pre-litigation notice and NCH escalation do not yield a replacement or refund, pursue a formal consumer complaint before the District Consumer Disputes Redressal Commission."
+      "details": "File an electronic consumer complaint online on e-Daakhil (edaakhil.nic.in) attaching your order invoice, defect photos, technician job sheet, and customer support chat logs."
     }
   ],
   "real_lawyer_needed": false,
-  "real_lawyer_guidance": "You do not need a physical advocate to file a consumer complaint. Consumer Commissions in India are designed for self-representation, allowing citizens to file and argue their cases personally without mandatory legal representation.",
+  "real_lawyer_guidance": "Consumer Commissions are designed for self-representation, allowing you to argue your case and present evidence personally without hiring a licensed advocate.",
   "disclaimer": "⚠️ NyayaMitra provides legal information and self-advocacy tools under Indian laws. For formal courtroom representation, consult a licensed advocate."
 }
 ```
@@ -304,93 +322,95 @@ I ordered a Samsung Galaxy smartphone worth Rs 26,999 on an e-commerce app on 10
 ### 4. Generated Legal Demand Notice (Direct Model Output)
 **LEGAL DEMAND NOTICE**
 
-**BY SPEED POST WITH ACKNOWLEDGEMENT DUE / REGISTERED EMAIL**
+**MODE OF DISPATCH:** Speed Post with Acknowledgement Due (AD) / Registered Email 
+**DATE:** 09/11/2026 
 
-**Date:** 08/11/2026
+**FROM:** 
+[Complainant / Consumer Name] 
+[Complainant Address Line 1] 
+[Complainant Address Line 2] 
+Phone: [Complainant Phone Number] 
+Email: [Complainant Email Address] 
 
-**To,** 
-The Grievance Officer / Authorized Representative, 
-[E-Commerce Platform / Seller Name], 
-[Company Address Line 1], 
-[Company Address Line 2], 
-City - [Pincode]. 
-
----
-
-**SUBJECT: LEGAL DEMAND NOTICE FOR SUPPLYING DEFECTIVE GOODS, UNFAIR TRADE PRACTICES, AND WRONGFUL REFUSAL OF REPLACEMENT REGARDING ORDER OF SAMSUNG GALAXY SMARTPHONE (AMOUNT: RS. 26,999).**
-
----
-
-Sir / Madam,
-
-Under instructions from and on behalf of my client, **[Complainant's Name]**, residing at [Complainant's Address] (hereinafter referred to as the **"Client"**), I do hereby serve upon you this formal Legal Demand Notice under the relevant provisions of the Consumer Protection Act, 2019, on account of supplying a defective product and subsequently engaging in unfair trade practices by refusing a valid replacement, and state as under:
-
-### **1. RECITALS & FACTUAL SEQUENCE**
-
-1.1. That on **10th November 2024**, the Client placed an online order for a Samsung Galaxy smartphone through your e-commerce platform/application, paying a valuable consideration of **Rs. 26,999** [Payment transaction details / Receipt Reference if applicable]. 
-1.2. That the said smartphone was delivered to the Client on **14th November 2024**. 
-1.3. That **within 24 hours of delivery**, the smartphone exhibited severe hardware defects—specifically, the screen started flickering with green lines and touch functionality completely stopped working. 
-1.4. That acting promptly and within the permissible return/replacement window, the Client raised a formal replacement request on your application on **15th November 2024**. 
-1.5. That on **21st November 2024**, an authorized technician visited the Client, thoroughly inspected the device, physically verified and confirmed the manufacturing hardware defect, and obtained the Client's signature on the official inspection job sheet. 
-1.6. That despite the official verification by your authorized technician, your customer support arbitrarily and wrongfully cancelled the return request on **23rd November 2024**, falsely alleging that the 7-day return window had supposedly expired on 21st November 2024, completely ignoring the fact that the request was raised well within time on 15th November 2024.
+**TO:** 
+1. **The Grievance Officer / Managing Director** 
+ [E-Commerce Platform Name / Seller Name] 
+ [Company Address Line 1] 
+ [Company Address Line 2] 
 
 ---
 
-### **2. VIOLATION OF STATUTORY PROVISIONS**
-
-Your aforesaid acts of delivering a defective product and subsequently refusing a legitimate replacement by raising arbitrary procedural technicalities constitute direct violations of the consumer rights protected under the **Consumer Protection Act, 2019**:
-
-* **Section 2(7) of the Consumer Protection Act, 2019:** Protects the Client as a consumer who bought goods for consideration through an online e-commerce transaction.
-* **Section 2(10) of the Consumer Protection Act, 2019:** Defines a "defect" as any fault, imperfection, or shortcoming in the quality, quantity, or standard required under a contract. The delivered Samsung Galaxy smartphone suffered from a direct manufacturing hardware defect.
-* **Section 2(47) of the Consumer Protection Act, 2019:** Classifies refusing to refund or replace defective goods within the stipulated or reasonable period as an "unfair trade practice."
-* **Section 84 of the Consumer Protection Act, 2019:** Establishes product manufacturer and seller liability for manufacturing and design defects.
+**SUBJECT: LEGAL DEMAND NOTICE FOR DEFECTIVE PRODUCT DELIVERY, ARBITRARY CANCELLATION OF RETURN REQUEST, DEFICIENCY IN SERVICE, AND UNFAIR TRADE PRACTICES UNDER THE CONSUMER PROTECTION ACT, 2019.**
 
 ---
 
-### **3. DEMAND FOR RECTIFICATION**
+Under instructions from my client, the undersigned submits as under:
 
-In light of the above facts and statutory provisions, you are hereby called upon to:
+1. That my client is a consumer as defined under Section 2(7) of the Consumer Protection Act, 2019, having purchased goods for consideration through your e-commerce platform.
 
-1. **Process and deliver a brand-new, defect-free replacement** of the Samsung Galaxy smartphone, OR in the alternative, **issue a complete refund of Rs. 26,999** directly to the Client's original payment source; and
-2. Confirm compliance with this demand within a strict **15-day rectification demand window** from the date of receipt of this notice.
+2. **RECITALS OF FACTS AND TIMELINE:**
+ - **10th November 2024:** My client placed an online order on your e-commerce platform for a Samsung Galaxy smartphone worth **Rs. 26,999/-** (Rupees Twenty-Six Thousand Nine Hundred and Ninety-Nine Only) against Tax Invoice No. [Invoice Number].
+ - **14th November 2024:** The said smartphone was delivered to my client.
+ - **Within 24 hours of delivery:** Upon unboxing and setting up the device, my client noticed a severe manufacturing hardware defect, wherein the screen started flickering with green lines and the touch screen stopped working entirely.
+ - **15th November 2024:** Immediately, well within any applicable return and replacement windows, my client raised a formal replacement request on your e-commerce application.
+ - **21st November 2024:** An authorized technician sent by your platform physically inspected the smartphone at my client's premises, independently verified and confirmed the manufacturing hardware defect, and collected my client's signature on the official technician inspection job sheet.
+ - **23rd November 2024:** Despite the technician's verification, your customer support arbitrarily and wrongfully cancelled my client's return request, falsely claiming that the 7-day return window had expired on 21st November 2024, and improperly directed my client to approach a brand service center instead of honoring your platform's return/replacement policy.
 
----
+3. **VIOLATION OF STATUTORY PROVISIONS:**
+ - The delivery of a defective smartphone constitutes a direct violation of product quality standards under Section 2(10) of the Consumer Protection Act, 2019.
+ - The arbitrary cancellation of a validly raised return request and failure to provide proper after-sales redressal constitutes a gross "deficiency in service" under Section 2(11) of the Consumer Protection Act, 2019.
+ - Refusing to honor a valid replacement/refund for a defective product verified by your own technician amounts to an "unfair trade practice" under Section 2(47) of the Consumer Protection Act, 2019.
+ - Under Section 84 of the Consumer Protection Act, 2019, the product manufacturer and platform are liable for manufacturing defects.
 
-### **4. WARNING OF FURTHER LEGAL ACTION**
-
-Please take notice that if you fail to comply with the demands outlined above within the stipulated **15-day period**, my client shall be constrained to initiate appropriate legal proceedings against your entity without any further reference. 
-
-These proceedings will include filing a formal consumer complaint before the appropriate **District Consumer Disputes Redressal Commission**, seeking a full refund/replacement, compensation for mental agony, and litigation costs. Additionally, the matter shall be escalated to the National Consumer Helpline (NCH) via 1915 / consumerhelpline.gov.in. 
-
-*(Note: For free legal guidance and information regarding consumer rights, citizens may contact the District Legal Services Authority (DLSA) / NALSA Toll-Free Helpline at **15100**. DLSA provides free legal aid and guidance only and is not a forum for proceedings against employers or commercial entities).*
-
-Please treat this notice with the urgency it deserves.
-
-Yours faithfully,
-
-*(Signed)* 
-**[Complainant's Name / Authorized Representative]** 
-[Contact Number] 
-[Email Address] 
+4. **EVIDENCE HELD BY CLIENT:**
+ - Tax invoice
+ - Delivery receipt
+ - Technician inspection job sheet copy confirming the manufacturing defect
+ - Customer support chat screenshots
 
 ---
 
-### **ANNEXURE INVENTORY (ENCLOSED DOCUMENTS):**
-1. Copy of Order Invoice (Rs. 26,999)
-2. Delivery receipt dated 14th November 2024
-3. Technician inspection job sheet copy dated 21st November 2024
-4. Chat screenshots with customer support showing cancellation on 23rd November 2024
+### **DEMAND FOR RECTIFICATION**
+
+Through this notice, my client hereby calls upon you to fulfill the following demands within **15 days** from the receipt of this notice:
+
+1. Arrange for an immediate pickup and process a **full refund of Rs. 26,999/-** (or a brand-new replacement unit as originally requested) for the defective Samsung Galaxy smartphone.
+2. Cease and desist from engaging in arbitrary cancellations of verified return requests and unfair trade practices.
+
+---
+
+**WARNING OF LEGAL ACTION:**
+
+PLEASE TAKE NOTICE THAT if you fail to comply with the above demands within the stipulated **15-day** rectification window, my client shall be constrained to initiate appropriate legal proceedings. This shall include filing a formal consumer complaint before the appropriate statutory **District Consumer Disputes Redressal Commission** via the e-Daakhil portal (edaakhil.nic.in), as well as lodging a grievance on the National Consumer Helpline (NCH) platform, seeking a full refund, statutory compensation for mental agony and harassment, and litigation costs, entirely at your sole risk, cost, and peril.
+
+*(Note: For free legal guidance and information regarding your consumer rights, you may contact the District Legal Services Authority (DLSA) / NALSA Toll-Free Helpline at **15100**).*
+
+---
+
+Sincerely,
+
+*(Signature)* 
+**[Complainant / Consumer Name]** 
+(Acting on behalf of self) 
+
+---
+
+### **ANNEXURE INVENTORY:**
+1. Copy of Tax Invoice
+2. Copy of Delivery Receipt
+3. Copy of Technician Inspection Job Sheet
+4. Screenshots of Customer Support Chats
 
 ### 5. Roleplay Negotiation Arena (Direct Model Output)
 - **User Argument:** *"Under Section 2(11) and Section 84 of the Consumer Protection Act 2019, delivering a defective phone and delaying inspection past your return window is a clear deficiency in service and unfair trade practice. I have the technician report confirming hardware fault. I demand an immediate refund or I will escalate to the National Consumer Helpline and e-Daakhil."*
-- **Opponent Reaction:** Arre sir/madam, why are you threatening with consumer court and all? Look, our system automatically locks the replacement option after 7 days, no matter what. The technician report is fine, but backend team says policy is policy. Still... since you have the report and you are creating a big issue, let me check with my senior manager... okay, we can offer you a repair or store credit, but full cash refund of Rs. 26,999 is not possible directly. Take the repair na?
+- **Opponent Reaction:** Arre sir/madam, why are you threatening with consumer helpline and all that big-big legal English? See, our system automatically cancelled the return because the automated barcode scan updated after 7 days. Technician report is fine, but company internal policy is final, na? Okay, okay, don't shout—let me check with my senior manager if we can give you a store voucher instead of cash refund.
 - **Coach Feedback:**
 ```json
 {
   "strength_rating": "Strong",
-  "what_went_well": "You precisely cited Section 2(11) for deficiency in service and Section 84 for product liability under the Consumer Protection Act 2019, while mentioning concrete proof (technician report) and escalation channels.",
-  "what_to_improve": "Do not accept store credit or forced repairs for a DOA (Dead on Arrival) or manufacturing defect received out-of-the-box. Insist on a complete refund to the original payment source.",
-  "suggested_next_counter": "Under Section 14 of the Consumer Protection Act, supplying a defective product mandates a full refund of Rs. 26,999 along with compensation; I reject store credit and demand a full cash refund immediately."
+  "what_went_well": "You brilliantly cited specific sections of the Consumer Protection Act 2019 (Section 2(11) for deficiency in service and Section 84) along with concrete proof like the technician report.",
+  "what_to_improve": "Do not accept a store voucher if you want a full cash refund. Hold your ground on the monetary refund to your original payment method.",
+  "suggested_next_counter": "I reject the store voucher; as per RBI guidelines and Consumer Protection Act, I demand an immediate full refund to my original payment source, or I proceed with my formal complaint."
 }
 ```
 
@@ -398,7 +418,7 @@ Yours faithfully,
 
 ## TC-03: Gurugram Tech Employee Unpaid Salary & Relieving Letter Withheld
 
-- **Timestamp:** `2026-11-08T13:31:41.714208+00:00`
+- **Timestamp:** `2026-11-08T20:11:56.000202+00:00`
 - **Provider / Model:** `Gemini` / `gemini-3.5-flash-lite`
 - **Category:** `Employment & Salary`
 
@@ -410,16 +430,16 @@ I worked as a frontend developer at an IT consultancy firm in Cyber City, Gurugr
 ### 2. Extracted Case Dossier (Direct Model Output)
 ```json
 {
-  "case_title": "Withholding of Final Salary, Leave Encashment, and Relieving Documents by IT Employer",
+  "case_title": "Withholding of Final Settlement & Relieving Letter by IT Firm",
   "category": "Employment & Salary",
-  "summary": "The complainant worked as a frontend developer for 18 months and completed a 60-day notice period ending September 30, 2024. The employer has withheld the August salary, September salary, and 15 days of leave encashment totaling Rs 1,65,000, along with the relieving letter and experience certificate, threatening a new job offer.",
+  "summary": "The complainant completed an 18-month tenure and a 60-day notice period at an IT consultancy in Gurugram, successfully clearing all asset handovers. The employer has withheld the final salary and leave encashment totaling Rs. 1,65,000 for 50 days, along with the essential Relieving Letter and Experience Certificate, threatening the complainant's new job offer.",
   "complainant": "Frontend Developer (Ex-Employee)",
-  "opposite_party": "IT Consultancy Firm, Cyber City, Gurugram",
+  "opposite_party": "IT Consultancy Firm, Cyber City, Gurugram (Management / HR)",
   "disputed_amount": "Rs. 1,65,000",
   "timeline": [
     {
       "date_or_period": "18 months prior to August 2024",
-      "event": "Complainant worked as a frontend developer at an IT consultancy firm in Gurugram at Rs 70,000/month."
+      "event": "Complainant worked as a frontend developer at Rs 70,000/month."
     },
     {
       "date_or_period": "1st August 2024",
@@ -427,26 +447,26 @@ I worked as a frontend developer at an IT consultancy firm in Cyber City, Gurugr
     },
     {
       "date_or_period": "30th September 2024",
-      "event": "Completed 60-day notice period, handed over all project assets, and received an asset clearance certificate from IT."
+      "event": "Completed 60-day notice period, handed over assets, and received asset clearance certificate."
     },
     {
-      "date_or_period": "Past 50 days",
-      "event": "Repeated follow-ups with HR regarding pending dues and relieving letters, with HR citing client payment delays."
+      "date_or_period": "Past 50 days (Post-30th September 2024)",
+      "event": "Salary for August and September plus leave encashment unpaid; HR cites client payment delays; Relieving letter withheld."
     }
   ],
   "evidence_held": [
     "Appointment letter",
     "Resignation acceptance email",
-    "Signed clearance form / asset clearance certificate from IT",
-    "Emails with HR regarding payment delays"
+    "Signed asset clearance form / certificate from IT"
   ],
   "evidence_needed": [
-    "Bank statements showing salary credit history for the last 18 months",
-    "Written formal demand/legal notice sent to company leadership",
-    "Written communication from the new employer regarding the deadline for the relieving letter"
+    "Bank statements showing salary credits for previous months to establish salary baseline",
+    "Written correspondence / email threads with HR regarding the payment delay",
+    "Employment contract / offer letter outlining notice period and leave encashment terms",
+    "Written communication from the new employer regarding the threat of offer cancellation"
   ],
-  "evidence_strength_score": 8,
-  "evidence_strength_explanation": "The claim is well-supported by an appointment letter, resignation acceptance, and a formal signed asset clearance certificate, though bank records and a formal demand notice would further solidify the case.",
+  "evidence_strength_score": 7,
+  "evidence_strength_explanation": "Strong documentary proof of employment, resignation acceptance, and formal clearance exists, though written follow-ups regarding the unpaid dues should be formally consolidated.",
   "escalation_check": {
     "requires_real_lawyer": true,
     "reasons": [
@@ -460,17 +480,17 @@ I worked as a frontend developer at an IT consultancy firm in Cyber City, Gurugr
 ### 3. Plain-Language Rights & Statutory Standing (Direct Model Output)
 ```json
 {
-  "plain_language_standing": "Your unpaid wage and document withholding issue is fundamentally a civil employment dispute, not a criminal matter, and the law protects your right to timely payment. Under Section 17(2) of the Code on Wages, 2019, an employee's wages upon resignation must be paid within two working days. Your immediate takeaway is that you should formally demand your unpaid dues and relieving documents in writing while preparing to approach the competent labour authority if the employer fails to comply.",
+  "plain_language_standing": "Your dispute regarding unpaid wages and final documents is strictly civil in nature, meaning criminal police complaints are not appropriate here. Under Indian law, your wages must be paid promptly following your departure. You hold strong documentation such as an asset clearance certificate and resignation acceptance to support your claim.",
   "governing_laws": [
     {
       "act_name": "Code on Wages, 2019",
       "section": "Section 17(2)",
-      "relevance": "Mandates that the wages of an employee who resigns must be paid within two working days of their resignation or separation date."
+      "relevance": "Mandates that wages of an employee who is removed, dismissed, retrenched, or resigns must be paid within two working days of that event."
     },
     {
       "act_name": "General Legal Principle (Civil vs. Criminal Boundary)",
       "section": "General Guidance",
-      "relevance": "Clarifies that withholding salary or breaching an employment contract is a civil dispute, meaning criminal police complaints or FIRs are legally improper."
+      "relevance": "Establishes that withholding wages or breach of employment terms is a civil matter and not a criminal offense, requiring civil/statutory forum resolution instead of police complaints."
     }
   ],
   "action_options": [
@@ -478,100 +498,92 @@ I worked as a frontend developer at an IT consultancy firm in Cyber City, Gurugr
       "step_number": 1,
       "title": "Immediate Pre-Litigation Action",
       "timeline": "Suggested 15 days (customary pre-litigation practice)",
-      "details": "Send a formal written demand email or notice to your employer citing Section 17(2) of the Code on Wages, 2019, requesting the immediate release of your unpaid wages and relieving documents within two working days."
+      "details": "Send a formal written demand email to your former employer citing Section 17(2) of the Code on Wages, 2019, requesting the immediate release of your unpaid wages and relieving documents within two working days."
     },
     {
       "step_number": 2,
       "title": "Statutory Authority / Grievance Portal Filing",
       "timeline": "Timeline varies by state (confirm locally)",
-      "details": "For formal proceedings or recovery of unpaid wages, approach the competent labour authority (confirm locally). Note: The District Legal Services Authority (DLSA) / NALSA Helpline 15100 provides free legal aid and guidance only, and is never a forum for hearings or proceedings against an employer."
+      "details": "Approach the competent labour authority (confirm locally) for formal proceedings and recovery of your unpaid wages. Note: The District Legal Services Authority (DLSA) / NALSA Helpline 15100 provides free legal aid and guidance only; it is never a forum for hearings or proceedings against an employer."
     },
     {
       "step_number": 3,
-      "title": "Statutory Forum / Labour Dispute Resolution",
+      "title": "Statutory Forum / Conciliation Petition",
       "timeline": "Timeline varies by state (confirm locally)",
-      "details": "If the employer fails to respond to your formal demand, file a formal wage claim petition before the competent labour authority (confirm locally) for conciliation and recovery."
+      "details": "If the employer fails to comply with your written demand, file a formal dispute petition before the labour authority for conciliation and recovery of dues."
     }
   ],
   "real_lawyer_needed": true,
-  "real_lawyer_guidance": "Given the complexities of negotiating with corporate HR, withheld relieving documents affecting a new job offer, and employer resistance, consulting a licensed advocate or utilizing free legal aid via the District Legal Services Authority (DLSA) Helpline 15100 is advised.",
+  "real_lawyer_guidance": "Given the complexity involving your new job offer and withholding of relieving documents, consulting a licensed advocate or contacting the District Legal Services Authority (DLSA) via helpline 15100 for free legal aid and guidance is recommended.",
   "disclaimer": "⚠️ NyayaMitra provides legal information and self-advocacy tools under Indian laws. For formal courtroom representation, consult a licensed advocate."
 }
 ```
 
 ### 4. Generated Legal Demand Notice (Direct Model Output)
-**MODE OF DISPATCH: SPEED POST WITH ACKNOWLEDGEMENT DUE (AD) / REGISTERED EMAIL**
+**BY SPEED POST WITH ACKNOWLEDGEMENT DUE (AD) / REGISTERED EMAIL**
 
-**LEGAL DEMAND NOTICE**
-
-**Date:** 08/11/2026
-
-**FROM:** 
-[Your Name / Ex-Employee] 
-Frontend Developer 
-[Your Residential Address] 
-Contact Number: [Your Phone Number] 
-Email: [Your Email Address] 
-
-**TO:** 
-The Management / Human Resources Department 
+**To,** 
+Management / HR Department 
 IT Consultancy Firm 
-Cyber City, Gurugram 
-[Company Pin Code] 
+Cyber City, Gurugram, Haryana 
+
+**From:** 
+Frontend Developer (Ex-Employee) 
+[Complainant Address / Contact Details] 
+
+**Date:** 09/11/2026 
 
 ---
 
-**SUBJECT: LEGAL DEMAND NOTICE FOR WITHHOLDING OF FINAL SALARY, LEAVE ENCASHMENT, RELIEVING LETTER, AND EXPERIENCE CERTIFICATE TOTALING RS. 1,65,000/-**
+### **SUBJECT: LEGAL DEMAND NOTICE FOR WITHHOLDING OF FINAL SETTLEMENT (RS. 1,65,000), LEAVE ENCASHMENT, AND ESSENTIAL RELIEVING DOCUMENTS**
 
-**Under instructions from my client, the undersigned submits as under:**
+Sir/Madam,
 
-1. That my client was employed with your IT consultancy firm at Cyber City, Gurugram, as a Frontend Developer, at a monthly salary of Rs. 70,000/-, for a period of[unverified reference removed] months prior to August 2024.
+Under instructions from my client, the undersigned submits as under:
+
+1. That my client was employed with your IT consultancy firm situated at Cyber City, Gurugram, as a Frontend Developer for an[unverified reference removed]-month tenure prior to August 2024, drawing a monthly salary of Rs. 70,000/-.
 2. That on 1st August 2024, my client formally submitted their resignation from the said position.
-3. That my client diligently served and completed the mandatory 60-day notice period, which culminated on 30th September 2024. Upon completion, my client successfully handed over all project assets and obtained a signed clearance form / asset clearance certificate from the IT department of your firm.
-4. That despite the successful separation and handover, your establishment has wrongfully withheld my client’s salary for the month of August 2024, salary for the month of September 2024, and 15 days of leave encashment, aggregating to a total undisputed sum of Rs. 1,65,000/-.
-5. That in addition to withholding the statutory dues of Rs. 1,65,000/-, your firm has also wrongfully withheld my client's relieving letter and experience certificate, thereby creating severe impediments and threats to my client's new job offer.
-6. That over the past 50 days, my client has made repeated follow-ups with the Human Resources department regarding the clearance of pending dues and the issuance of relieving documents. However, your representatives have cited arbitrary reasons such as client payment delays, which hold no legal bearing on my client’s statutory right to receive earned wages upon separation.
-7. That your aforesaid acts are in direct violation of statutory provisions, specifically **Section 17(2) of the Code on Wages, 2019**, which mandates that the wages of an employee who resigns or whose employment is terminated must be paid within two working days of their separation date.
-8. That withholding earned wages and mandatory employment documents constitutes a civil employment breach and causes severe mental agony and professional injury to my client. For legal guidance and support regarding this dispute, my client has been advised of available resources, including the District Legal Services Authority (DLSA) / NALSA Toll-Free Helpline: 15100.
+3. That my client successfully completed their 60-day notice period ending on 30th September 2024, during which all company assets were duly handed over, and my client received the official signed asset clearance form/certificate from the IT department.
+4. That despite the successful completion of the notice period and asset handover, your office has withheld my client's final salary for August and September alongside leave encashment, totaling Rs. 1,65,000/-, for the past 50 days (post-30th September 2024), citing internal client payment delays as an arbitrary excuse.
+5. That your office has further withheld my client’s essential Relieving Letter and Experience Certificate, which has severely jeopardized my client's new employment offer and career prospects.
+
+#### **VIOLATION OF STATUTORY PROVISIONS:**
+* **Section 17(2) of the Code on Wages, 2019:** Mandates that wages of an employee who resigns must be paid within two working days of their departure. Your failure to clear my client's dues for over 50 days is a blatant violation of statutory wage mandates.
+* **General Legal Principle:** Withholding lawful earnings and mandatory exit documents constitutes a civil breach of employment terms. *(Note: For free legal aid and guidance regarding this matter, citizens may reach out to the District Legal Services Authority (DLSA) / NALSA Toll-Free Helpline: 15100).*
 
 ---
 
-**DEMAND FOR RECTIFICATION**
+#### **DEMAND FOR RECTIFICATION:**
 
-Through this notice, my client hereby calls upon you to clear and disburse the total withheld amount of **Rs. 1,65,000/-** (Rupees One Lakh Sixty-Five Thousand Only) towards the August 2024 salary, September 2024 salary, and leave encashment, along with the immediate issuance of the relieving letter and experience certificate, **within a strict 15-day window** from the receipt of this notice.
+You are hereby called upon to clear and disburse the total withheld amount of **Rs. 1,65,000/-** (representing unpaid salary and leave encashment) and issue the mandatory **Relieving Letter and Experience Certificate** to my client within a strict **15-day window** from the receipt of this notice.
 
-**WARNING OF FURTHER LEGAL ACTION**
-
-Take notice that if you fail to comply with the demands detailed above within the stipulated 15-day rectification window, my client shall be constrained to initiate appropriate formal legal proceedings without any further reference. This shall include filing a formal wage claim petition and instituting legal action before **the competent labour authority (confirm locally)** for the recovery of dues, interest, and compensation, holding your establishment fully liable for all associated costs and consequences.
-
-Kindly treat this matter as urgent and time-sensitive.
+Failure to comply within the stipulated 15-day rectification window will compel my client to initiate formal legal proceedings by filing a dispute petition and seeking recovery before **the competent labour authority (confirm locally)**, alongside pursuing all available remedies under civil law for damages and mental harassment, entirely at your risk as to costs and consequences.
 
 ---
 
-**SINCERELY AND UNDER INSTRUCTIONS,**
+**Signature:**
 
-*(Signature)* 
-**[Your Name]** 
-Frontend Developer (Ex-Employee)
+________________________________________ 
+**Frontend Developer (Ex-Employee)** 
+[Date: 09/11/2026] 
 
 ---
 
-**ANNEXURE INVENTORY (ENCLOSED COPIES):**
-1. Copy of Appointment Letter
-2. Copy of Resignation Acceptance Email
-3. Copy of Signed Clearance Form / Asset Clearance Certificate from IT
-4. Copy of Emails with HR regarding payment delays
+#### **ANNEXURE INVENTORY (Documents Held by Complainant):**
+1. Appointment letter
+2. Resignation acceptance email
+3. Signed asset clearance form / certificate from IT
 
 ### 5. Roleplay Negotiation Arena (Direct Model Output)
 - **User Argument:** *"Under employment laws, full and final dues must be cleared timely and withholding my relieving letter violates my right to livelihood. If my Rs 1,65,000 and relieving letter are not issued within 3 days, I will file a formal complaint with the District Labor Commissioner."*
-- **Opponent Reaction:** Arre, why are you threatening like this? District Labor Commissioner and all? See, read your appointment letter clause 14.2 properly. Full and final settlement has a standard processing time of 90 working days, and internal audit clearances are still pending from your project manager. Regarding documents, until the exit formalities and knowledge transfer sign-off are complete, HR cannot issue the relieving letter. Don't unnecessarily create tension over email, okay?
+- **Opponent Reaction:** Arre yaar, yeh sab District Labor Commissioner aur right to livelihood ki dhamkiyan humein mat do! Company policy saaf kehti hai ki exit formalities aur internal audit clear hone ke baad hi FNF process hota hai. Thoda patience rakho, HR team review kar rahi hai. Aise 3 din ki deadline dene se kaam thodi fast ho jayega, agreement padho apna!
 - **Coach Feedback:**
 ```json
 {
   "strength_rating": "Strong",
-  "what_went_well": "You firmly stated the total amount (Rs 1,65,000), specific timeline, and threatened a direct legal escalation (District Labor Commissioner) while highlighting the violation of your right to livelihood.",
-  "what_to_improve": "You didn't mention specific dates or provide proof of your handover completion. Mentioning exact dates of your notice period completion (September 30, 2024) and citing that withholding wages beyond standard statutory timelines attracts strict liability would break their standard 'internal audit' excuse.",
-  "suggested_next_counter": "My notice period ended on September 30, 2024, and internal delays cannot override statutory wage timelines; release my dues and documents immediately or face the labor court."
+  "what_went_well": "You firmly invoked statutory rights, exact dues (Rs. 1,65,000), a strict timeline, and threatened a specific legal authority (District Labor Commissioner).",
+  "what_to_improve": "You didn't mention specific sections of the Industrial Disputes Act, Shops & Establishment Act, or the exact date your notice period ended and asset clearance was acknowledged via email.",
+  "suggested_next_counter": "Cite our email confirmation dated [Date] where asset handover was accepted, and remind them that withholding FNF beyond standard statutory timelines attracts legal escalation under the relevant Shops and Establishment Act."
 }
 ```
 

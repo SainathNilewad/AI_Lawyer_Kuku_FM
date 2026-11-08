@@ -6,10 +6,20 @@ Provides honest model connectivity, dynamic model listing, and transparent error
 import os
 import json
 import re
+import time
 from typing import Dict, Any, Optional, List
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# Rate throttle: enforce max 12 Gemini calls/min (at least 5.0s between calls)
+_last_gemini_call = 0.0
+def _throttle_gemini():
+    global _last_gemini_call
+    elapsed = time.time() - _last_gemini_call
+    if elapsed < 5.0:
+        time.sleep(5.0 - elapsed)
+    _last_gemini_call = time.time()
 
 def clean_json_string(raw_text: str) -> str:
     """Extracts JSON block from raw LLM text response."""
@@ -50,11 +60,19 @@ def list_gemini_models(api_key: Optional[str] = None) -> List[str]:
         return []
 
 class LegalLLMEngine:
+    call_counts: Dict[str, int] = {}
+    fallback_count: int = 0
+
+    @classmethod
+    def reset_call_counts(cls):
+        cls.call_counts = {}
+        cls.fallback_count = 0
+
     def __init__(self, provider: Optional[str] = None, model_name: Optional[str] = None, api_key: Optional[str] = None):
         self.provider = (provider or os.getenv("LLM_PROVIDER", "gemini")).lower()
         if self.provider == "gemini":
             self.api_key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-            self.model_name = model_name or os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
+            self.model_name = model_name or os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
         elif self.provider == "groq":
             self.api_key = api_key or os.getenv("GROQ_API_KEY")
             self.model_name = model_name or os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b")
@@ -63,6 +81,15 @@ class LegalLLMEngine:
             self.model_name = model_name or os.getenv("LLM_MODEL", "")
         self.last_used_provider = "Gemini" if self.provider == "gemini" else ("Groq" if self.provider == "groq" else self.provider)
         self.last_used_model = self.model_name
+        self.models_used: List[str] = []
+        self._gemini_client = None
+        self._groq_client = None
+
+    def _record_call(self, model: str, is_fallback: bool = False):
+        LegalLLMEngine.call_counts[model] = LegalLLMEngine.call_counts.get(model, 0) + 1
+        if is_fallback:
+            LegalLLMEngine.fallback_count += 1
+        self.models_used.append(model)
 
     def check_model_exists(self) -> tuple:
         """Verifies if self.model_name exists in the provider's active model catalog."""
@@ -98,9 +125,12 @@ class LegalLLMEngine:
                 )
                 self.last_used_provider = "Groq"
                 self.last_used_model = self.model_name
+                self._record_call(self.model_name, is_fallback=False)
                 return response.choices[0].message.content
             except Exception as e:
                 err_str = str(e)
+                if os.getenv("EVAL_STRICT") == "1":
+                    return f"ERROR: [Groq Error: {err_str}]"
                 if ("429" in err_str or "rate_limit" in err_str) and self.model_name != "qwen/qwen3.8-27b":
                     try:
                         response = client.chat.completions.create(
@@ -113,6 +143,7 @@ class LegalLLMEngine:
                         )
                         self.last_used_provider = "Groq"
                         self.last_used_model = "qwen/qwen3.8-27b"
+                        self._record_call("qwen/qwen3.8-27b", is_fallback=True)
                         return response.choices[0].message.content
                     except Exception:
                         pass
@@ -120,11 +151,12 @@ class LegalLLMEngine:
                 gem_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
                 if gem_key and ("429" in err_str or "rate_limit" in err_str):
                     try:
+                        _throttle_gemini()
                         from google import genai
                         from google.genai import types
                         g_client = genai.Client(api_key=gem_key)
                         g_resp = g_client.models.generate_content(
-                            model="gemini-3.8-flash",
+                            model="gemini-3.5-flash-lite",
                             contents=user_prompt,
                             config=types.GenerateContentConfig(
                                 system_instruction=system_prompt,
@@ -133,7 +165,8 @@ class LegalLLMEngine:
                         )
                         if g_resp and g_resp.text:
                             self.last_used_provider = "Gemini (fallback)"
-                            self.last_used_model = "gemini-3.8-flash"
+                            self.last_used_model = "gemini-3.5-flash-lite"
+                            self._record_call("gemini-3.5-flash-lite", is_fallback=True)
                             return g_resp.text
                     except Exception:
                         pass
@@ -141,46 +174,60 @@ class LegalLLMEngine:
 
         # Provider: Gemini (Primary)
         if self.provider == "gemini":
-            try:
-                from google import genai
-                from google.genai import types
-                client = genai.Client(api_key=self.api_key)
-                response = client.models.generate_content(
-                    model=self.model_name,
-                    contents=user_prompt,
-                    config=types.GenerateContentConfig(
-                        system_instruction=system_prompt,
-                        temperature=temperature,
-                    )
-                )
-                if response and response.text:
-                    self.last_used_provider = "Gemini"
-                    self.last_used_model = self.model_name
-                    return response.text
-                return "ERROR: [Gemini Error: Empty response received from model]"
-            except Exception as e:
-                err_str = str(e)
-                print(f"[Gemini Exception, attempting Groq fallback]: {err_str[:120]}")
-                # Immediate fallback to Groq if Gemini hits any error (503, timeout, quota, etc.)
-                groq_k = os.getenv("GROQ_API_KEY")
-                if groq_k:
-                    try:
-                        from groq import Groq
-                        g_client = Groq(api_key=groq_k)
-                        g_resp = g_client.chat.completions.create(
-                            model="qwen/qwen3.8-27b",
-                            messages=[
-                                {"role": "system", "content": system_prompt},
-                                {"role": "user", "content": user_prompt}
-                            ],
-                            temperature=temperature
+            max_attempts = 3
+            for attempt in range(max_attempts):
+                _throttle_gemini()
+                try:
+                    from google import genai
+                    from google.genai import types
+                    if self._gemini_client is None:
+                        self._gemini_client = genai.Client(api_key=self.api_key)
+                    client = self._gemini_client
+                    response = client.models.generate_content(
+                        model=self.model_name,
+                        contents=user_prompt,
+                        config=types.GenerateContentConfig(
+                            system_instruction=system_prompt,
+                            temperature=temperature,
                         )
-                        self.last_used_provider = "Groq (fallback)"
-                        self.last_used_model = "qwen/qwen3.8-27b"
-                        return g_resp.choices[0].message.content
-                    except Exception as e2:
-                        print(f"[Groq Fallback also failed]: {e2}")
-                return f"ERROR: [Gemini Error: {e}]"
+                    )
+                    if response and response.text:
+                        self.last_used_provider = "Gemini"
+                        self.last_used_model = self.model_name
+                        self._record_call(self.model_name, is_fallback=False)
+                        return response.text
+                    return "ERROR: [Gemini Error: Empty response received from model]"
+                except Exception as e:
+                    err_str = str(e)
+                    # Retry transient socket/connection/SSL errors on the same model
+                    is_transient_conn = any(kw in err_str.lower() for kw in ["certificate", "handshake", "winerror", "timeout", "connection reset", "broken pipe"])
+                    if is_transient_conn and attempt < max_attempts - 1:
+                        time.sleep(2.0)
+                        continue
+                    if os.getenv("EVAL_STRICT") == "1":
+                        return f"ERROR: [Gemini Error: {err_str}]"
+                    print(f"[Gemini Exception, attempting Groq fallback]: {err_str[:120]}")
+                    # Immediate fallback to Groq if Gemini hits any error (503, timeout, quota, etc.)
+                    groq_k = os.getenv("GROQ_API_KEY")
+                    if groq_k:
+                        try:
+                            from groq import Groq
+                            g_client = Groq(api_key=groq_k)
+                            g_resp = g_client.chat.completions.create(
+                                model="qwen/qwen3.8-27b",
+                                messages=[
+                                    {"role": "system", "content": system_prompt},
+                                    {"role": "user", "content": user_prompt}
+                                ],
+                                temperature=temperature
+                            )
+                            self.last_used_provider = "Groq (fallback)"
+                            self.last_used_model = "qwen/qwen3.8-27b"
+                            self._record_call("qwen/qwen3.8-27b", is_fallback=True)
+                            return g_resp.choices[0].message.content
+                        except Exception as e2:
+                            print(f"[Groq Fallback also failed]: {e2}")
+                    return f"ERROR: [Gemini Error: {e}]"
 
         return "ERROR: Unknown or unsupported provider configured."
 

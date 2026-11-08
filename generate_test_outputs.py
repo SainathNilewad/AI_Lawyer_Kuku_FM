@@ -9,6 +9,7 @@ import datetime
 from dotenv import load_dotenv
 
 load_dotenv()
+os.environ["EVAL_STRICT"] = "1"
 
 from agents import CaseBuilderAgent, RightsAdvisorAgent, DocumentDrafterAgent, RoleplayOpponentAgent
 from llm_engine import LegalLLMEngine
@@ -61,8 +62,8 @@ TEST_SCENARIOS = [
 ]
 
 def run_real_test_cases():
-    # Use Google Gemini (gemini-3.5-flash) as primary model
-    engine = LegalLLMEngine(provider="gemini", model_name="gemini-3.5-flash")
+    # Use Google Gemini (gemini-3.5-flash-lite) as primary model
+    engine = LegalLLMEngine(provider="gemini", model_name="gemini-3.5-flash-lite")
 
     case_builder = CaseBuilderAgent(engine)
     rights_advisor = RightsAdvisorAgent(engine)
@@ -74,20 +75,30 @@ def run_real_test_cases():
     test_cases_dir = os.path.join(base_dir, "test_cases")
     os.makedirs(test_cases_dir, exist_ok=True)
 
-    print(f"Executing real test cases using Provider: {engine.provider}, Model: {engine.model_name}")
+    print(f"Executing real test cases using Provider: {engine.provider}, Model: {engine.model_name} (EVAL_STRICT=1)")
 
     for scenario in TEST_SCENARIOS:
         print(f"\n--- Running {scenario['id']}: {scenario['name']} ---")
         run_timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        engine.models_used = []
 
         # 1. Build Case Dossier directly from real model call
         dossier = case_builder.run(scenario["raw_story"])
+        if isinstance(dossier, dict) and "error" in dossier:
+            print(f"CRITICAL: Quota or model error in {scenario['id']} CaseBuilder: {dossier['error']}")
+            raise SystemExit(f"Execution halted on model error: {dossier['error']}")
 
         # 2. Rights Advice directly from real model call
         rights = rights_advisor.run(dossier)
+        if isinstance(rights, dict) and "error" in rights:
+            print(f"CRITICAL: Quota or model error in {scenario['id']} RightsAdvisor: {rights['error']}")
+            raise SystemExit(f"Execution halted on model error: {rights['error']}")
 
         # 3. Document Draft directly from real model call
         notice_draft = doc_drafter.run(dossier, rights, doc_type="Legal Demand Notice")
+        if notice_draft.startswith("ERROR:"):
+            print(f"CRITICAL: Quota or model error in {scenario['id']} DocumentDrafter: {notice_draft}")
+            raise SystemExit(f"Execution halted on model error: {notice_draft}")
 
         # 4. Roleplay Turn directly from real model call
         roleplay_res = opponent_roleplay.run(
@@ -96,6 +107,8 @@ def run_real_test_cases():
             scenario["sample_roleplay_user_turn"]
         )
 
+        models_for_scenario = list(dict.fromkeys(engine.models_used)) or [engine.model_name]
+
         full_output = {
             "test_case_id": scenario["id"],
             "name": scenario["name"],
@@ -103,6 +116,7 @@ def run_real_test_cases():
             "timestamp": run_timestamp,
             "provider": getattr(engine, "last_used_provider", "Gemini"),
             "model_name": getattr(engine, "last_used_model", "gemini-3.5-flash-lite"),
+            "models_used": models_for_scenario,
             "raw_input": scenario["raw_story"],
             "case_dossier": dossier,
             "rights_advice": rights,

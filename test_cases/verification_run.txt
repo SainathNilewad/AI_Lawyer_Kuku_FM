@@ -96,5 +96,6 @@
 
 ================================================================================
  Verification Summary: 28/28 Passed | 0 Failed
+Calls by model: gemini-3.5-flash-lite: 42; fallback calls: 0
  Verbatim console output saved to: test_cases/verification_run.txt
 ================================================================================

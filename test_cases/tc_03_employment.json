@@ -2,21 +2,24 @@
   "test_case_id": "TC-03",
   "name": "Gurugram Tech Employee Unpaid Salary & Relieving Letter Withheld",
   "category": "Employment & Salary",
-  "timestamp": "2026-11-08T13:31:41.714208+00:00",
+  "timestamp": "2026-11-08T20:11:56.000202+00:00",
   "provider": "Gemini",
   "model_name": "gemini-3.5-flash-lite",
+  "models_used": [
+    "gemini-3.5-flash-lite"
+  ],
   "raw_input": "I worked as a frontend developer at an IT consultancy firm in Cyber City, Gurugram for 18 months at Rs 70,000/month. I submitted my resignation on 1st August 2024 and completed my full 60-day notice period till 30th September 2024. All project handovers and company assets (MacBook, ID card) were handed over and I received an asset clearance certificate from IT. My August salary was delayed, and my September salary plus 15 days encashable leave (total Rs 1,65,000) has not been paid. It has been 50 days since my last working day. Whenever I email HR, they say 'finance team is facing client payment delays'. More importantly, they are withholding my Relieving Letter and Experience Certificate. My new employer is threatening to cancel my job offer if I don't submit my relieving letter by end of this week. I have my appointment letter, resignation acceptance email, and signed clearance form.",
   "case_dossier": {
-    "case_title": "Withholding of Final Salary, Leave Encashment, and Relieving Documents by IT Employer",
+    "case_title": "Withholding of Final Settlement & Relieving Letter by IT Firm",
     "category": "Employment & Salary",
-    "summary": "The complainant worked as a frontend developer for 18 months and completed a 60-day notice period ending September 30, 2024. The employer has withheld the August salary, September salary, and 15 days of leave encashment totaling Rs 1,65,000, along with the relieving letter and experience certificate, threatening a new job offer.",
+    "summary": "The complainant completed an 18-month tenure and a 60-day notice period at an IT consultancy in Gurugram, successfully clearing all asset handovers. The employer has withheld the final salary and leave encashment totaling Rs. 1,65,000 for 50 days, along with the essential Relieving Letter and Experience Certificate, threatening the complainant's new job offer.",
     "complainant": "Frontend Developer (Ex-Employee)",
-    "opposite_party": "IT Consultancy Firm, Cyber City, Gurugram",
+    "opposite_party": "IT Consultancy Firm, Cyber City, Gurugram (Management / HR)",
     "disputed_amount": "Rs. 1,65,000",
     "timeline": [
       {
         "date_or_period": "18 months prior to August 2024",
-        "event": "Complainant worked as a frontend developer at an IT consultancy firm in Gurugram at Rs 70,000/month."
+        "event": "Complainant worked as a frontend developer at Rs 70,000/month."
       },
       {
         "date_or_period": "1st August 2024",
@@ -24,26 +27,26 @@
       },
       {
         "date_or_period": "30th September 2024",
-        "event": "Completed 60-day notice period, handed over all project assets, and received an asset clearance certificate from IT."
+        "event": "Completed 60-day notice period, handed over assets, and received asset clearance certificate."
       },
       {
-        "date_or_period": "Past 50 days",
-        "event": "Repeated follow-ups with HR regarding pending dues and relieving letters, with HR citing client payment delays."
+        "date_or_period": "Past 50 days (Post-30th September 2024)",
+        "event": "Salary for August and September plus leave encashment unpaid; HR cites client payment delays; Relieving letter withheld."
       }
     ],
     "evidence_held": [
       "Appointment letter",
       "Resignation acceptance email",
-      "Signed clearance form / asset clearance certificate from IT",
-      "Emails with HR regarding payment delays"
+      "Signed asset clearance form / certificate from IT"
     ],
     "evidence_needed": [
-      "Bank statements showing salary credit history for the last 18 months",
-      "Written formal demand/legal notice sent to company leadership",
-      "Written communication from the new employer regarding the deadline for the relieving letter"
+      "Bank statements showing salary credits for previous months to establish salary baseline",
+      "Written correspondence / email threads with HR regarding the payment delay",
+      "Employment contract / offer letter outlining notice period and leave encashment terms",
+      "Written communication from the new employer regarding the threat of offer cancellation"
     ],
-    "evidence_strength_score": 8,
-    "evidence_strength_explanation": "The claim is well-supported by an appointment letter, resignation acceptance, and a formal signed asset clearance certificate, though bank records and a formal demand notice would further solidify the case.",
+    "evidence_strength_score": 7,
+    "evidence_strength_explanation": "Strong documentary proof of employment, resignation acceptance, and formal clearance exists, though written follow-ups regarding the unpaid dues should be formally consolidated.",
     "escalation_check": {
       "requires_real_lawyer": true,
       "reasons": [
@@ -53,17 +56,17 @@
     }
   },
   "rights_advice": {
-    "plain_language_standing": "Your unpaid wage and document withholding issue is fundamentally a civil employment dispute, not a criminal matter, and the law protects your right to timely payment. Under Section 17(2) of the Code on Wages, 2019, an employee's wages upon resignation must be paid within two working days. Your immediate takeaway is that you should formally demand your unpaid dues and relieving documents in writing while preparing to approach the competent labour authority if the employer fails to comply.",
+    "plain_language_standing": "Your dispute regarding unpaid wages and final documents is strictly civil in nature, meaning criminal police complaints are not appropriate here. Under Indian law, your wages must be paid promptly following your departure. You hold strong documentation such as an asset clearance certificate and resignation acceptance to support your claim.",
     "governing_laws": [
       {
         "act_name": "Code on Wages, 2019",
         "section": "Section 17(2)",
-        "relevance": "Mandates that the wages of an employee who resigns must be paid within two working days of their resignation or separation date."
+        "relevance": "Mandates that wages of an employee who is removed, dismissed, retrenched, or resigns must be paid within two working days of that event."
       },
       {
         "act_name": "General Legal Principle (Civil vs. Criminal Boundary)",
         "section": "General Guidance",
-        "relevance": "Clarifies that withholding salary or breaching an employment contract is a civil dispute, meaning criminal police complaints or FIRs are legally improper."
+        "relevance": "Establishes that withholding wages or breach of employment terms is a civil matter and not a criminal offense, requiring civil/statutory forum resolution instead of police complaints."
       }
     ],
     "action_options": [
@@ -71,35 +74,35 @@
         "step_number": 1,
         "title": "Immediate Pre-Litigation Action",
         "timeline": "Suggested 15 days (customary pre-litigation practice)",
-        "details": "Send a formal written demand email or notice to your employer citing Section 17(2) of the Code on Wages, 2019, requesting the immediate release of your unpaid wages and relieving documents within two working days."
+        "details": "Send a formal written demand email to your former employer citing Section 17(2) of the Code on Wages, 2019, requesting the immediate release of your unpaid wages and relieving documents within two working days."
       },
       {
         "step_number": 2,
         "title": "Statutory Authority / Grievance Portal Filing",
         "timeline": "Timeline varies by state (confirm locally)",
-        "details": "For formal proceedings or recovery of unpaid wages, approach the competent labour authority (confirm locally). Note: The District Legal Services Authority (DLSA) / NALSA Helpline 15100 provides free legal aid and guidance only, and is never a forum for hearings or proceedings against an employer."
+        "details": "Approach the competent labour authority (confirm locally) for formal proceedings and recovery of your unpaid wages. Note: The District Legal Services Authority (DLSA) / NALSA Helpline 15100 provides free legal aid and guidance only; it is never a forum for hearings or proceedings against an employer."
       },
       {
         "step_number": 3,
-        "title": "Statutory Forum / Labour Dispute Resolution",
+        "title": "Statutory Forum / Conciliation Petition",
         "timeline": "Timeline varies by state (confirm locally)",
-        "details": "If the employer fails to respond to your formal demand, file a formal wage claim petition before the competent labour authority (confirm locally) for conciliation and recovery."
+        "details": "If the employer fails to comply with your written demand, file a formal dispute petition before the labour authority for conciliation and recovery of dues."
       }
     ],
     "real_lawyer_needed": true,
-    "real_lawyer_guidance": "Given the complexities of negotiating with corporate HR, withheld relieving documents affecting a new job offer, and employer resistance, consulting a licensed advocate or utilizing free legal aid via the District Legal Services Authority (DLSA) Helpline 15100 is advised.",
+    "real_lawyer_guidance": "Given the complexity involving your new job offer and withholding of relieving documents, consulting a licensed advocate or contacting the District Legal Services Authority (DLSA) via helpline 15100 for free legal aid and guidance is recommended.",
     "disclaimer": "⚠️ NyayaMitra provides legal information and self-advocacy tools under Indian laws. For formal courtroom representation, consult a licensed advocate."
   },
-  "legal_notice_draft": "**MODE OF DISPATCH: SPEED POST WITH ACKNOWLEDGEMENT DUE (AD) / REGISTERED EMAIL**\n\n**LEGAL DEMAND NOTICE**\n\n**Date:** 08/11/2026\n\n**FROM:** \n[Your Name / Ex-Employee] \nFrontend Developer \n[Your Residential Address] \nContact Number: [Your Phone Number] \nEmail: [Your Email Address] \n\n**TO:** \nThe Management / Human Resources Department \nIT Consultancy Firm \nCyber City, Gurugram \n[Company Pin Code] \n\n---\n\n**SUBJECT: LEGAL DEMAND NOTICE FOR WITHHOLDING OF FINAL SALARY, LEAVE ENCASHMENT, RELIEVING LETTER, AND EXPERIENCE CERTIFICATE TOTALING RS. 1,65,000/-**\n\n**Under instructions from my client, the undersigned submits as under:**\n\n1. That my client was employed with your IT consultancy firm at Cyber City, Gurugram, as a Frontend Developer, at a monthly salary of Rs. 70,000/-, for a period of[unverified reference removed] months prior to August 2024.\n2. That on 1st August 2024, my client formally submitted their resignation from the said position.\n3. That my client diligently served and completed the mandatory 60-day notice period, which culminated on 30th September 2024. Upon completion, my client successfully handed over all project assets and obtained a signed clearance form / asset clearance certificate from the IT department of your firm.\n4. That despite the successful separation and handover, your establishment has wrongfully withheld my client’s salary for the month of August 2024, salary for the month of September 2024, and 15 days of leave encashment, aggregating to a total undisputed sum of Rs. 1,65,000/-.\n5. That in addition to withholding the statutory dues of Rs. 1,65,000/-, your firm has also wrongfully withheld my client's relieving letter and experience certificate, thereby creating severe impediments and threats to my client's new job offer.\n6. That over the past 50 days, my client has made repeated follow-ups with the Human Resources department regarding the clearance of pending dues and the issuance of relieving documents. However, your representatives have cited arbitrary reasons such as client payment delays, which hold no legal bearing on my client’s statutory right to receive earned wages upon separation.\n7. That your aforesaid acts are in direct violation of statutory provisions, specifically **Section 17(2) of the Code on Wages, 2019**, which mandates that the wages of an employee who resigns or whose employment is terminated must be paid within two working days of their separation date.\n8. That withholding earned wages and mandatory employment documents constitutes a civil employment breach and causes severe mental agony and professional injury to my client. For legal guidance and support regarding this dispute, my client has been advised of available resources, including the District Legal Services Authority (DLSA) / NALSA Toll-Free Helpline: 15100.\n\n---\n\n**DEMAND FOR RECTIFICATION**\n\nThrough this notice, my client hereby calls upon you to clear and disburse the total withheld amount of **Rs. 1,65,000/-** (Rupees One Lakh Sixty-Five Thousand Only) towards the August 2024 salary, September 2024 salary, and leave encashment, along with the immediate issuance of the relieving letter and experience certificate, **within a strict 15-day window** from the receipt of this notice.\n\n**WARNING OF FURTHER LEGAL ACTION**\n\nTake notice that if you fail to comply with the demands detailed above within the stipulated 15-day rectification window, my client shall be constrained to initiate appropriate formal legal proceedings without any further reference. This shall include filing a formal wage claim petition and instituting legal action before **the competent labour authority (confirm locally)** for the recovery of dues, interest, and compensation, holding your establishment fully liable for all associated costs and consequences.\n\nKindly treat this matter as urgent and time-sensitive.\n\n---\n\n**SINCERELY AND UNDER INSTRUCTIONS,**\n\n*(Signature)* \n**[Your Name]** \nFrontend Developer (Ex-Employee)\n\n---\n\n**ANNEXURE INVENTORY (ENCLOSED COPIES):**\n1. Copy of Appointment Letter\n2. Copy of Resignation Acceptance Email\n3. Copy of Signed Clearance Form / Asset Clearance Certificate from IT\n4. Copy of Emails with HR regarding payment delays",
+  "legal_notice_draft": "**BY SPEED POST WITH ACKNOWLEDGEMENT DUE (AD) / REGISTERED EMAIL**\n\n**To,** \nManagement / HR Department \nIT Consultancy Firm \nCyber City, Gurugram, Haryana \n\n**From:** \nFrontend Developer (Ex-Employee) \n[Complainant Address / Contact Details] \n\n**Date:** 09/11/2026 \n\n---\n\n### **SUBJECT: LEGAL DEMAND NOTICE FOR WITHHOLDING OF FINAL SETTLEMENT (RS. 1,65,000), LEAVE ENCASHMENT, AND ESSENTIAL RELIEVING DOCUMENTS**\n\nSir/Madam,\n\nUnder instructions from my client, the undersigned submits as under:\n\n1. That my client was employed with your IT consultancy firm situated at Cyber City, Gurugram, as a Frontend Developer for an[unverified reference removed]-month tenure prior to August 2024, drawing a monthly salary of Rs. 70,000/-.\n2. That on 1st August 2024, my client formally submitted their resignation from the said position.\n3. That my client successfully completed their 60-day notice period ending on 30th September 2024, during which all company assets were duly handed over, and my client received the official signed asset clearance form/certificate from the IT department.\n4. That despite the successful completion of the notice period and asset handover, your office has withheld my client's final salary for August and September alongside leave encashment, totaling Rs. 1,65,000/-, for the past 50 days (post-30th September 2024), citing internal client payment delays as an arbitrary excuse.\n5. That your office has further withheld my client’s essential Relieving Letter and Experience Certificate, which has severely jeopardized my client's new employment offer and career prospects.\n\n#### **VIOLATION OF STATUTORY PROVISIONS:**\n* **Section 17(2) of the Code on Wages, 2019:** Mandates that wages of an employee who resigns must be paid within two working days of their departure. Your failure to clear my client's dues for over 50 days is a blatant violation of statutory wage mandates.\n* **General Legal Principle:** Withholding lawful earnings and mandatory exit documents constitutes a civil breach of employment terms. *(Note: For free legal aid and guidance regarding this matter, citizens may reach out to the District Legal Services Authority (DLSA) / NALSA Toll-Free Helpline: 15100).*\n\n---\n\n#### **DEMAND FOR RECTIFICATION:**\n\nYou are hereby called upon to clear and disburse the total withheld amount of **Rs. 1,65,000/-** (representing unpaid salary and leave encashment) and issue the mandatory **Relieving Letter and Experience Certificate** to my client within a strict **15-day window** from the receipt of this notice.\n\nFailure to comply within the stipulated 15-day rectification window will compel my client to initiate formal legal proceedings by filing a dispute petition and seeking recovery before **the competent labour authority (confirm locally)**, alongside pursuing all available remedies under civil law for damages and mental harassment, entirely at your risk as to costs and consequences.\n\n---\n\n**Signature:**\n\n________________________________________ \n**Frontend Developer (Ex-Employee)** \n[Date: 09/11/2026] \n\n---\n\n#### **ANNEXURE INVENTORY (Documents Held by Complainant):**\n1. Appointment letter\n2. Resignation acceptance email\n3. Signed asset clearance form / certificate from IT",
   "sample_roleplay_turn": {
     "user_argument": "Under employment laws, full and final dues must be cleared timely and withholding my relieving letter violates my right to livelihood. If my Rs 1,65,000 and relieving letter are not issued within 3 days, I will file a formal complaint with the District Labor Commissioner.",
     "opponent_response": {
-      "opponent_reply": "Arre, why are you threatening like this? District Labor Commissioner and all? See, read your appointment letter clause 14.2 properly. Full and final settlement has a standard processing time of 90 working days, and internal audit clearances are still pending from your project manager. Regarding documents, until the exit formalities and knowledge transfer sign-off are complete, HR cannot issue the relieving letter. Don't unnecessarily create tension over email, okay?",
+      "opponent_reply": "Arre yaar, yeh sab District Labor Commissioner aur right to livelihood ki dhamkiyan humein mat do! Company policy saaf kehti hai ki exit formalities aur internal audit clear hone ke baad hi FNF process hota hai. Thoda patience rakho, HR team review kar rahi hai. Aise 3 din ki deadline dene se kaam thodi fast ho jayega, agreement padho apna!",
       "coach_evaluation": {
         "strength_rating": "Strong",
-        "what_went_well": "You firmly stated the total amount (Rs 1,65,000), specific timeline, and threatened a direct legal escalation (District Labor Commissioner) while highlighting the violation of your right to livelihood.",
-        "what_to_improve": "You didn't mention specific dates or provide proof of your handover completion. Mentioning exact dates of your notice period completion (September 30, 2024) and citing that withholding wages beyond standard statutory timelines attracts strict liability would break their standard 'internal audit' excuse.",
-        "suggested_next_counter": "My notice period ended on September 30, 2024, and internal delays cannot override statutory wage timelines; release my dues and documents immediately or face the labor court."
+        "what_went_well": "You firmly invoked statutory rights, exact dues (Rs. 1,65,000), a strict timeline, and threatened a specific legal authority (District Labor Commissioner).",
+        "what_to_improve": "You didn't mention specific sections of the Industrial Disputes Act, Shops & Establishment Act, or the exact date your notice period ended and asset clearance was acknowledged via email.",
+        "suggested_next_counter": "Cite our email confirmation dated [Date] where asset handover was accepted, and remind them that withholding FNF beyond standard statutory timelines attracts legal escalation under the relevant Shops and Establishment Act."
       }
     }
   }

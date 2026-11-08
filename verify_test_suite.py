@@ -24,6 +24,7 @@ import re
 from dotenv import load_dotenv
 
 load_dotenv()
+os.environ["EVAL_STRICT"] = "1"
 
 from legal_kb import (
     retrieve_verified_legal_context,
@@ -76,7 +77,8 @@ def run_test_suite():
     print("=" * 80)
 
     # Initialize model engine
-    engine = LegalLLMEngine()
+    LegalLLMEngine.reset_call_counts()
+    engine = LegalLLMEngine(provider="gemini", model_name="gemini-3.5-flash-lite")
     allowed_sections = get_allowed_sections()
     print(f"[*] Verified Allowed Statutory Sections: {sorted(list(allowed_sections))}\n")
 
@@ -163,6 +165,9 @@ def run_test_suite():
             }
             notice = drafter.draft_demand_notice(dossier_mock)
             notice_text = notice.get("notice_text", "")
+            if "429" in notice_text or "quota" in notice_text.lower() or "resource_exhausted" in notice_text.lower():
+                print(f"\n[FATAL QUOTA ERROR in {case_id}]: {notice_text}", flush=True)
+                sys.exit(1)
             if "2024" in notice_text:
                 case_passed = False
                 failure_reasons.append("Notice drafter hallucinated year 2024.")
@@ -217,6 +222,11 @@ def run_test_suite():
             rights_advisor = RightsAdvisorAgent(engine)
             dossier = case_builder.run(query)
             advice = rights_advisor.run(dossier)
+            if isinstance(advice, dict) and "error" in advice:
+                err_val = str(advice["error"])
+                if "429" in err_val or "quota" in err_val.lower() or "resource_exhausted" in err_val.lower():
+                    print(f"\n[FATAL QUOTA ERROR in {case_id}]: {err_val}", flush=True)
+                    sys.exit(1)
             st_text = advice.get("plain_language_standing", "")
             if re.search(r'\b18(?:\([1-3]\))?\b', st_text):
                 case_passed = False
@@ -240,6 +250,9 @@ def run_test_suite():
             }
             notice = drafter.draft_demand_notice(dossier_mock)
             n_text = notice.get("notice_text", "")
+            if "429" in n_text or "quota" in n_text.lower() or "resource_exhausted" in n_text.lower():
+                print(f"\n[FATAL QUOTA ERROR in {case_id}]: {n_text}", flush=True)
+                sys.exit(1)
             if "email reminder" in n_text.lower() or "email reminders" in n_text.lower():
                 case_passed = False
                 failure_reasons.append("Notice hallucinated 'email reminders'.")
@@ -259,6 +272,9 @@ def run_test_suite():
                 "category": "Employment & Labor"
             }
             ans = counselor.answer_followup([], dossier_mock, query)
+            if "429" in ans or "quota" in ans.lower() or "resource_exhausted" in ans.lower():
+                print(f"\n[FATAL QUOTA ERROR in {case_id}]: {ans}", flush=True)
+                sys.exit(1)
             lower_ans = ans.lower()
             if any(p in lower_ans for p in ["dlsa will conduct hearings", "dlsa will summon", "dlsa court", "hearings before dlsa"]):
                 case_passed = False
@@ -280,8 +296,16 @@ def run_test_suite():
                 
                 dossier = case_builder.run(query)
                 advice = rights_advisor.run(dossier)
+                if isinstance(advice, dict) and "error" in advice:
+                    err_val = str(advice["error"])
+                    if "429" in err_val or "quota" in err_val.lower() or "resource_exhausted" in err_val.lower():
+                        print(f"\n[FATAL QUOTA ERROR in {case_id}]: {err_val}", flush=True)
+                        sys.exit(1)
                 
                 standing_text = advice.get("plain_language_standing", "")
+                if "429" in standing_text or "quota" in standing_text.lower() or "resource_exhausted" in standing_text.lower():
+                    print(f"\n[FATAL QUOTA ERROR in {case_id}]: {standing_text}", flush=True)
+                    sys.exit(1)
                 
                 # Check for any unverified section in the generated standing text
                 unverified_found = scan_unverified_sections(standing_text)
@@ -314,12 +338,16 @@ def run_test_suite():
                         case_passed = False
                         failure_reasons.append("AI response falsely claimed the statute guarantees a refund.")
             except Exception as e:
+                err_msg = str(e)
+                if "429" in err_msg or "quota" in err_msg.lower() or "resource_exhausted" in err_msg.lower():
+                    print(f"\n[FATAL QUOTA ERROR in {case_id}]: {err_msg}", flush=True)
+                    sys.exit(1)
                 # If engine has network or key issue, record it honestly
                 failure_reasons.append(f"Agent execution error: {e}")
                 case_passed = False
 
         prov = getattr(engine, "last_used_provider", "Gemini")
-        mod = getattr(engine, "last_used_model", "gemini-3.5-flash")
+        mod = getattr(engine, "last_used_model", "gemini-3.5-flash-lite")
         if case_passed:
             print(f"      Status: [PASS] | Model: {prov} ({mod})", flush=True)
             passed_count += 1
@@ -330,6 +358,10 @@ def run_test_suite():
 
     print("\n" + "=" * 80, flush=True)
     print(f" Verification Summary: {passed_count}/{len(cases)} Passed | {failed_count} Failed", flush=True)
+    models_summary = "; ".join([f"{m}: {cnt}" for m, cnt in LegalLLMEngine.call_counts.items()])
+    if not models_summary:
+        models_summary = f"{getattr(engine, 'model_name', 'gemini-3.5-flash-lite')}: 0"
+    print(f"Calls by model: {models_summary}; fallback calls: {LegalLLMEngine.fallback_count}", flush=True)
     print(f" Verbatim console output saved to: test_cases/verification_run.txt", flush=True)
     print("=" * 80, flush=True)
 
