@@ -115,6 +115,7 @@ Open **`http://localhost:8501`** in your browser.
 ├── legal_kb.py                       # Grounded statutory knowledge base, section whitelist & guard
 ├── agents.py                         # Modular agents (CaseBuilder, RightsAdvisor, Drafter, Roleplay)
 ├── llm_engine.py                     # Provider engine (Groq & Gemini) with model listing & error handling
+├── generate_test_outputs.py          # Benchmark test case executor and raw outputs generator
 ├── verify_test_suite.py              # Automated 28-scenario benchmark & adversarial test runner
 ├── .env                              # API key configuration
 ├── .gitignore                        # Protects .env from git commits
