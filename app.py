@@ -276,14 +276,14 @@ with st.sidebar:
     # Resolve API keys
     groq_key = os.getenv("GROQ_API_KEY", "")
     gemini_key = os.getenv("GEMINI_API_KEY", "") or os.getenv("GOOGLE_API_KEY", "")
-    env_prov = os.getenv("LLM_PROVIDER", "groq").lower()
-    default_p_idx = 0 if env_prov == "groq" else 1
+    env_prov = os.getenv("LLM_PROVIDER", "gemini").lower()
+    default_p_idx = 0 if env_prov == "gemini" else 1
 
     # 3. Model settings inside collapsed expander
     with st.expander("⚙️ Model settings (advanced)", expanded=False):
-        provider_choice = st.selectbox("LLM Provider:", ["Groq", "Gemini"], index=default_p_idx)
+        provider_choice = st.selectbox("LLM Provider:", ["Gemini", "Groq"], index=default_p_idx)
         prov_code = provider_choice.lower()
-        active_key = groq_key if prov_code == "groq" else gemini_key
+        active_key = gemini_key if prov_code == "gemini" else groq_key
 
         # API key input field for cloud deployment or UI entry
         custom_key = st.text_input(
@@ -295,25 +295,25 @@ with st.sidebar:
         )
         if custom_key:
             active_key = custom_key
-            if prov_code == "groq":
-                groq_key = custom_key
-            else:
+            if prov_code == "gemini":
                 gemini_key = custom_key
-
-        if prov_code == "groq":
-            default_model = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
-            groq_models = get_cached_groq_models(active_key) if active_key else []
-            if groq_models:
-                m_idx = groq_models.index(default_model) if default_model in groq_models else 0
-                model_name = st.selectbox("Model:", groq_models, index=m_idx)
             else:
-                model_name = st.text_input("Model:", value=default_model)
-        else:
+                groq_key = custom_key
+
+        if prov_code == "gemini":
             default_model = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
             gemini_models = get_cached_gemini_models(active_key) if active_key else []
             if gemini_models:
                 m_idx = gemini_models.index(default_model) if default_model in gemini_models else 0
                 model_name = st.selectbox("Model:", gemini_models, index=m_idx)
+            else:
+                model_name = st.text_input("Model:", value=default_model)
+        else:
+            default_model = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
+            groq_models = get_cached_groq_models(active_key) if active_key else []
+            if groq_models:
+                m_idx = groq_models.index(default_model) if default_model in groq_models else 0
+                model_name = st.selectbox("Model:", groq_models, index=m_idx)
             else:
                 model_name = st.text_input("Model:", value=default_model)
 
@@ -322,10 +322,11 @@ with st.sidebar:
     # 2. Compact single status line
     st.markdown("---")
     if active_key:
-        if prov_code == "groq":
-            st.caption("🟢 **Groq connected, voice ready**")
+        if prov_code == "gemini":
+            voice_status = " | Voice ready (Groq)" if groq_key else ""
+            st.caption(f"🟢 **Gemini connected (Primary){voice_status}**")
         else:
-            st.caption("🟢 **Gemini connected** (Voice requires Groq key)")
+            st.caption("🟢 **Groq connected, voice ready**")
     else:
         st.caption("🔴 **API Key missing** (Add in Secrets or under Model settings)")
 

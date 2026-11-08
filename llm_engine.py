@@ -51,7 +51,7 @@ def list_gemini_models(api_key: Optional[str] = None) -> List[str]:
 
 class LegalLLMEngine:
     def __init__(self, provider: Optional[str] = None, model_name: Optional[str] = None, api_key: Optional[str] = None):
-        self.provider = (provider or os.getenv("LLM_PROVIDER", "groq")).lower()
+        self.provider = (provider or os.getenv("LLM_PROVIDER", "gemini")).lower()
         if self.provider == "gemini":
             self.api_key = api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
             self.model_name = model_name or os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
@@ -131,7 +131,7 @@ class LegalLLMEngine:
                         pass
                 return f"ERROR: [Groq Error: {e}]"
 
-        # Provider 2: Gemini
+        # Provider: Gemini (Primary)
         if self.provider == "gemini":
             try:
                 from google import genai
@@ -149,6 +149,24 @@ class LegalLLMEngine:
                     return response.text
                 return "ERROR: [Gemini Error: Empty response received from model]"
             except Exception as e:
+                err_str = str(e)
+                # Fallback to Groq if Gemini hits quota/network limits
+                groq_k = os.getenv("GROQ_API_KEY")
+                if groq_k and ("429" in err_str or "quota" in err_str.lower() or "503" in err_str):
+                    try:
+                        from groq import Groq
+                        g_client = Groq(api_key=groq_k)
+                        g_resp = g_client.chat.completions.create(
+                            model="qwen/qwen3.8-27b",
+                            messages=[
+                                {"role": "system", "content": system_prompt},
+                                {"role": "user", "content": user_prompt}
+                            ],
+                            temperature=temperature
+                        )
+                        return g_resp.choices[0].message.content
+                    except Exception:
+                        pass
                 return f"ERROR: [Gemini Error: {e}]"
 
         return "ERROR: Unknown or unsupported provider configured."
