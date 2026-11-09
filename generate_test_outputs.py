@@ -42,7 +42,7 @@ TEST_SCENARIOS = [
             "They are telling me to go to an authorized brand service center 40 km away. I paid for a brand new working phone, not a defective phone repaired on day one. "
             "I have the invoice, delivery receipt, technician inspection job sheet copy, and chat screenshots."
         ),
-        "sample_roleplay_user_turn": "Under Section 2(11) and Section 84 of the Consumer Protection Act 2019, delivering a defective phone and delaying inspection past your return window is a clear deficiency in service and unfair trade practice. I have the technician report confirming hardware fault. I demand an immediate refund or I will escalate to the National Consumer Helpline and e-Daakhil."
+        "sample_roleplay_user_turn": "Under Section 2(11) and Section 84 of the Consumer Protection Act 2019, delivering a defective phone and delaying inspection past your return window is a clear deficiency in service and unfair trade practice. I have the technician report confirming hardware fault. I demand an immediate refund or I will escalate to the National Consumer Helpline and e-Jagriti."
     },
     {
         "id": "TC-03",

@@ -13,6 +13,7 @@ Clean, interview-ready implementation providing:
 import streamlit as st
 import os
 import sys
+import html
 from pathlib import Path
 
 # Explicitly ensure repo root is in sys.path on Streamlit Cloud / Linux
@@ -420,7 +421,16 @@ with col_chat:
     # Render Chat History
     for msg in st.session_state.chat_history:
         with st.chat_message(msg["role"], avatar="🧑‍💼" if msg["role"] == "assistant" else "👤"):
-            st.markdown(msg["content"], unsafe_allow_html=True)
+            content = msg.get("content", "")
+            if msg.get("role") == "user":
+                # Render user messages safely escaped to prevent HTML/XSS injection
+                st.markdown(html.escape(content))
+            else:
+                # Assistant messages: check if it's a fixed internal UI banner
+                if content.startswith("<div class='banner-") or content.startswith("<div class='side-card"):
+                    st.markdown(content, unsafe_allow_html=True)
+                else:
+                    st.markdown(content)
 
     # Chat Input Box
     chat_text_input = st.chat_input("Type your dispute or question here...")
@@ -485,7 +495,50 @@ with col_chat:
         if not st.session_state.chat_history or st.session_state.chat_history[-1].get("content") != incoming_message:
             st.session_state.chat_history.append({"role": "user", "content": incoming_message})
 
-        # Pre-flight Check 1: Case-law request check (Fixed reply, no LLM call)
+        # Pre-flight Check 1: Immediate Advocate Escalation & Emergency check FIRST (No LLM call)
+        esc_check = check_immediate_advocate_escalation(incoming_message)
+        if esc_check.get("requires_real_lawyer", False):
+            reason = esc_check.get("reason", "High-risk matter")
+            is_phys = esc_check.get("is_physical_danger", False)
+            if is_phys:
+                escalation_reply = (
+                    f"<div class='banner-escalation'>"
+                    f"<strong>🚨 IMMEDIATE EMERGENCY / PHYSICAL DANGER:</strong> If you are facing physical violence, assault, or are in danger right now, "
+                    f"please <strong>call 112 now</strong> (National Emergency Helpline).<br/>"
+                    f"Escalation trigger: <em>{html.escape(str(reason))}</em>.<br/>"
+                    f"For emergency legal aid and protection, contact the District Legal Services Authority (DLSA) / NALSA Helpline at <strong>15100</strong>."
+                    f"</div>\n\n"
+                    f"**Immediate safety steps:**\n"
+                    f"- **Call 112 now:** Dial 112 immediately for emergency police or medical assistance.\n"
+                    f"- **Move to a safe place:** Move away from aggressors to a secure or public area.\n"
+                    f"- **Do not sign or concede anything under duress:** Avoid signing documents under threat or pressure.\n"
+                    f"- **Call DLSA / NALSA 15100:** For free emergency legal assistance and protection."
+                )
+            else:
+                escalation_reply = (
+                    f"<div class='banner-escalation'>"
+                    f"<strong>🚨 Please speak to a lawyer:</strong> This situation involves serious legal or criminal risk.<br>"
+                    f"Escalation trigger: <em>{html.escape(str(reason))}</em>.<br>"
+                    f"Please consult a practicing advocate immediately or call the free District Legal Services Authority (DLSA) / NALSA helpline at <strong>15100</strong>."
+                    f"</div>\n\n"
+                    f"**Immediate safety steps:**\n"
+                    f"- **Keep written records:** Preserve all messages, notices, emails, and call logs.\n"
+                    f"- **Do not sign anything:** Do not sign any settlement, resignation, or admission under threat or pressure.\n"
+                    f"- **Speak to a lawyer or DLSA 15100:** NyayaMitra cannot predict what police or courts will do. Please contact your local District Legal Services Authority or call 15100 for official legal protection."
+                )
+            st.session_state.model_provenance_log.append({
+                "turn": len(st.session_state.chat_history) + 1,
+                "provider": "Deterministic Guard",
+                "model": "Emergency Safety Rule (No LLM)" if is_phys else "Safety Escalation Rule (No LLM)"
+            })
+            st.session_state.chat_history.append({
+                "role": "assistant",
+                "content": escalation_reply,
+                "meta": {"provider": "Deterministic Guard", "model": "Emergency Safety Rule (No LLM)" if is_phys else "Safety Escalation Rule (No LLM)"}
+            })
+            st.rerun()
+
+        # Pre-flight Check 2: Case-law request check (Fixed reply, no LLM call)
         if is_case_law_request(incoming_message):
             st.session_state.model_provenance_log.append({
                 "turn": len(st.session_state.chat_history) + 1,
@@ -499,7 +552,7 @@ with col_chat:
             })
             st.rerun()
 
-        # Pre-flight Check 2: True Out-of-Scope check (with category inheritance, no LLM call)
+        # Pre-flight Check 3: True Out-of-Scope check (with category inheritance, no LLM call)
         cat_fallback = st.session_state.get("case_category")
         scope_check = retrieve_verified_legal_context(incoming_message, fallback_category=cat_fallback)
         if scope_check.get("truly_out_of_scope", False):
@@ -519,33 +572,6 @@ with col_chat:
                 "role": "assistant",
                 "content": scope_reply,
                 "meta": {"provider": "Deterministic Guard", "model": "Statutory Scope Engine (No LLM)"}
-            })
-            st.rerun()
-
-        # Pre-flight Check 3: Immediate Escalation check (Short fixed advice, no predictions, no LLM call)
-        esc_check = check_immediate_advocate_escalation(incoming_message)
-        if esc_check.get("requires_real_lawyer", False):
-            reason = esc_check.get("reason", "High-risk matter")
-            escalation_reply = (
-                f"<div class='banner-escalation'>"
-                f"<strong>🚨 Please speak to a lawyer:</strong> This situation involves serious legal or criminal risk.<br>"
-                f"Escalation trigger: <em>{reason}</em>.<br>"
-                f"Please consult a practicing advocate immediately or call the free District Legal Services Authority (DLSA) / NALSA helpline at <strong>15100</strong>."
-                f"</div>\n\n"
-                f"**Immediate safety steps:**\n"
-                f"- **Keep written records:** Preserve all messages, notices, emails, and call logs.\n"
-                f"- **Do not sign anything:** Do not sign any settlement, resignation, or admission under threat or pressure.\n"
-                f"- **Speak to a lawyer or DLSA 15100:** NyayaMitra cannot predict what police or courts will do. Please contact your local District Legal Services Authority or call 15100 for official legal protection."
-            )
-            st.session_state.model_provenance_log.append({
-                "turn": len(st.session_state.chat_history) + 1,
-                "provider": "Deterministic Guard",
-                "model": "Safety Escalation Rule (No LLM)"
-            })
-            st.session_state.chat_history.append({
-                "role": "assistant",
-                "content": escalation_reply,
-                "meta": {"provider": "Deterministic Guard", "model": "Safety Escalation Rule (No LLM)"}
             })
             st.rerun()
 
@@ -832,13 +858,13 @@ with col_side:
         st.markdown("### ⚡ Action Center")
 
         # 1. Legal Notice Generator Button (Standard Pre-Litigation Practice)
-        if st.button("📝 Draft Ready-to-Send Legal Notice", use_container_width=True, type="primary"):
+        if st.button("📝 Legal Notice Draft – Review Before Sending", use_container_width=True, type="primary"):
             if not active_key:
                 st.error("⚠️ Please configure an API key in Secrets or under Model settings to draft legal notices.")
             else:
                 engine = LegalLLMEngine(provider=prov_code, model_name=model_name, api_key=active_key)
                 drafter = DocumentDrafterAgent(engine)
-                with st.spinner("Drafting formal legal demand notice (established pre-litigation practice)..."):
+                with st.spinner("Drafting formal legal demand notice (suggested pre-litigation practice)..."):
                     notice = drafter.run(dossier, rights)
                     if notice.startswith("ERROR:") or "No model connected" in notice:
                         st.error(f"⚠️ {notice}")
@@ -846,18 +872,18 @@ with col_side:
                         st.session_state.notice_draft = notice
                     st.session_state.chat_history.append({
                         "role": "assistant",
-                        "content": "📄 **I have generated your Formal Legal Demand Notice!**\n\nYou can review, copy, or download it from the Action Center on the right."
+                        "content": "📄 **I have generated your Legal Notice Draft – Review Before Sending!**\n\nYou can review, copy, or download it from the Action Center on the right."
                     })
                     st.rerun()
 
         # Display Notice if Drafted
         if st.session_state.notice_draft:
-            with st.expander("📄 View Generated Legal Notice", expanded=True):
+            with st.expander("📄 View Legal Notice Draft – Review Before Sending", expanded=True):
                 st.text_area("Legal Notice Text", value=st.session_state.notice_draft, height=220)
                 st.download_button(
                     "📥 Download Notice (.txt)",
                     data=st.session_state.notice_draft,
-                    file_name="Legal_Demand_Notice.txt",
+                    file_name="Legal_Notice_Draft.txt",
                     mime="text/plain",
                     use_container_width=True
                 )
@@ -895,6 +921,6 @@ with col_side:
         1. 🎧 **Listens to your story** by voice or text in 11 Indian languages.
         2. 📋 **Extracts facts & dates** into an organized case timeline.
         3. ⚖️ **Answers only from a small checked list of laws.** Anything not on the list is flagged.
-        4. 📝 **Drafts a 15-day Legal Notice** (standard pre-litigation practice).
+        4. 📝 **Legal Notice Draft – Review Before Sending** (suggested 15-day pre-litigation practice).
         5. 🥊 **Simulates the opponent** so you can practice your arguments.
         """)

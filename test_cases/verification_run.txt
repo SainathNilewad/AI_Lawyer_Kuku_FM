@@ -14,6 +14,16 @@
 [SECURITY GUARD] Logged unverified Act name reference(s): ['Shops and Establishment Act']
     [PASS] Unverified Acts flagged and sanitized properly in coach text.
 
+[*] Running App routing order and safety unit tests (Items 10a-10h)...
+    [PASS] (a) 'my neighbour is beating me right now' -> emergency, 112.
+    [PASS] (b) job-offer threat -> employment, no emergency.
+    [PASS] (c) Hindi deposit -> tenancy.
+    [PASS] (d) Marathi salary -> employment.
+    [PASS] (e) Hinglish salary -> employment.
+    [PASS] (f) mocked invalid JSON -> controlled error.
+    [PASS] (g) HTML in a message is escaped.
+    [PASS] (h) the relieving letter is not described as a wage deadline.
+
 [01/28] Testing TC-01: Landlord withholding security deposit after move-out
       Status: [PASS] | Model: Gemini (gemini-3.5-flash-lite)
 --------------------------------------------------------------------------------
@@ -104,6 +114,6 @@
 
 ================================================================================
  Verification Summary: 28/28 Passed | 0 Failed
-Calls by model: gemini-3.5-flash-lite: 40; fallback calls: 0
+Calls by model: gemini-3.5-flash-lite: 43; fallback calls: 0
  Verbatim console output saved to: test_cases/verification_run.txt
 ================================================================================

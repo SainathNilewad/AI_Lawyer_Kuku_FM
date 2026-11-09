@@ -2,7 +2,7 @@
 legal_kb.py - Verified Indian Statutory Knowledge Base for Everyday Legal Disputes
 Authoritative knowledge base covering:
 1. Tenancy & Rental Disputes (Model Tenancy Act, Transfer of Property Act Sec 108)
-2. Consumer Protection & E-Commerce Grievances (Consumer Protection Act 2019, e-Daakhil)
+2. Consumer Protection & E-Commerce Grievances (Consumer Protection Act 2019, e-Jagriti)
 3. Employment & Labor Disputes (Code on Wages, 2019)
 4. Civil vs. Criminal Escalation Guardrails (Civil Breach vs. Criminal Intent)
 """
@@ -24,8 +24,9 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
         "key_provisions": (
             "1. Note on Enforceability: The Model Tenancy Act, 2021 is a central model law drafted by the Ministry of Housing and Urban Affairs "
             "under Entry 18 of the State List and binds only States and Union Territories that formally adopt or enact it (such as Andhra Pradesh, "
-            "Uttar Pradesh, Tamil Nadu, and Assam which have enacted aligned tenancy legislations). Other states (e.g. Karnataka, Maharashtra, Delhi) "
-            "continue under their respective State Rent Control Acts alongside Section 108 of the Transfer of Property Act, 1882.\n"
+            "Uttar Pradesh, Tamil Nadu, and Assam which have enacted aligned tenancy legislations). The Model Tenancy Act is NOT applicable everywhere across India. "
+            "Other states (e.g. Karnataka, Maharashtra, Delhi) continue under their respective State Rent Control Acts alongside the Transfer of Property Act, 1882. "
+            "Always ask the user's state before giving state-specific tenancy advice.\n"
             "2. Retention of Tenancy Agreement (Section 12): The tenancy agreement shall be signed in duplicate by both the landlord and tenant, "
             "and one each of such original signed tenancy agreement shall be retained by the landlord and tenant.\n"
             "3. Rent Payment and Conclusive Proof (Section 13): Every tenant shall pay rent within the agreed period (sub-section (1)). "
@@ -37,12 +38,13 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
             "5. Protection Against Eviction (Section 21): Under Section 21(1), a tenant shall not be evicted during the continuance of the tenancy agreement "
             "except in accordance with an order of the Rent Court on specified grounds under Section 21(2) (e.g. non-payment of rent arrears for 2 consecutive months, "
             "subletting without written consent, misuse causing public nuisance or property damage, or unauthorized structural changes).\n"
-            "6. Security Deposit Cap (Statutory Note): Residential security deposit caps (up to 2 months' rent) derive from Section 11 of the Model Act "
-            "and applicable state adoption enactments."
+            "6. Security Deposit Cap & Recovery: Residential security deposit caps (up to 2 months' rent) derive from Section 11 of the Model Act "
+            "and applicable state adoption enactments. Security deposit recovery depends on the rental agreement and applicable state rent law; ask the user's state before giving state-specific advice."
         ),
         "remedy_steps": [
             "Produce electronic bank / UPI transfer statement as conclusive proof of rent payment under proviso to Section 13(2).",
-            "Serve a formal written legal notice citing Section 21(1) against unlawful eviction or Section 108(B)(m) for deposit recovery.",
+            "Serve a formal written legal notice demanding refund under the rental agreement and applicable state rent law (citing Section 21(1) against unlawful eviction).",
+            "Deposit recovery depends on the rental agreement and applicable state rent law; ask the user's state to provide specific forum guidance.",
             "If unresolved, file an application before the local Rent Authority / Rent Court (subject to state adoption)."
         ]
     },
@@ -64,10 +66,12 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
             "the lessee may make the same himself, and deduct the expense of such repairs with interest from the rent, or otherwise recover it from the lessor.\n"
             "4. Quiet Enjoyment (Section 108(A)(c)): Under Section 108(A) (rights and liabilities of the lessor), the lessor shall be deemed to contract "
             "with the lessee that, if the latter pays the rent reserved by the lease and performs lease contracts, he may hold the property during the lease term without interruption.\n"
-            "5. Plain Note on Scope: This section covers the tenant's duty to restore the property. It does not itself set rules for refunding deposits; deposit recovery usually rests on the rental agreement and a civil suit."
+            "5. Plain Note on Scope: Section 108(B)(m) protects against deductions for reasonable wear and tear. It is NOT the statutory basis for a security deposit refund. "
+            "Deposit recovery depends strictly on the rental agreement and the applicable state rent law (or a civil recovery suit). Always ask the user's state before giving state-specific advice."
         ),
         "remedy_steps": [
-            "Serve a 15-day formal Legal Demand Notice (established pre-litigation practice) citing Section 108(B)(m) demanding full refund of unlawfully deducted deposit amounts.",
+            "Serve a 15-day formal Legal Demand Notice under the terms of the rental agreement and state rent law (citing Section 108(B)(m) strictly to dispute unauthorized wear-and-tear deductions, not as the basis for deposit refund).",
+            "Deposit recovery depends on the rental agreement and applicable state rent law; ask the user's state before giving state-specific advice.",
             "If unresolved, file a recovery suit before the local civil court / Small Causes Court."
         ]
     },
@@ -105,12 +109,13 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
             "[Scope Rule: Section 84 applies strictly to product manufacturers; do NOT state that an e-commerce platform is liable under Section 84].\n"
             "6. Filing of Complaint (Section 35): Manner of filing a consumer complaint before the District Commission; "
             "the proviso to Section 35(1) explicitly provides that 'the complaint may also be filed electronically in such manner as may be prescribed' "
-            "(statutory basis for electronic filing on e-Daakhil)."
+            "(statutory basis for electronic filing on e-Jagriti (launched 1 Jan 2025, replacing e-Daakhil))."
         ),
         "remedy_steps": [
             "Lodge formal complaint on National Consumer Helpline (NCH) toll-free 1915 or consumerhelpline.gov.in.",
             "Serve a 15-day formal Legal Demand Notice (established pre-litigation practice) to the seller and e-commerce platform.",
-            "File an electronic consumer complaint online on e-Daakhil (edaakhil.nic.in) with order invoice, defect photos, and communication history."
+            # TODO: User to verify and provide official portal URL for e-Jagriti (launched 1 Jan 2025, replacing e-Daakhil). Do not guess a URL.
+            "File an electronic consumer complaint online on e-Jagriti (launched 1 Jan 2025, replaced e-Daakhil) [TODO: Verify official portal URL] with order invoice, defect photos, and communication history."
         ]
     },
 
@@ -132,7 +137,7 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
             {
                 "section": "Section 17(2)",
                 "title": "Payment on Removal, Dismissal or Resignation",
-                "text": "Wages of an employee who is removed, dismissed, retrenched or resigns must be paid within two working days of that event.",
+                "text": "Wages of an employee who is removed, dismissed, retrenched or resigns must be paid within two working days of that event. [Scope Rule: Section 17(2) describes strictly the time limit for paying WAGES only. Never cite it for relieving or experience letters. For letters: 'No fixed legal deadline is stated here; check your contract and company policy, or ask a lawyer.']",
                 "triggers": ["resign", "relieving", "final settlement", "f&f", "notice period", "terminated", "resigned", "resignation", "fnf", "dismissed", "retrenched"]
             },
             {
@@ -165,7 +170,9 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
             "weekly (on the last working day before the weekly holiday), fortnightly (before the end of the second day after the end of the fortnight), "
             "or monthly (before the expiry of the seventh day of the succeeding month).\n"
             "2. Payment on Removal, Dismissal or Resignation (Section 17(2)): Wages of an employee who is removed, dismissed, "
-            "retrenched or resigns must be paid within two working days of that event.\n"
+            "retrenched or resigns must be paid within two working days of that event. "
+            "[Scope Rule: Section 17(2) describes strictly only the time limit for paying WAGES after removal, dismissal, retrenchment or resignation. "
+            "Never cite it for relieving or experience letters. For relieving or experience letters: 'No fixed legal deadline is stated here; check your contract and company policy, or ask a lawyer.']\n"
             "3. Other Laws Preserved (Section 17(4)): The Code does not affect any time limit for payment of wages given in any other law (state rules may differ).\n"
             "4. Authorised Deductions Only (Section 18(1), 18(2)): No deductions from wages except those authorised under Section 18(2) of the Code "
             "(e.g. fines, absence from duty, damage or loss directly attributable to neglect or default, house-accommodation, amenities, advances/loans, statutory tax/provident fund).\n"
@@ -175,7 +182,8 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
             "The District Legal Services Authority (DLSA) / NALSA Helpline 15100 provides free legal aid and guidance only (it is not an adjudicating forum for proceedings against an employer)."
         ),
         "remedy_steps": [
-            "Send formal written demand email to employer citing Section 17(2) requesting immediate release of unpaid wages and relieving documents within statutory timelines.",
+            "Send formal written demand email to employer citing Section 17(2) requesting immediate release of unpaid wages within two working days.",
+            "For relieving or experience letters: No fixed legal deadline is stated here; check your contract and company policy, or ask a lawyer.",
             "For formal proceedings, approach the competent labour authority (confirm locally). The District Legal Services Authority (DLSA) / NALSA Helpline 15100 provides free legal aid and guidance only."
         ]
     },
@@ -220,6 +228,20 @@ CRITICAL_ESCALATION_CRITERIA = [
     "pocso"
 ]
 
+# Physical danger emergency words: beating, hitting, attacked, stabbed, assault, kidnap, "kill me", "right now", "in danger"
+PHYSICAL_DANGER_WORDS = [
+    "beating",
+    "hitting",
+    "attacked",
+    "stabbed",
+    "assault",
+    "kidnap",
+    "kill me",
+    "murder",
+    "suicide",
+    "in danger"
+]
+
 HIGH_RISK_WORDS = [
     "suicide",
     "murder",
@@ -243,9 +265,19 @@ OVERRIDING_OUT_OF_SCOPE_TOPICS = [
 ]
 
 # Domain keyword lists (strictly whole-word matched, generic words removed)
-TENANCY_KEYWORDS = ["rent", "rental", "landlord", "tenant", "deposit", "flat", "lease", "evict", "broker"]
-CONSUMER_KEYWORDS = ["refund", "product", "defective", "flipkart", "amazon", "seller", "warranty", "ecommerce", "consumer", "service", "repair", "replacement", "replace"]
-EMPLOYMENT_KEYWORDS = ["salary", "employer", "resignation", "relieving", "wages", "terminated", "fnf", "dues"]
+# Hindi & Marathi Devanagari keywords included for deterministic routing
+TENANCY_KEYWORDS = [
+    "rent", "rental", "landlord", "tenant", "deposit", "flat", "lease", "evict", "broker",
+    "मकान मालिक", "मकानमालिक", "किराया", "डिपॉजिट", "घरमालक", "भाडे", "भाडेकरू"
+]
+CONSUMER_KEYWORDS = [
+    "refund", "product", "defective", "flipkart", "amazon", "seller", "warranty", "ecommerce", "consumer", "service", "repair", "replacement", "replace",
+    "रिफंड", "पैसे वापस", "खराब", "परतावा", "ग्राहक"
+]
+EMPLOYMENT_KEYWORDS = [
+    "salary", "employer", "resignation", "relieving", "wages", "terminated", "fnf", "dues",
+    "पगार", "वेतन", "सैलरी", "राजीनामा", "नौकरी", "कर्मचारी"
+]
 
 def _matches_any_whole_word(text: str, keywords: List[str]) -> bool:
     """Matches keywords as whole words only to prevent false substring triggers."""
@@ -299,7 +331,8 @@ def filter_employment_entry(entry: Dict[str, Any], query_text: str) -> Dict[str,
         filtered_sections.append("Section 17(2)")
         filtered_provisions.append(
             "1. Payment on Removal, Dismissal or Resignation (Section 17(2)): Wages of an employee who is removed, dismissed, "
-            "retrenched or resigns must be paid within two working days of that event."
+            "retrenched or resigns must be paid within two working days of that event. "
+            "[Scope Rule: Describes strictly the time limit for paying WAGES only. Never cite Section 17(2) for relieving or experience letters. For letters: 'No fixed legal deadline is stated here; check your contract and company policy, or ask a lawyer.']"
         )
     else:
         filtered_sections.append("Section 17(1)")
@@ -329,14 +362,15 @@ def filter_employment_entry(entry: Dict[str, Any], query_text: str) -> Dict[str,
 
     remedy_steps = []
     if has_17_2 and has_18:
-        remedy_steps.append("Send formal written demand email to employer citing Sections 17(2) and 18(3) requesting immediate release of unpaid wages and refund of unauthorized deductions.")
+        remedy_steps.append("Send formal written demand email to employer citing Section 17(2) for release of unpaid wages within two working days, and Section 18(3) contesting unlawful deductions.")
     elif has_17_2:
-        remedy_steps.append("Send formal written demand email to employer citing Section 17(2) requesting immediate release of unpaid wages and relieving documents within two working days.")
+        remedy_steps.append("Send formal written demand email to employer citing Section 17(2) requesting immediate release of unpaid wages within two working days.")
     elif has_18:
         remedy_steps.append("Send formal written demand email to employer citing Section 18(3) contesting unlawful deductions exceeding statutory 50% cap.")
     else:
         remedy_steps.append("Send formal written demand email to employer citing Section 17(1) requesting immediate release of unpaid wages.")
 
+    remedy_steps.append("For relieving or experience letters: No fixed legal deadline is stated here; check your contract and company policy, or ask a lawyer.")
     remedy_steps.append("For formal proceedings, approach the competent labour authority (confirm locally). The District Legal Services Authority (DLSA) / NALSA Helpline 15100 provides free legal aid and guidance only.")
 
     filtered_entry = dict(entry)
@@ -443,26 +477,72 @@ def retrieve_verified_legal_context(query: str, domain_filter: str = None, fallb
     }
 
 def check_immediate_advocate_escalation(text: str) -> Dict[str, Any]:
-    """
+    r"""
     Evaluates whether the user's issue goes beyond an everyday advisory AI
-    and strictly requires immediate representation by a licensed advocate.
-    Matches word beginnings (e.g. \\barrest\\w*, \\bassault\\w*, \\bbribe\\w*, \\bthreat\\w*).
+    and strictly requires immediate representation by a licensed advocate or emergency response.
+    Matches word beginnings (e.g. \barrest\w*, \bassault\w*, \bbribe\w*, \bthreat\w*).
+    For physical danger (beating, hitting, attacked, stabbed, assault, kidnap, "kill me", "right now", "in danger"),
+    marks is_physical_danger=True with emergency advice to call 112 now.
+    Does NOT escalate on "threat" alone when the context is job, offer, salary or resignation;
+    keeps "police" threats escalating.
     """
     text_str = str(text or "")
+    text_lower = text_str.lower()
     escalation_reasons = []
-    
+    is_physical_danger = False
+
+    # 1. Physical danger & emergency check
+    # Emergency words: beating, hitting, attacked, stabbed, assault, kidnap, "kill me", "right now", "in danger"
+    for w in PHYSICAL_DANGER_WORDS:
+        if _matches_word_beginning(w, text_str) or w in text_lower:
+            is_physical_danger = True
+            escalation_reasons.append(f"Immediate physical danger ({w})")
+
+    # If "right now" is present along with emergency/danger/violence/harm terms
+    if "right now" in text_lower:
+        if any(dw in text_lower for dw in ["danger", "threat", "kill", "beat", "hit", "attack", "stab", "assault", "kidnap", "neighbour", "neighbor", "violence", "harm"]):
+            is_physical_danger = True
+            if not any("Immediate physical danger" in r for r in escalation_reasons):
+                escalation_reasons.append("Immediate physical danger (emergency right now)")
+
+    # 2. Critical statutory escalation criteria (e.g. arrest, bail, domestic violence)
     for trigger in CRITICAL_ESCALATION_CRITERIA:
         if _matches_word_beginning(trigger, text_str):
             escalation_reasons.append(trigger)
-            
+
+    # 3. High-risk words with context filter for 'threat'
     for w in HIGH_RISK_WORDS:
-        if _matches_word_beginning(w, text_str):
-            escalation_reasons.append(f"High-severity issue ({w})")
-        
+        if w in ["assault", "murder", "suicide"]:
+            continue  # Already checked in PHYSICAL_DANGER_WORDS
+        if w == "threat":
+            if _matches_word_beginning("threat", text_str):
+                # Do not escalate on "threat" alone when context is job, offer, salary or resignation
+                job_words = ["job", "offer", "salary", "resignation", "resign", "relieving", "termination", "terminate", "wages", "notice period", "settlement"]
+                has_job_ctx = any(jw in text_lower for jw in job_words)
+                has_police = any(pw in text_lower for pw in ["police", "fir", "arrest", "jail", "custody", "criminal"])
+                if has_job_ctx and not has_police:
+                    # Job/offer threat without police threat -> do NOT escalate
+                    pass
+                else:
+                    escalation_reasons.append("High-severity issue (threat)")
+        else:
+            if _matches_word_beginning(w, text_str):
+                escalation_reasons.append(f"High-severity issue ({w})")
+
+    requires_real_lawyer = len(escalation_reasons) > 0 or is_physical_danger
+
+    contact = (
+        "Emergency: Call 112 now, plus DLSA/NALSA Helpline 15100"
+        if is_physical_danger
+        else "District Legal Services Authority (DLSA) / NALSA Toll-Free Helpline: 15100"
+    )
+
     return {
-        "requires_real_lawyer": len(escalation_reasons) > 0,
+        "requires_real_lawyer": requires_real_lawyer,
+        "is_physical_danger": is_physical_danger,
         "reasons": escalation_reasons,
-        "legal_aid_contact": "District Legal Services Authority (DLSA) / NALSA Toll-Free Helpline: 15100"
+        "reason": escalation_reasons[0] if escalation_reasons else "",
+        "legal_aid_contact": contact
     }
 
 # ==================== FIX 4: SECTION SCANNER & GUARDRAIL ====================
@@ -497,7 +577,10 @@ ALLOWED_ACT_CANONICAL = {
     "model tenancy act",
     "transfer of property act",
     "consumer protection act",
-    "code on wages"
+    "code on wages",
+    "general legal principle",
+    "general legal principle (civil vs. criminal boundary)",
+    "general legal principle (civil vs. criminal boundary - general guidance)"
 }
 
 ACT_CODE_PATTERNS = [
@@ -521,7 +604,11 @@ def is_allowed_act(act_str: str) -> bool:
     s = act_str.strip()
     s = re.sub(r'^(?:the)\s+', '', s, flags=re.IGNORECASE)
     s = re.sub(r',?\s*\d{4}$', '', s).strip().lower()
-    return s in ALLOWED_ACT_CANONICAL
+    if s in ALLOWED_ACT_CANONICAL:
+        return True
+    if "general legal principle" in s:
+        return True
+    return False
 
 NON_STATUTORY_CODES = {"ifsc", "pin", "postal", "zip", "qr", "bar", "swift", "area", "promo", "coupon", "source"}
 

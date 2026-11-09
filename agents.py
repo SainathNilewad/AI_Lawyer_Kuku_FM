@@ -26,7 +26,11 @@ try:
         sanitize_unverified_sections,
         scan_unverified_sections,
         scan_banned_acts,
-        is_allowed_act
+        is_allowed_act,
+        _matches_any_whole_word,
+        TENANCY_KEYWORDS,
+        EMPLOYMENT_KEYWORDS,
+        CONSUMER_KEYWORDS
     )
 except ImportError:
     from .legal_kb import (
@@ -35,7 +39,11 @@ except ImportError:
         sanitize_unverified_sections,
         scan_unverified_sections,
         scan_banned_acts,
-        is_allowed_act
+        is_allowed_act,
+        _matches_any_whole_word,
+        TENANCY_KEYWORDS,
+        EMPLOYMENT_KEYWORDS,
+        CONSUMER_KEYWORDS
     )
 
 try:
@@ -52,9 +60,19 @@ class CaseBuilderAgent:
         # Step 1: Pre-flight advocate escalation safety check
         escalation_check = check_immediate_advocate_escalation(raw_story)
 
+        # Step 2: Determine category via keywords first (deterministic routing without model classification)
+        raw_story_str = str(raw_story or "")
+        detected_category = None
+        if _matches_any_whole_word(raw_story_str, TENANCY_KEYWORDS):
+            detected_category = "Tenancy & Rental"
+        elif _matches_any_whole_word(raw_story_str, EMPLOYMENT_KEYWORDS):
+            detected_category = "Employment & Salary"
+        elif _matches_any_whole_word(raw_story_str, CONSUMER_KEYWORDS):
+            detected_category = "Consumer & E-Commerce"
+
         system_prompt = f"""
 You are the Senior Intake Legal Assistant at NyayaMitra India.
-Your job is to listen to an everyday Indian person's messy story (which may be in English, Hindi, or Hinglish) 
+Your job is to listen to an everyday Indian person's messy story (which may be in English, Hindi, Marathi, or Hinglish) 
 and organize it into a crystal-clear factual dossier.
 
 CRITICAL INSTRUCTIONS:
@@ -64,11 +82,12 @@ CRITICAL INSTRUCTIONS:
 4. Rate the Evidence Strength on a scale of 1 to 10.
 5. Determine the dispute category: 'Tenancy & Rental', 'Consumer & E-Commerce', 'Employment & Salary', or 'General Civil'.
 6. Do not state court fees, interest rates, processing times, penalties or portal names unless they appear in the provided knowledge base or in the user's message. If needed, say 'confirm this locally or with a lawyer / DLSA 15100.'
+7. LANGUAGE & FACT PRESERVATION: Reply in the user's language ({language}). Keep all monetary amounts (e.g. ₹40,000, Rs 50,000) and dates exactly as stated by the user without modifying or converting them.
 
 Output MUST be a valid JSON object with EXACTLY this structure:
 {{
   "case_title": "Short title describing the dispute",
-  "category": "Tenancy & Rental / Consumer & E-Commerce / Employment & Salary / Other",
+  "category": "{detected_category if detected_category else 'Tenancy & Rental / Consumer & E-Commerce / Employment & Salary / Other'}",
   "summary": "2-3 sentence plain language summary of the core dispute",
   "complainant": "Name or designation of aggrieved person (e.g. Tenant, Consumer, Ex-Employee)",
   "opposite_party": "Name or entity being complained against (e.g. Landlord Mr. Sharma, E-Commerce Seller)",
@@ -95,7 +114,7 @@ Output MUST be a valid JSON object with EXACTLY this structure:
             raw_txt = result.get("raw_text", str(result)) if isinstance(result, dict) else str(result)
             result = {
                 "case_title": "Everyday Legal Dispute",
-                "category": "Civil Dispute",
+                "category": detected_category if detected_category else "Civil Dispute",
                 "summary": raw_story[:280],
                 "complainant": "Aggrieved Citizen",
                 "opposite_party": "Opposing Party",
@@ -107,6 +126,9 @@ Output MUST be a valid JSON object with EXACTLY this structure:
                 "evidence_strength_explanation": "Preliminary statement recorded; formal documentation pending.",
                 "raw_text": raw_txt
             }
+
+        if detected_category:
+            result["category"] = detected_category
 
         # Attach the escalation status
         result["escalation_check"] = escalation_check
@@ -169,10 +191,12 @@ STRICT HALLUCINATION PREVENTION RULES:
 3. If a section is not in the grounding text, explain the general legal principle without manufacturing a citation.
 4. Clearly state whether the issue is Civil or Criminal. (Remind users that monetary/contract disputes are NOT criminal cheating).
 5. Answer length & structure: Lead with a concise 3-line summary (core legal standing, key statutory rule, immediate takeaway), followed by clear details.
-6. Do not state court fees, interest rates, processing times, penalties or portal names unless they appear in the provided knowledge base or in the user's message. If needed, say 'confirm this locally or with a lawyer / DLSA 15100.' (Note: e-Daakhil applies strictly to consumer disputes, NEVER to employment or salary matters).
+6. Do not state court fees, interest rates, processing times, penalties or portal names unless they appear in the provided knowledge base or in the user's message. If needed, say 'confirm this locally or with a lawyer / DLSA 15100.' (Note: e-Jagriti applies strictly to consumer disputes, NEVER to employment or salary matters).
 7. PROVISION RELEVANCE: Only cite provisions that appear in the VERIFIED STATUTORY GROUNDING. If Section 18 is not in the grounding, do NOT cite Section 18 or deduction rules. Never describe Section 18(3) as preventing an employer from withholding wages; it only caps deductions.
-8. DLSA & FORUM RULES: Describe DLSA strictly as free legal aid and guidance (Helpline 15100). NEVER describe DLSA as a forum for hearings or proceedings against an employer. For wage claims, direct the user to 'the competent labour authority (confirm locally)'.
-9. COSTS & TIMELINES RULE: Do NOT include any fee, court fee, or cost estimates (do NOT state 'Cost: Nominal / Free', 'Cost: Free / Speed Post', or specific rupee amounts for filing). Any deadline or timeline must be explicitly labelled 'Suggested' (e.g. 'Suggested 15 days (customary pre-litigation notice period)').
+8. SECTION 17(2) & RELIEVING LETTERS (STRICT): Section 17(2) of the Code on Wages, 2019 describes ONLY the time limit for paying WAGES after removal, dismissal, retrenchment or resignation (within 2 working days). NEVER cite Section 17(2) for relieving letters, experience letters, or service certificates. For relieving/experience letters, write: "No fixed legal deadline is stated here; check your contract and company policy, or ask a lawyer."
+9. TENANCY & DEPOSIT RECOVERY (STRICT): Do NOT present Section 108(B)(m) as the statutory basis for a security deposit refund. Section 108(B)(m) covers only reasonable wear-and-tear protection. Explain that deposit recovery depends on the rental agreement and the applicable state rent law, and ask the user's state before giving state-specific advice. Do NOT present the Model Tenancy Act as applicable everywhere; it only applies in states that have enacted it.
+10. DLSA & FORUM RULES: Describe DLSA strictly as free legal aid and guidance (Helpline 15100). NEVER describe DLSA as a forum for hearings or proceedings against an employer. For wage claims, direct the user to 'the competent labour authority (confirm locally)'.
+11. COSTS & TIMELINES RULE: Do NOT include any fee, court fee, or cost estimates (do NOT state 'Cost: Nominal / Free', 'Cost: Free / Speed Post', or specific rupee amounts for filing). Any deadline or timeline must be explicitly labelled 'Suggested' (e.g. 'Suggested 15 days (customary pre-litigation notice period)').
 
 VERIFIED STATUTORY GROUNDING:
 {grounding_text}
@@ -194,7 +218,7 @@ Output format MUST be valid JSON with this structure:
       "step_number": 2,
       "title": "Statutory Authority / Grievance Portal Filing",
       "timeline": "Timeline varies by state (confirm locally)",
-      "details": "Instructions on proper forum: e-Daakhil for consumer, Rent Authority for tenancy, the competent labour authority (confirm locally) for wage claims. Note: DLSA provides free legal aid and guidance only; it is never a forum for hearings or proceedings against an employer."
+      "details": "Instructions on proper forum: e-Jagriti for consumer, Rent Authority for tenancy, the competent labour authority (confirm locally) for wage claims. Note: DLSA provides free legal aid and guidance only; it is never a forum for hearings or proceedings against an employer."
     }},
     {{
       "step_number": 3,
@@ -210,26 +234,17 @@ Output format MUST be valid JSON with this structure:
 """
         user_prompt = f"Case Dossier:\n{json.dumps(case_dossier, indent=2)}\n\nLanguage: {language}"
         result = self.engine.generate_json(system_prompt, user_prompt)
-        if isinstance(result, dict) and ("error" in result or result.get("status") == "error"):
-            return result
-        if not isinstance(result, dict) or "plain_language_standing" not in result:
-            raw_txt = result.get("raw_text", str(result)) if isinstance(result, dict) else str(result)
-            is_emp = "employ" in str(case_dossier.get("category", "")).lower() or "wage" in str(case_dossier.get("category", "")).lower()
-            step_2_title = "Approach the Competent Labour Authority (Confirm Locally)" if is_emp else "File on Government Grievance Portal"
-            step_2_details = "Register claim before the competent labour authority (confirm locally), or seek free legal aid and guidance via DLSA Helpline 15100." if is_emp else "Register on statutory portal (e.g. e-Daakhil for consumer disputes, Rent Authority for tenancy)."
 
-            result = {
-                "plain_language_standing": raw_txt if raw_txt else "Under Indian Law, you have a strong statutory claim to seek full recovery or refund, as arbitrary withholding or deficient services are unlawful.",
-                "governing_laws": [
-                    {"act_name": "Indian Statutory Law", "section": "Governing Provisions", "relevance": "Protects against arbitrary withholding and deficient services"}
-                ],
-                "action_options": [
-                    {"step_number": 1, "title": "Serve Formal 15-Day Legal Demand Notice", "timeline": "Suggested 15 days (customary pre-litigation practice)", "details": "Issue notice via Speed Post and Email."},
-                    {"step_number": 2, "title": step_2_title, "timeline": "Timeline varies by state (confirm locally)", "details": step_2_details}
-                ],
-                "real_lawyer_needed": False,
-                "real_lawyer_guidance": "You can pursue pre-litigation notice and statutory portals yourself without an advocate.",
-                "disclaimer": "⚠️ NyayaMitra provides legal information and self-advocacy tools under Indian laws."
+        # On invalid JSON or error, retry once
+        if not isinstance(result, dict) or "plain_language_standing" not in result or result.get("status") == "error" or "error" in result:
+            result = self.engine.generate_json(system_prompt, user_prompt)
+
+        # If still invalid or error, return controlled error, preserving case_dossier so user can retry
+        if not isinstance(result, dict) or "plain_language_standing" not in result or result.get("status") == "error" or "error" in result:
+            return {
+                "status": "error",
+                "error": "I couldn't generate a reliable legal assessment. Please try again or consult a qualified lawyer.",
+                "case_dossier": case_dossier
             }
 
         context_text = f"{case_dossier.get('category', '')} {case_dossier.get('summary', '')}"
@@ -312,15 +327,16 @@ The aggrieved citizen writes and serves this legal demand notice THEMSELVES (act
   *(Signature)*
   [Your Name]
 
-DOCUMENT STANDARDS:
-1. Professional Indian Legal Notice format.
-2. Include: Header, Date, Mode of Dispatch (Speed Post / Email), Details of Sender and Recipient.
-3. Structured Factual Sequence: "I hereby state and submit as under:" followed by chronological numbered paragraphs.
-4. Clear recital of facts, timeline, amounts, and violation of statutory provisions.
-5. Strict 15-Day Rectification Demand Window (suggested customary pre-litigation practice).
-6. Warning of further legal action before the appropriate statutory forum: for wage claims, before the competent labour authority (confirm locally).
-7. DATE RULES: Today's date is {today_str}. Never invent a year or date. Use only the specific dates provided in the case timeline ({', '.join(timeline_dates) if timeline_dates else 'none provided'}) or the user's story; if a date is unknown, use the placeholder '[DD/MM/YYYY]'. Do NOT assume the year is 2024 or any other year unless explicitly stated in the case facts.
-8. FACT INTEGRITY (STRICT - NO EMBELLISHMENT):
+DOCUMENT HEADING & STANDARDS:
+1. Heading: Use "### LEGAL NOTICE DRAFT – REVIEW BEFORE SENDING" (never "Ready-to-Send Legal Notice").
+2. Professional Indian Legal Notice format.
+3. Include: Header, Date, Mode of Dispatch (Speed Post / Email), Details of Sender and Recipient.
+4. Structured Factual Sequence: "I hereby state and submit as under:" followed by chronological numbered paragraphs.
+5. Clear recital of facts, timeline, amounts, and violation of statutory provisions.
+6. Rectification Demand Window: Keep the response window explicitly as "suggested" (e.g. "suggested 15-day period (customary pre-litigation practice)").
+7. Warning of further legal action before the appropriate statutory forum: for wage claims, before the competent labour authority (confirm locally).
+8. DATE RULES: Today's date is {today_str}. Never invent a year or date. Use only the specific dates provided in the case timeline ({', '.join(timeline_dates) if timeline_dates else 'none provided'}) or the user's story; if a date is unknown, use the placeholder '[DD/MM/YYYY]'. Do NOT assume the year is 2024 or any other year unless explicitly stated in the case facts.
+9. FACT INTEGRITY (STRICT - NO EMBELLISHMENT):
    Use ONLY facts explicitly stated by the user or present in the case dossier. NEVER invent, embellish, or assume unstated details.
    Specifically:
    - Do NOT add "interest-free" (e.g. do NOT write "interest-free security deposit") unless the user explicitly stated "interest-free".
@@ -330,14 +346,18 @@ DOCUMENT STANDARDS:
    - Do NOT invent emails sent or reminder dates (no 'email reminders', 'despite multiple emails sent on...') unless explicitly provided in the case facts.
    - Do NOT invent demands for unmentioned documents like 'Experience Certificate' unless explicitly requested by the user.
    Anything not explicitly stated by the user must be omitted or written as a [bracketed placeholder].
-9. SECTION 84 SCOPE RULE (STRICT):
+10. SECTION 84 SCOPE RULE (STRICT):
    # TODO: Ask user for exact official wording for Section 84 of Consumer Protection Act, 2019.
    Under Section 84 of the Consumer Protection Act, 2019, liability applies strictly to the product manufacturer.
    The notice must NEVER state or imply that an e-commerce platform or online marketplace is liable under Section 84.
-10. DLSA & FORUM RULES: DLSA provides free legal aid and guidance only (Helpline: 15100). NEVER describe DLSA as a forum for proceedings against an employer. For wage claims, state that proceedings will be filed before 'the competent labour authority (confirm locally)'.
-11. UNVERIFIED SPECIFICS: Do not state court fees, interest rates, processing times, penalties or portal names unless they appear in the provided knowledge base or in the user's message. If needed, say 'confirm this locally or with a lawyer / DLSA 15100.' {'(Note: For employment disputes, do NOT mention e-Daakhil; e-Daakhil is strictly for consumer cases).' if is_emp else ''}
-12. Space for signatures with [Your Name] and annexure inventory.
-13. Output formatted in clean Markdown.
+11. SECTION 17(2) & RELIEVING LETTERS (STRICT):
+   Section 17(2) of the Code on Wages, 2019 describes ONLY the payment of WAGES within 2 working days. Never state that Section 17(2) mandates a 2-day deadline for relieving letters. For relieving letters: No fixed legal deadline is stated here; check your contract and company policy, or ask a lawyer.
+12. TENANCY SCOPE RULE (STRICT):
+   In tenancy notices, cite Section 108(B)(m) of the Transfer of Property Act strictly for wear-and-tear protection against unauthorized repainting deductions. Do NOT present Section 108(B)(m) as the basis for the deposit refund itself; base the demand for refund on the terms of the tenancy agreement and the applicable state tenancy laws.
+13. DLSA & FORUM RULES: DLSA provides free legal aid and guidance only (Helpline: 15100). NEVER describe DLSA as a forum for proceedings against an employer. For wage claims, state that proceedings will be filed before 'the competent labour authority (confirm locally)'.
+14. UNVERIFIED SPECIFICS: Do not state court fees, interest rates, processing times, penalties or portal names unless they appear in the provided knowledge base or in the user's message. If needed, say 'confirm this locally or with a lawyer / DLSA 15100.' {'(Note: For employment disputes, do NOT mention e-Jagriti; e-Jagriti is strictly for consumer cases).' if is_emp else ''}
+15. Space for signatures with [Your Name] and annexure inventory.
+16. Output formatted in clean Markdown.
 """
         user_prompt = f"""
 Draft Document Type: {doc_type}
@@ -385,6 +405,9 @@ Please write the complete, unedited, ready-to-send document in the FIRST PERSON 
         # TODO: Awaiting user's exact official wording for Section 84.
         raw_draft = re.sub(r'(?i)(?:and\s+platform\s+(?:is|are)|platform\s+is)\s+liable\s+under\s+Section\s+84', 'product manufacturer is liable under Section 84', raw_draft)
         raw_draft = re.sub(r'(?i)under\s+Section\s+84[^.\n]*platform[^.\n]*', 'Under Section 84 of the Consumer Protection Act, 2019, the product manufacturer is liable for manufacturing defects.', raw_draft)
+
+        # Notice heading normalization: ensure "Legal Notice Draft – Review Before Sending"
+        raw_draft = re.sub(r'(?i)###?\s*(?:Ready-to-Send\s+)?Legal\s+(?:Demand\s+)?Notice(?:\s*–\s*Review\s+Before\s+Sending)?', '### LEGAL NOTICE DRAFT – REVIEW BEFORE SENDING', raw_draft)
 
         raw_draft = re.sub(r'  +', ' ', raw_draft)
         return sanitize_unverified_sections(raw_draft, context_text=dossier_text)
@@ -519,7 +542,7 @@ INSTRUCTIONS FOR MULTI-TURN CHAT:
 2. ANSWER STRUCTURE: Lead with a clear 3-line summary of your direct advice, followed by concise bulleted details and practical steps.
 3. If the user asks 'what if...', 'can I...', 'how do I...', or about proofs/threats/police/courts, give them clear, step-by-step practical guidance under Indian law.
 4. DATE & TIME RULES: Today's date is {today_str}. Never invent years or dates. Use only dates provided in the case facts or [DD/MM/YYYY]. Do not assume 2024 or any year unless stated in the case facts.
-5. UNVERIFIED SPECIFICS: Do not state court fees, interest rates, processing times, penalties or portal names unless they appear in the provided knowledge base or in the user's message. If needed, say 'confirm this locally or with a lawyer / DLSA 15100.' {'(Note: For employment disputes, do NOT mention e-Daakhil; e-Daakhil is strictly for consumer cases).' if is_emp else ''}
+5. UNVERIFIED SPECIFICS: Do not state court fees, interest rates, processing times, penalties or portal names unless they appear in the provided knowledge base or in the user's message. If needed, say 'confirm this locally or with a lawyer / DLSA 15100.' {'(Note: For employment disputes, do NOT mention e-Jagriti; e-Jagriti is strictly for consumer cases).' if is_emp else ''}
 6. FACT INTEGRITY (STRICT): Use ONLY facts the user stated or the dossier contains. NEVER invent job titles, dates of reminders, emails sent, or unmentioned documents like 'Experience Certificate' unless the user stated them. Use bracketed placeholders like '[Job Title]' or leave them out.
 7. DLSA & FORUM RULES: Describe DLSA strictly as free legal aid and guidance (Helpline 15100). NEVER describe DLSA as a forum for hearings or proceedings against an employer. For wage claims, refer to 'the competent labour authority (confirm locally)'.
 8. PROVISION RELEVANCE: Never cite Section 18 unless deduction/fine/advance triggers were mentioned. Never describe Section 18(3) as preventing an employer from withholding wages; it only caps deductions.
@@ -529,6 +552,8 @@ INSTRUCTIONS FOR MULTI-TURN CHAT:
 12. If advising on legal notices, explain that the user drafts the notice in their own name in the first person ("I", "my") with signature "[Your Name]", without third-person advocate phrasing ("my client").
 13. Under Section 84 of CPA 2019, liability applies strictly to product manufacturers; do NOT describe an e-commerce platform as liable under Section 84.
 14. If a physical courtroom appearance or high-risk criminal step is needed, tell them clearly to consult an advocate.
+15. SECTION 17(2) & RELIEVING LETTERS (STRICT): Section 17(2) of the Code on Wages, 2019 describes ONLY the time limit for paying WAGES after removal, dismissal, retrenchment or resignation (within 2 working days). Never cite it for relieving or experience letters. For relieving/experience letters, state: "No fixed legal deadline is stated here; check your contract and company policy, or ask a lawyer."
+16. TENANCY & DEPOSIT RECOVERY: Do not present Section 108(B)(m) as the basis for a deposit refund. Explain that deposit recovery depends on the rental agreement and the applicable state rent law, and ask the user's state before giving state-specific advice. Do not present the Model Tenancy Act as applicable everywhere.
 """
         # Format recent conversation history (last 8 turns for context)
         recent_history = chat_history[-8:] if len(chat_history) > 8 else chat_history
@@ -545,7 +570,7 @@ Please respond naturally to the user's question with practical Indian legal coun
 """
         ans = self.engine.generate(system_prompt, user_prompt, temperature=0.3)
         if not ans or not ans.strip():
-            ans = "I understand your point. Based on the facts established in your case and relevant Indian statutes, you are legally entitled to press for your rightful refund or dues. Would you like me to generate your ready-to-send Legal Demand Notice now?"
+            ans = "I understand your point. Based on the facts established in your case and relevant Indian statutes, you are legally entitled to press for your rightful refund or dues. Would you like me to generate your Legal Notice Draft – Review Before Sending now?"
         # Code-level guard: Sanitize conversational follow-up response
         return sanitize_unverified_sections(ans, context_text=f"{category} {summary} {user_message}")
 

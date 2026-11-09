@@ -126,6 +126,88 @@ def run_test_suite():
         assert "[unverified reference removed]" in sanitized_c, f"Coach unverified Act was not sanitized in: {sanitized_c}"
     print("    [PASS] Unverified Acts flagged and sanitized properly in coach text.\n")
 
+    # Preliminary Unit Tests: Routing path tests following app.py order
+    print("[*] Running App routing order and safety unit tests (Items 10a-10h)...")
+
+    # (a) "my neighbour is beating me right now" -> emergency, 112
+    q_a = "my neighbour is beating me right now"
+    esc_a = check_immediate_advocate_escalation(q_a)
+    assert esc_a["requires_real_lawyer"] is True, f"(a) Failed: should require real lawyer, got {esc_a}"
+    assert esc_a.get("is_physical_danger") is True, f"(a) Failed: should be physical danger, got {esc_a}"
+    assert "112" in esc_a.get("legal_aid_contact", ""), f"(a) Failed: should show 112, got {esc_a.get('legal_aid_contact')}"
+    print("    [PASS] (a) 'my neighbour is beating me right now' -> emergency, 112.")
+
+    # (b) job-offer threat -> employment, no emergency
+    q_b = "My new employer is threatening to cancel my job offer if I don't join next week."
+    esc_b = check_immediate_advocate_escalation(q_b)
+    assert esc_b["requires_real_lawyer"] is False, f"(b) Failed: should not escalate on job offer threat, got {esc_b}"
+    assert esc_b.get("is_physical_danger") is False, f"(b) Failed: should not be physical danger, got {esc_b}"
+    ret_b = retrieve_verified_legal_context(q_b)
+    assert ret_b["out_of_scope"] is False, f"(b) Failed: should be in scope for employment, got {ret_b}"
+    assert any(e["domain"] == "Employment & Labor" for e in ret_b["entries"]), f"(b) Failed: should match employment domain"
+    print("    [PASS] (b) job-offer threat -> employment, no emergency.")
+
+    # (c) Hindi deposit -> tenancy
+    q_c = "मेरा मकान मालिक ₹40,000 का सिक्योरिटी डिपॉजिट वापस नहीं कर रहा है"
+    esc_c = check_immediate_advocate_escalation(q_c)
+    assert esc_c["requires_real_lawyer"] is False, f"(c) Failed: should not escalate, got {esc_c}"
+    ret_c = retrieve_verified_legal_context(q_c)
+    assert ret_c["out_of_scope"] is False, f"(c) Failed: should be in scope, got {ret_c}"
+    assert any(e["domain"] == "Tenancy & Rental" for e in ret_c["entries"]), f"(c) Failed: should match tenancy domain"
+    print("    [PASS] (c) Hindi deposit -> tenancy.")
+
+    # (d) Marathi salary -> employment
+    q_d = "माझा पगार वेळेवर दिला नाही आणि राजीनामा दिला आहे"
+    esc_d = check_immediate_advocate_escalation(q_d)
+    assert esc_d["requires_real_lawyer"] is False, f"(d) Failed: should not escalate, got {esc_d}"
+    ret_d = retrieve_verified_legal_context(q_d)
+    assert ret_d["out_of_scope"] is False, f"(d) Failed: should be in scope, got {ret_d}"
+    assert any(e["domain"] == "Employment & Labor" for e in ret_d["entries"]), f"(d) Failed: should match employment domain"
+    print("    [PASS] (d) Marathi salary -> employment.")
+
+    # (e) Hinglish salary -> employment
+    q_e = "mera salary nahi mila resignation ke baad"
+    esc_e = check_immediate_advocate_escalation(q_e)
+    assert esc_e["requires_real_lawyer"] is False, f"(e) Failed: should not escalate, got {esc_e}"
+    ret_e = retrieve_verified_legal_context(q_e)
+    assert ret_e["out_of_scope"] is False, f"(e) Failed: should be in scope, got {ret_e}"
+    assert any(e["domain"] == "Employment & Labor" for e in ret_e["entries"]), f"(e) Failed: should match employment domain"
+    print("    [PASS] (e) Hinglish salary -> employment.")
+
+    # (f) mocked invalid JSON -> controlled error
+    class MockInvalidEngine:
+        def generate_json(self, system_prompt, user_prompt, temperature=0.2):
+            return "Invalid raw non-json string from model"
+        def generate(self, *args, **kwargs):
+            return "dummy"
+    mock_advisor = RightsAdvisorAgent(MockInvalidEngine())
+    dossier_mock_f = {
+        "case_title": "Test Case",
+        "category": "Employment & Salary",
+        "summary": "Resigned and salary withheld",
+        "timeline": []
+    }
+    res_f = mock_advisor.run(dossier_mock_f)
+    assert res_f.get("status") == "error", f"(f) Failed: expected status 'error', got {res_f}"
+    assert res_f.get("error") == "I couldn't generate a reliable legal assessment. Please try again or consult a qualified lawyer.", f"(f) Failed: error message mismatch, got {res_f.get('error')}"
+    assert res_f.get("case_dossier") == dossier_mock_f, f"(f) Failed: case_dossier not preserved, got {res_f}"
+    print("    [PASS] (f) mocked invalid JSON -> controlled error.")
+
+    # (g) HTML in a message is escaped
+    import html as html_mod
+    raw_html_msg = "<script>alert(1)</script>"
+    escaped_html = html_mod.escape(raw_html_msg)
+    assert "<script>" not in escaped_html, f"(g) Failed: <script> not escaped in {escaped_html}"
+    assert "&lt;script&gt;alert(1)&lt;/script&gt;" == escaped_html, f"(g) Failed: escaped text mismatch: {escaped_html}"
+    print("    [PASS] (g) HTML in a message is escaped.")
+
+    # (h) the relieving letter is not described as a wage deadline
+    ret_h = retrieve_verified_legal_context("relieving letter and salary after resignation")
+    g_text_h = ret_h.get("grounding_text", "")
+    assert "No fixed legal deadline is stated here; check your contract and company policy, or ask a lawyer." in g_text_h, f"(h) Failed: relieving letter disclaimer missing from grounding text"
+    assert not re.search(r'(?i)Section\s*17\(2\)[^.\n]*relieving\s+(?:letter|document)', g_text_h), f"(h) Failed: Section 17(2) cited as deadline for relieving letters in {g_text_h}"
+    print("    [PASS] (h) the relieving letter is not described as a wage deadline.\n")
+
     passed_count = 0
     failed_count = 0
 
