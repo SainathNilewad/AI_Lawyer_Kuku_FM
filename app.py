@@ -14,11 +14,12 @@ import streamlit as st
 import os
 import sys
 import html
+import importlib
 from pathlib import Path
 
-# Explicitly ensure repo root is in sys.path on Streamlit Cloud / Linux
+# Explicitly ensure repo root is at the front of sys.path on Streamlit Cloud / Linux
 _REPO_ROOT = str(Path(__file__).resolve().parent)
-if _REPO_ROOT not in sys.path:
+if not sys.path or sys.path[0] != _REPO_ROOT:
     sys.path.insert(0, _REPO_ROOT)
 
 from dotenv import load_dotenv
@@ -34,45 +35,92 @@ try:
 except Exception:
     pass
 
-try:
-    from legal_kb import (
-        retrieve_verified_legal_context,
-        check_immediate_advocate_escalation,
-        VERIFIED_STATUTORY_DATABASE,
-        is_case_law_request,
-        CASE_LAW_FIXED_REPLY,
-        build_safe_side_card_html,
-        build_safe_source_law_html
+
+def _import_fresh(mod_name: str, force: bool = False):
+    """Import a local module and reload it if its file changed or came from a stale worker."""
+    pre_top = mod_name in sys.modules
+    pre_rel = bool(__package__) and (f"{__package__}.{mod_name}" in sys.modules)
+    try:
+        mod = importlib.import_module(mod_name)
+    except ModuleNotFoundError:
+        if __package__:
+            mod = importlib.import_module(f".{mod_name}", package=__package__)
+        else:
+            raise
+
+    already_loaded = pre_rel if (bool(__package__) and mod.__name__ == f"{__package__}.{mod_name}") else pre_top
+    mod_file = getattr(mod, "__file__", None)
+    curr_mtime = os.path.getmtime(mod_file) if mod_file and os.path.exists(mod_file) else None
+    prev_mtime = getattr(mod, "_loaded_mtime", None)
+    needs_reload = bool(
+        already_loaded
+        and (force or prev_mtime is None or (curr_mtime is not None and curr_mtime != prev_mtime))
     )
-except ImportError:
-    from .legal_kb import (
-        retrieve_verified_legal_context,
-        check_immediate_advocate_escalation,
-        VERIFIED_STATUTORY_DATABASE,
-        is_case_law_request,
-        CASE_LAW_FIXED_REPLY,
-        build_safe_side_card_html,
-        build_safe_source_law_html
+    reloaded = False
+    if needs_reload:
+        importlib.invalidate_caches()
+        if getattr(mod, "__spec__", None) is not None:
+            mod = importlib.reload(mod)
+        else:
+            sys.modules.pop(mod.__name__, None)
+            mod = importlib.import_module(mod_name)
+        reloaded = True
+        mod_file = getattr(mod, "__file__", None)
+        curr_mtime = os.path.getmtime(mod_file) if mod_file and os.path.exists(mod_file) else None
+    if curr_mtime is not None:
+        mod._loaded_mtime = curr_mtime
+    return mod, reloaded
+
+
+def _fallback_build_safe_side_card_html(
+    case_title: str, complainant: str, opposite_party: str, disputed_amount: str, category: str
+) -> str:
+    return (
+        f"<div class='side-card'>\n"
+        f"    <b>📌 Case:</b> {html.escape(str(case_title or 'Everyday Dispute'))}<br/>\n"
+        f"    <b>👤 Parties:</b> {html.escape(str(complainant or 'You'))} vs. {html.escape(str(opposite_party or 'Opposing Party'))}<br/>\n"
+        f"    <b>💰 Disputed Sum:</b> {html.escape(str(disputed_amount or 'N/A'))}<br/>\n"
+        f"    <b>📁 Category:</b> <span class='badge-statute'>{html.escape(str(category or 'Civil'))}</span>\n"
+        f"</div>"
     )
 
-try:
-    from llm_engine import LegalLLMEngine, list_groq_models, list_gemini_models
-    from agents import (
-        CaseBuilderAgent,
-        RightsAdvisorAgent,
-        DocumentDrafterAgent,
-        RoleplayOpponentAgent,
-        ConversationalCounselorAgent
+
+def _fallback_build_safe_source_law_html(
+    act_name: str, sec: str, relevance: str, is_verified: bool = True
+) -> str:
+    badge_html = (
+        "<span class='badge-verified'>verified</span>"
+        if is_verified
+        else "<span class='badge-unverified'>needs verification</span>"
     )
-except ImportError:
-    from .llm_engine import LegalLLMEngine, list_groq_models, list_gemini_models
-    from .agents import (
-        CaseBuilderAgent,
-        RightsAdvisorAgent,
-        DocumentDrafterAgent,
-        RoleplayOpponentAgent,
-        ConversationalCounselorAgent
+    return (
+        f"- **{html.escape(str(act_name or 'Statute'))}** "
+        f"(`{html.escape(str(sec or ''))}`) {badge_html}<br/>"
+        f"<small style='color:#b0bec5;'>{html.escape(str(relevance or ''))}</small>"
     )
+
+
+_legal_kb, _kb_reloaded = _import_fresh("legal_kb")
+_llm_engine, _llm_reloaded = _import_fresh("llm_engine")
+_agents, _ = _import_fresh("agents", force=(_kb_reloaded or _llm_reloaded))
+
+retrieve_verified_legal_context = _legal_kb.retrieve_verified_legal_context
+check_immediate_advocate_escalation = _legal_kb.check_immediate_advocate_escalation
+VERIFIED_STATUTORY_DATABASE = _legal_kb.VERIFIED_STATUTORY_DATABASE
+is_case_law_request = _legal_kb.is_case_law_request
+CASE_LAW_FIXED_REPLY = _legal_kb.CASE_LAW_FIXED_REPLY
+build_safe_side_card_html = getattr(_legal_kb, "build_safe_side_card_html", _fallback_build_safe_side_card_html)
+build_safe_source_law_html = getattr(_legal_kb, "build_safe_source_law_html", _fallback_build_safe_source_law_html)
+
+LegalLLMEngine = _llm_engine.LegalLLMEngine
+list_groq_models = _llm_engine.list_groq_models
+list_gemini_models = _llm_engine.list_gemini_models
+
+CaseBuilderAgent = _agents.CaseBuilderAgent
+RightsAdvisorAgent = _agents.RightsAdvisorAgent
+DocumentDrafterAgent = _agents.DocumentDrafterAgent
+RoleplayOpponentAgent = _agents.RoleplayOpponentAgent
+ConversationalCounselorAgent = _agents.ConversationalCounselorAgent
 
 st.set_page_config(
     page_title="NyayaMitra - AI Legal Companion",
