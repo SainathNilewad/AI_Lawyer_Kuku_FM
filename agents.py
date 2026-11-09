@@ -30,7 +30,10 @@ try:
         _matches_any_whole_word,
         TENANCY_KEYWORDS,
         EMPLOYMENT_KEYWORDS,
-        CONSUMER_KEYWORDS
+        CONSUMER_KEYWORDS,
+        parse_employment_dates,
+        PRE_COMMENCEMENT_WARNING,
+        MISSING_YEAR_PROMPT
     )
 except ImportError:
     from .legal_kb import (
@@ -43,7 +46,10 @@ except ImportError:
         _matches_any_whole_word,
         TENANCY_KEYWORDS,
         EMPLOYMENT_KEYWORDS,
-        CONSUMER_KEYWORDS
+        CONSUMER_KEYWORDS,
+        parse_employment_dates,
+        PRE_COMMENCEMENT_WARNING,
+        MISSING_YEAR_PROMPT
     )
 
 try:
@@ -78,11 +84,10 @@ and organize it into a crystal-clear factual dossier.
 CRITICAL INSTRUCTIONS:
 1. Extract the facts objectively without assuming unstated information.
 2. Build a Chronological Timeline (what happened first, next, and most recently).
-3. Audit the Evidence: List what proof the user currently mentions, and what critical missing evidence they should collect.
-4. Rate the Evidence Strength on a scale of 1 to 10.
-5. Determine the dispute category: 'Tenancy & Rental', 'Consumer & E-Commerce', 'Employment & Salary', or 'General Civil'.
-6. Do not state court fees, interest rates, processing times, penalties or portal names unless they appear in the provided knowledge base or in the user's message. If needed, say 'confirm this locally or with a lawyer / DLSA 15100.'
-7. LANGUAGE & FACT PRESERVATION: Reply in the user's language ({language}). Keep all monetary amounts (e.g. ₹40,000, Rs 50,000) and dates exactly as stated by the user without modifying or converting them.
+3. Audit the Evidence: List items mentioned by the user (from the story), and list critical documents still needed. Never mark evidence as available or verified just because the user mentions it; list strictly as items mentioned by the user.
+4. Determine the dispute category: 'Tenancy & Rental', 'Consumer & E-Commerce', 'Employment & Salary', or 'General Civil'.
+5. Do not state court fees, interest rates, processing times, penalties or portal names unless they appear in the provided knowledge base or in the user's message. If needed, say 'confirm this locally or with a lawyer / DLSA 15100.'
+6. LANGUAGE & FACT PRESERVATION: Reply in the user's language ({language}). Keep all monetary amounts (e.g. ₹40,000, Rs 50,000) and dates exactly as stated by the user without modifying or converting them.
 
 Output MUST be a valid JSON object with EXACTLY this structure:
 {{
@@ -95,14 +100,12 @@ Output MUST be a valid JSON object with EXACTLY this structure:
   "timeline": [
     {{"date_or_period": "Date or relative time", "event": "Specific factual occurrence"}}
   ],
-  "evidence_held": [
-    "List of proof user already has (e.g. UPI transfer receipts, WhatsApp chat screenshots, Rent Agreement)"
+  "evidence_mentioned": [
+    "List of proof items mentioned by the user in their story (e.g. mentions UPI transfer, mentions WhatsApp chat, mentions agreement). Do not mark as available or verified."
   ],
   "evidence_needed": [
-    "List of crucial missing documents user should gather before taking action"
-  ],
-  "evidence_strength_score": 7,
-  "evidence_strength_explanation": "Brief 1-sentence rationale for the score"
+    "List of crucial missing documents or formal records user still needs to collect"
+  ]
 }}
 """
         user_prompt = f"User's Messy Story:\n\"\"\"{raw_story}\"\"\"\n\nPreferred Language: {language}"
@@ -120,12 +123,21 @@ Output MUST be a valid JSON object with EXACTLY this structure:
                 "opposite_party": "Opposing Party",
                 "disputed_amount": "To be determined",
                 "timeline": [{"date_or_period": "Initial Occurrence", "event": raw_story[:120]}],
-                "evidence_held": ["User oral/written statement"],
+                "evidence_mentioned": ["User oral/written statement"],
                 "evidence_needed": ["Bank receipts", "Chat history", "Invoices / Agreement"],
-                "evidence_strength_score": 7,
-                "evidence_strength_explanation": "Preliminary statement recorded; formal documentation pending.",
                 "raw_text": raw_txt
             }
+
+        # Ensure evidence_mentioned and evidence_held compatibility without score
+        if "evidence_mentioned" in result and "evidence_held" not in result:
+            result["evidence_held"] = result["evidence_mentioned"]
+        elif "evidence_held" in result and "evidence_mentioned" not in result:
+            result["evidence_mentioned"] = result["evidence_held"]
+
+        if "evidence_strength_score" in result:
+            del result["evidence_strength_score"]
+        if "evidence_strength_explanation" in result:
+            del result["evidence_strength_explanation"]
 
         if detected_category:
             result["category"] = detected_category
@@ -143,9 +155,11 @@ class RightsAdvisorAgent:
     def run(self, case_dossier: Dict[str, Any], language: str = "English") -> Dict[str, Any]:
         category = case_dossier.get("category", "")
         summary = case_dossier.get("summary", "")
+        timeline_str = json.dumps(case_dossier.get("timeline", []))
+        full_context = f"{category} {summary} {timeline_str}"
         
         # Grounding: Retrieve real Indian statutory context
-        kb_result = retrieve_verified_legal_context(f"{category} {summary}")
+        kb_result = retrieve_verified_legal_context(full_context)
         
         # FIX 5: Honest out-of-scope fallback (no guessing or inventing law)
         if kb_result.get("out_of_scope"):
@@ -197,6 +211,9 @@ STRICT HALLUCINATION PREVENTION RULES:
 9. TENANCY & DEPOSIT RECOVERY (STRICT): Do NOT present Section 108(B)(m) as the statutory basis for a security deposit refund. Section 108(B)(m) covers only reasonable wear-and-tear protection. Explain that deposit recovery depends on the rental agreement and the applicable state rent law, and ask the user's state before giving state-specific advice. Do NOT present the Model Tenancy Act as applicable everywhere; it only applies in states that have enacted it.
 10. DLSA & FORUM RULES: Describe DLSA strictly as free legal aid and guidance (Helpline 15100). NEVER describe DLSA as a forum for hearings or proceedings against an employer. For wage claims, direct the user to 'the competent labour authority (confirm locally)'.
 11. COSTS & TIMELINES RULE: Do NOT include any fee, court fee, or cost estimates (do NOT state 'Cost: Nominal / Free', 'Cost: Free / Speed Post', or specific rupee amounts for filing). Any deadline or timeline must be explicitly labelled 'Suggested' (e.g. 'Suggested 15 days (customary pre-litigation notice period)').
+12. DATE-AWARE EMPLOYMENT LAW (Code on Wages Commencement: 21 November 2025, S.O. 5322(E)):
+- If the event date (resignation or last working day) is BEFORE 21 November 2025 (e.g. 2024), do NOT cite Section 17(2) as the legal basis. You must explicitly state: "The Code on Wages came into force on 21 November 2025. For earlier events, earlier law may apply, with savings provisions. A lawyer should check the dates and the applicable law."
+- If the year is missing from the story, you must ask: "Which year did your resignation or last working day occur in? The Code on Wages came into force on 21 November 2025, so the exact year is required to determine the applicable law."
 
 VERIFIED STATUTORY GROUNDING:
 {grounding_text}
@@ -247,9 +264,11 @@ Output format MUST be valid JSON with this structure:
                 "case_dossier": case_dossier
             }
 
-        context_text = f"{case_dossier.get('category', '')} {case_dossier.get('summary', '')}"
+        context_text = full_context
         is_emp_case = "employ" in str(case_dossier.get("category", "")).lower() or "wage" in str(case_dossier.get("category", "")).lower()
         has_deduction = any(t in context_text.lower() for t in ["deduct", "deduction", "fine", "advance", "cut from salary", "deductions", "deducted", "fines", "advances", "salary cut"])
+        date_info = parse_employment_dates(context_text) if is_emp_case else {}
+        date_status = date_info.get("status", "post_commencement") if is_emp_case else "post_commencement"
 
         # Code-level guard: Sanitize plain language standing for unverified section references & banned Acts
         if isinstance(result, dict) and "plain_language_standing" in result:
@@ -272,8 +291,28 @@ Output format MUST be valid JSON with this structure:
                     # If employment dispute with NO deduction mentioned, do NOT cite Section 18
                     if is_emp_case and not has_deduction and re.search(r'\b18\b', sec):
                         continue
+                    # Date-aware employment check: before 21 Nov 2025, do NOT cite Section 17(2) as legal basis
+                    if is_emp_case and date_status == "pre_commencement":
+                        if "17" in sec or "code on wages" in act_name.lower():
+                            continue
+                    if is_emp_case and date_status == "missing_year":
+                        if "17(2)" in sec:
+                            continue
                     filtered_laws.append(item)
             result["governing_laws"] = filtered_laws
+
+        # Code-level guard: Date-aware standing warnings/prompts
+        if is_emp_case and isinstance(result, dict) and "plain_language_standing" in result:
+            pls = result["plain_language_standing"]
+            if date_status == "pre_commencement":
+                pls = re.sub(r'(?i)(?:under|citing|as\s+per)\s+Section\s*17\(2\)[^.\n]*\.?', '', pls)
+                if PRE_COMMENCEMENT_WARNING not in pls:
+                    pls = f"{PRE_COMMENCEMENT_WARNING}\n\n{pls.strip()}"
+                result["plain_language_standing"] = pls
+            elif date_status == "missing_year":
+                if "Which year did your resignation or last working day occur in?" not in pls:
+                    pls = f"{MISSING_YEAR_PROMPT}\n\n{pls.strip()}"
+                result["plain_language_standing"] = pls
 
         # Code-level guard: Sanitize action options and remove unsourced cost estimates
         if isinstance(result, dict) and "action_options" in result and isinstance(result["action_options"], list):
@@ -282,7 +321,10 @@ Output format MUST be valid JSON with this structure:
                     if "cost_estimate" in opt:
                         del opt["cost_estimate"]
                     if "details" in opt and isinstance(opt["details"], str):
-                        opt["details"] = sanitize_unverified_sections(opt["details"], context_text=context_text)
+                        d_txt = sanitize_unverified_sections(opt["details"], context_text=context_text)
+                        if is_emp_case and date_status == "pre_commencement":
+                            d_txt = re.sub(r'(?i)(?:under|citing|as\s+per)\s+Section\s*17\(2\)[^.\n]*\.?', '', d_txt)
+                        opt["details"] = d_txt
                     if "title" in opt and isinstance(opt["title"], str):
                         opt["title"] = sanitize_unverified_sections(opt["title"], context_text=context_text)
 
@@ -304,6 +346,9 @@ class DocumentDrafterAgent:
         timeline_dates = [t.get("date_or_period", "") for t in case_dossier.get("timeline", []) if t.get("date_or_period")]
         category = case_dossier.get("category", "")
         is_emp = "employ" in str(category).lower() or "wage" in str(category).lower()
+        dossier_text_raw = json.dumps(case_dossier)
+        date_info = parse_employment_dates(dossier_text_raw) if is_emp else {}
+        is_pre_commencement = (is_emp and date_info.get("status") == "pre_commencement")
 
         system_prompt = f"""
 You are the Expert Legal Drafter at NyayaMitra India.
@@ -352,6 +397,7 @@ DOCUMENT HEADING & STANDARDS:
    The notice must NEVER state or imply that an e-commerce platform or online marketplace is liable under Section 84.
 11. SECTION 17(2) & RELIEVING LETTERS (STRICT):
    Section 17(2) of the Code on Wages, 2019 describes ONLY the payment of WAGES within 2 working days. Never state that Section 17(2) mandates a 2-day deadline for relieving letters. For relieving letters: No fixed legal deadline is stated here; check your contract and company policy, or ask a lawyer.
+{'11b. PRE-COMMENCEMENT FACTS-ONLY NOTICE (STRICT): Because the employment event date is prior to 21 November 2025, do NOT cite Section 17(2) or the Code on Wages, 2019 as the legal basis. Keep the notice strictly facts-only reciting employment dates, resignation/last working day, and the unpaid amount.' if is_pre_commencement else ''}
 12. TENANCY SCOPE RULE (STRICT):
    In tenancy notices, cite Section 108(B)(m) of the Transfer of Property Act strictly for wear-and-tear protection against unauthorized repainting deductions. Do NOT present Section 108(B)(m) as the basis for the deposit refund itself; base the demand for refund on the terms of the tenancy agreement and the applicable state tenancy laws.
 13. DLSA & FORUM RULES: DLSA provides free legal aid and guidance only (Helpline: 15100). NEVER describe DLSA as a forum for proceedings against an employer. For wage claims, state that proceedings will be filed before 'the competent labour authority (confirm locally)'.
@@ -371,7 +417,7 @@ Legal Standing & Grounded Laws:
 Today's Date: {today_str}
 Dossier Timeline Dates: {', '.join(timeline_dates) if timeline_dates else 'Use [DD/MM/YYYY]'}
 
-Please write the complete, unedited, ready-to-send document in the FIRST PERSON ("I", "my") with signature "[Your Name]".
+Please write the complete, unedited document (headed strictly as '### LEGAL NOTICE DRAFT – REVIEW BEFORE SENDING') in the FIRST PERSON ("I", "my") with signature "[Your Name]".
 """
         raw_draft = self.engine.generate(system_prompt, user_prompt, temperature=0.2)
         
@@ -401,13 +447,27 @@ Please write the complete, unedited, ready-to-send document in the FIRST PERSON 
         if "email reminder" not in dossier_text and "email reminders" not in dossier_text and "reminder email" not in dossier_text:
             raw_draft = re.sub(r'(?i)email\s+reminders?', '[reminders, if any]', raw_draft)
 
+        # Pre-commencement employment guard: keep notice facts-only without citing Section 17(2) or Code on Wages
+        if is_pre_commencement:
+            raw_draft = re.sub(r'(?i)(?:under\s+|pursuant\s+to\s+|as\s+per\s+)?Section\s*17\(2\)(?:\s+of\s+the\s+Code\s+on\s+Wages(?:\s*,\s*\d{4})?)?', 'as per contractual obligations', raw_draft)
+            raw_draft = re.sub(r'(?i)(?:under\s+)?the\s+Code\s+on\s+Wages(?:\s*,\s*\d{4})?', 'applicable employment terms', raw_draft)
+
         # Section 84 scope enforcement: The notice must never say the platform is liable under Section 84
         # TODO: Awaiting user's exact official wording for Section 84.
         raw_draft = re.sub(r'(?i)(?:and\s+platform\s+(?:is|are)|platform\s+is)\s+liable\s+under\s+Section\s+84', 'product manufacturer is liable under Section 84', raw_draft)
         raw_draft = re.sub(r'(?i)under\s+Section\s+84[^.\n]*platform[^.\n]*', 'Under Section 84 of the Consumer Protection Act, 2019, the product manufacturer is liable for manufacturing defects.', raw_draft)
 
-        # Notice heading normalization: ensure "Legal Notice Draft – Review Before Sending"
-        raw_draft = re.sub(r'(?i)###?\s*(?:Ready-to-Send\s+)?Legal\s+(?:Demand\s+)?Notice(?:\s*–\s*Review\s+Before\s+Sending)?', '### LEGAL NOTICE DRAFT – REVIEW BEFORE SENDING', raw_draft)
+        # Notice heading normalization: ensure "### LEGAL NOTICE DRAFT – REVIEW BEFORE SENDING" appears exact once
+        raw_draft = re.sub(r'(?i)\bReady-to-Send\b\s*', '', raw_draft)
+        raw_draft = re.sub(
+            r'(?i)^\s*#+\s*.*?(?:legal\s+(?:demand\s+)?notice|demand\s+notice|draft\s*[-–]\s*review\s+before\s+sending).*?(?:\n+|$)',
+            '',
+            raw_draft.strip()
+        )
+        heading_phrase = "LEGAL NOTICE DRAFT – REVIEW BEFORE SENDING"
+        raw_draft = re.sub(re.escape(heading_phrase), "", raw_draft, flags=re.IGNORECASE)
+        raw_draft = re.sub(r'^\s*#+\s*\n*', '', raw_draft.strip())
+        raw_draft = f"### {heading_phrase}\n\n{raw_draft.lstrip()}"
 
         raw_draft = re.sub(r'  +', ' ', raw_draft)
         return sanitize_unverified_sections(raw_draft, context_text=dossier_text)
@@ -503,11 +563,15 @@ class ConversationalCounselorAgent:
     def answer_followup(self, chat_history: List[Dict[str, str]], case_dossier: Dict[str, Any], user_message: str, language: str = "Auto-Detect") -> str:
         category = case_dossier.get("category", "") if case_dossier else ""
         summary = case_dossier.get("summary", "") if case_dossier else ""
+        timeline_str = json.dumps(case_dossier.get("timeline", [])) if case_dossier else ""
         today_str = datetime.date.today().strftime("%d/%m/%Y")
         is_emp = "employ" in str(category).lower() or "wage" in str(category).lower()
+        full_ctx = f"{category} {summary} {timeline_str} {user_message}"
+        date_info = parse_employment_dates(full_ctx) if is_emp else {}
+        date_status = date_info.get("status", "post_commencement") if is_emp else "post_commencement"
         
         # Pass fallback_category so follow-up queries inherit active case domain
-        kb_result = retrieve_verified_legal_context(f"{category} {summary} {user_message}", fallback_category=category)
+        kb_result = retrieve_verified_legal_context(full_ctx, fallback_category=category)
         if kb_result.get("out_of_scope"):
             return (
                 "This topic falls outside the verified everyday legal domains covered by NyayaMitra "
@@ -571,6 +635,17 @@ Please respond naturally to the user's question with practical Indian legal coun
         ans = self.engine.generate(system_prompt, user_prompt, temperature=0.3)
         if not ans or not ans.strip():
             ans = "I understand your point. Based on the facts established in your case and relevant Indian statutes, you are legally entitled to press for your rightful refund or dues. Would you like me to generate your Legal Notice Draft – Review Before Sending now?"
+        
+        # Date-aware post-processing for employment follow-ups
+        if is_emp:
+            if date_status == "pre_commencement":
+                ans = re.sub(r'(?i)(?:under|citing|as\s+per)\s+Section\s*17\(2\)[^.\n]*\.?', '', ans)
+                if PRE_COMMENCEMENT_WARNING not in ans:
+                    ans = f"{PRE_COMMENCEMENT_WARNING}\n\n{ans.strip()}"
+            elif date_status == "missing_year":
+                if "Which year did your resignation or last working day occur in?" not in ans:
+                    ans = f"{MISSING_YEAR_PROMPT}\n\n{ans.strip()}"
+
         # Code-level guard: Sanitize conversational follow-up response
         return sanitize_unverified_sections(ans, context_text=f"{category} {summary} {user_message}")
 

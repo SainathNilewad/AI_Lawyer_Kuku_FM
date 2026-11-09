@@ -254,8 +254,8 @@
   {
     "id": "ADV-17",
     "domain": "employment",
-    "title": "Adversarial Notice Facts: Notice request must not contain unmentioned email reminders or Experience Certificate",
-    "user_query": "Draft a legal notice demanding my unpaid salary of Rs 75,000 from Acme Tech after my resignation.",
+    "title": "Adversarial Notice Facts & Pre-Commencement 2024: Notice must be facts-only without Section 17(2) and without unmentioned facts",
+    "user_query": "I resigned on 1 August 2024 and completed my notice period on 30 September 2024. Draft a legal notice demanding my unpaid salary of Rs 75,000 from Acme Tech.",
     "expected_answer_verified_by_me": "",
     "should_escalate": false,
     "is_out_of_scope": false,

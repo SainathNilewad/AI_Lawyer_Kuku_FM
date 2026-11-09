@@ -38,7 +38,12 @@ from legal_kb import (
     scan_case_names,
     sanitize_case_names,
     is_case_law_request,
-    CASE_LAW_FIXED_REPLY
+    CASE_LAW_FIXED_REPLY,
+    parse_employment_dates,
+    PRE_COMMENCEMENT_WARNING,
+    MISSING_YEAR_PROMPT,
+    build_safe_side_card_html,
+    build_safe_source_law_html
 )
 from llm_engine import LegalLLMEngine
 from agents import CaseBuilderAgent, RightsAdvisorAgent, DocumentDrafterAgent, ConversationalCounselorAgent
@@ -193,20 +198,113 @@ def run_test_suite():
     assert res_f.get("case_dossier") == dossier_mock_f, f"(f) Failed: case_dossier not preserved, got {res_f}"
     print("    [PASS] (f) mocked invalid JSON -> controlled error.")
 
-    # (g) HTML in a message is escaped
+    # (g) HTML in messages and all dynamic sidecar/source fields is escaped
     import html as html_mod
-    raw_html_msg = "<script>alert(1)</script>"
-    escaped_html = html_mod.escape(raw_html_msg)
+    xss_payload = "<script>alert(1)</script>"
+    escaped_html = html_mod.escape(xss_payload)
     assert "<script>" not in escaped_html, f"(g) Failed: <script> not escaped in {escaped_html}"
-    assert "&lt;script&gt;alert(1)&lt;/script&gt;" == escaped_html, f"(g) Failed: escaped text mismatch: {escaped_html}"
-    print("    [PASS] (g) HTML in a message is escaped.")
+    side_html = build_safe_side_card_html(
+        case_title=xss_payload,
+        complainant=xss_payload,
+        opposite_party=xss_payload,
+        disputed_amount=xss_payload,
+        category=xss_payload
+    )
+    assert "<script>" not in side_html, f"(g) Failed: <script> found unescaped in side-card: {side_html}"
+    assert side_html.count("&lt;script&gt;alert(1)&lt;/script&gt;") == 5, f"(g) Failed: expected 5 escaped fields in side_html"
+    law_html = build_safe_source_law_html(
+        act_name=xss_payload,
+        sec=xss_payload,
+        relevance=xss_payload,
+        is_verified=True
+    )
+    assert "<script>" not in law_html, f"(g) Failed: <script> found unescaped in law_html: {law_html}"
+    assert law_html.count("&lt;script&gt;alert(1)&lt;/script&gt;") == 3, f"(g) Failed: expected 3 escaped fields in law_html"
+    print("    [PASS] (g) HTML <script>alert(1)</script> escaped in messages, case title, parties, amounts, Act names, sections, and relevance text.")
 
     # (h) the relieving letter is not described as a wage deadline
     ret_h = retrieve_verified_legal_context("relieving letter and salary after resignation")
     g_text_h = ret_h.get("grounding_text", "")
     assert "No fixed legal deadline is stated here; check your contract and company policy, or ask a lawyer." in g_text_h, f"(h) Failed: relieving letter disclaimer missing from grounding text"
     assert not re.search(r'(?i)Section\s*17\(2\)[^.\n]*relieving\s+(?:letter|document)', g_text_h), f"(h) Failed: Section 17(2) cited as deadline for relieving letters in {g_text_h}"
-    print("    [PASS] (h) the relieving letter is not described as a wage deadline.\n")
+    print("    [PASS] (h) the relieving letter is not described as a wage deadline.")
+
+    # (i) Emergency rules: ordinary threats (legal action, court, notice, lawyer, sue), past markers, police threats
+    ordinary_threats = [
+        "The landlord is threatening legal action against me.",
+        "The company threatened to take me to court.",
+        "Seller is threatening to send a legal notice.",
+        "Employer threatened to hire a lawyer.",
+        "They are threatening to sue me."
+    ]
+    for ot in ordinary_threats:
+        esc_ot = check_immediate_advocate_escalation(ot)
+        assert esc_ot["requires_real_lawyer"] is False, f"(i) Failed: ordinary dispute threat should not escalate: {ot} -> {esc_ot}"
+    past_dangers = [
+        "My neighbour attacked me 2 years ago.",
+        "My landlord beat me last year.",
+        "I was assaulted months ago.",
+        "In 2024 my employer hit me."
+    ]
+    for pd in past_dangers:
+        esc_pd = check_immediate_advocate_escalation(pd)
+        assert esc_pd.get("is_physical_danger") is False, f"(i) Failed: past marker should not show immediate danger: {pd} -> {esc_pd}"
+        assert esc_pd.get("is_past_incident") is True, f"(i) Failed: past marker should flag is_past_incident: {pd} -> {esc_pd}"
+        assert "Is this happening now, or did it happen in the past?" in esc_pd.get("clarification_question", ""), f"(i) Failed: missing clarification prompt: {esc_pd}"
+    esc_pol = check_immediate_advocate_escalation("My landlord is threatening to call police and arrest me.")
+    assert esc_pol["requires_real_lawyer"] is True, f"(i) Failed: police threat must escalate: {esc_pol}"
+    print("    [PASS] (i) Emergency rules: ordinary threats ignored, past markers ask clarification, police & present danger escalate.")
+
+    # (j) Date-aware employment law: 2024 (warning, no 17(2)), post 21 Nov 2025 (17(2) cited), missing year (asks)
+    ret_2024 = retrieve_verified_legal_context("I resigned on 1 August 2024 and my last working day was 30 September 2024. Employer withheld salary.")
+    assert PRE_COMMENCEMENT_WARNING in ret_2024["grounding_text"], f"(j) Failed: missing commencement warning for 2024 event"
+    assert not any("Section 17(2)" in e.get("sections", []) for e in ret_2024["entries"]), f"(j) Failed: Section 17(2) cited for 2024 event"
+
+    ret_2026 = retrieve_verified_legal_context("I submitted my resignation on 1 June 2026 and last working day was 31 July 2026. It has been 50 days since unpaid salary.")
+    assert any("Section 17(2)" in e.get("sections", []) for e in ret_2026["entries"]), f"(j) Failed: Section 17(2) not cited for post-21 Nov 2025 event"
+    assert PRE_COMMENCEMENT_WARNING not in ret_2026["grounding_text"], f"(j) Failed: pre-commencement warning shown for 2026 event"
+
+    ret_missing = retrieve_verified_legal_context("I resigned on 1 August and my last working day was 30 September. Salary withheld.")
+    assert "Which year did your resignation or last working day occur in?" in ret_missing["grounding_text"], f"(j) Failed: missing year did not ask for year"
+    print("    [PASS] (j) Date-aware employment law: 2024 warns without 17(2), post-Nov 2025 cites 17(2), missing year asks.")
+
+    # (k) Notice heading normalization across all 3 domains + generated files
+    class MockNoticeHeadingEngine:
+        def __init__(self, stub_text):
+            self.stub_text = stub_text
+        def generate(self, *args, **kwargs):
+            return self.stub_text
+    mock_stubs = [
+        "### LEGAL NOTICE DRAFT – REVIEW BEFORE SENDING DRAFT\n\nDate: 09/11/2026\nI hereby state and submit as under...\n\n*(Signature)*\n[Your Name]",
+        "### Ready-to-Send Legal Notice\n\nDate: 09/11/2026\nI demand a refund...\n\n*(Signature)*\n[Your Name]",
+        "## Legal Demand Notice – Review Before Sending\n\nDate: 09/11/2026\nI state my unpaid salary...\n\n*(Signature)*\n[Your Name]"
+    ]
+    for idx_m, stub in enumerate(mock_stubs, 1):
+        md_drafter = DocumentDrafterAgent(MockNoticeHeadingEngine(stub))
+        res_n = md_drafter.run({"category": "Tenancy", "summary": "Deposit dispute"}, {})
+        assert res_n.count("LEGAL NOTICE DRAFT – REVIEW BEFORE SENDING") == 1, f"(k) Failed: heading count != 1 on mock {idx_m}: {res_n[:100]}"
+        assert "ready-to-send" not in res_n.lower(), f"(k) Failed: Ready-to-Send found in mock {idx_m}"
+    # Also check generated tc_01..tc_03 notices on disk
+    for tc_fn in ["tc_01_tenancy.json", "tc_02_consumer.json", "tc_03_employment.json"]:
+        tc_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_cases", tc_fn)
+        assert os.path.exists(tc_path), f"(k) Failed: missing {tc_path}"
+        with open(tc_path, "r", encoding="utf-8") as f_tc:
+            tc_obj = json.load(f_tc)
+        tc_notice = tc_obj.get("legal_notice_draft", "")
+        assert tc_notice.count("LEGAL NOTICE DRAFT – REVIEW BEFORE SENDING") == 1, f"(k) Failed: heading count != 1 in {tc_fn}"
+        assert "ready-to-send" not in tc_notice.lower(), f"(k) Failed: Ready-to-Send found in {tc_fn}"
+        assert "evidence_strength_score" not in tc_obj.get("case_dossier", {}), f"(k) Failed: evidence_strength_score present in {tc_fn}"
+    print("    [PASS] (k) All three notice headings verified exact once without Ready-to-Send.")
+
+    # (l) Evidence score removed from CaseBuilderAgent fallback/schema
+    class MockInvalidCBEngine:
+        def generate_json(self, *args, **kwargs):
+            return "not json"
+    cb_test = CaseBuilderAgent(MockInvalidCBEngine())
+    res_cb = cb_test.run("My landlord withheld Rs 50,000 deposit")
+    assert "evidence_strength_score" not in res_cb, f"(l) Failed: evidence_strength_score still present in CaseBuilderAgent output"
+    assert "evidence_mentioned" in res_cb, f"(l) Failed: evidence_mentioned missing from CaseBuilderAgent output"
+    print("    [PASS] (l) Evidence strength score removed from CaseBuilderAgent schema and output.\n")
 
     passed_count = 0
     failed_count = 0
@@ -347,16 +445,24 @@ def run_test_suite():
                     failure_reasons.append(f"Governing laws cited Section 18: {law}")
 
         # Check: Adversarial notice request must not contain unmentioned email reminders or Experience Certificate
+        # And for 2024 pre-commencement event, must trigger commencement warning and keep notice facts-only without Section 17(2)
         if adv_type == "notice_no_invented_facts":
+            if PRE_COMMENCEMENT_WARNING not in retrieval.get("grounding_text", ""):
+                case_passed = False
+                failure_reasons.append("ADV-17 retrieval failed to trigger 2024 pre-commencement warning.")
+            if any("Section 17(2)" in e.get("sections", []) for e in retrieval.get("entries", [])):
+                case_passed = False
+                failure_reasons.append("ADV-17 retrieval cited Section 17(2) for 2024 pre-commencement event.")
+
             drafter = DocumentDrafterAgent(engine)
             dossier_mock = {
                 "case_title": "Unpaid Salary",
                 "complainant": "Employee",
                 "opposite_party": "Acme Tech",
                 "disputed_amount": "Rs 75,000",
-                "summary": "Resigned and completed notice period; unpaid salary of Rs 75,000.",
+                "summary": "Resigned on 1 August 2024 and completed notice period on 30 September 2024; unpaid salary of Rs 75,000.",
                 "category": "Employment & Labor",
-                "timeline": [{"date_or_period": "Recent", "event": "Resignation"}]
+                "timeline": [{"date_or_period": "30 September 2024", "event": "Completed notice period"}]
             }
             notice = drafter.draft_demand_notice(dossier_mock)
             n_text = notice.get("notice_text", "")
@@ -369,6 +475,15 @@ def run_test_suite():
             if "experience certificate" in n_text.lower():
                 case_passed = False
                 failure_reasons.append("Notice hallucinated 'Experience Certificate'.")
+            if "Section 17(2)" in n_text:
+                case_passed = False
+                failure_reasons.append("2024 facts-only notice cited Section 17(2).")
+            if n_text.count("LEGAL NOTICE DRAFT – REVIEW BEFORE SENDING") != 1:
+                case_passed = False
+                failure_reasons.append("ADV-17 notice heading count != 1.")
+            if "ready-to-send" in n_text.lower():
+                case_passed = False
+                failure_reasons.append("ADV-17 notice contained 'Ready-to-Send'.")
 
         # Check: Adversarial DLSA must not be described as hearing proceedings against employer
         if adv_type == "dlsa_not_employer_hearing_forum":
@@ -435,7 +550,7 @@ def run_test_suite():
                     case_passed = False
                     failure_reasons.append(f"AI response contained unverified case citation(s): {cases_found}")
 
-                # Check: TC-01 Notice voice and facts check (first person, [Your Name], no interest-free, no breach of trust)
+                # Check: TC-01 Notice voice and facts check (first person, [Your Name], no interest-free, no breach of trust, heading exact once)
                 if case_id == "TC-01":
                     drafter = DocumentDrafterAgent(engine)
                     notice_obj = drafter.draft_demand_notice(dossier, advice)
@@ -455,6 +570,12 @@ def run_test_suite():
                     if "[Your Name]" not in n_txt:
                         case_passed = False
                         failure_reasons.append("TC-01 Notice signature block missing '[Your Name]'.")
+                    if n_txt.count("LEGAL NOTICE DRAFT – REVIEW BEFORE SENDING") != 1:
+                        case_passed = False
+                        failure_reasons.append("TC-01 Notice heading count != 1.")
+                    if "ready-to-send" in n_txt.lower():
+                        case_passed = False
+                        failure_reasons.append("TC-01 Notice contained 'Ready-to-Send'.")
 
                 # Check: TPA Section 108 deposit scope check
                 if adv_type == "tpa_deposit_scope":

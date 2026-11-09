@@ -9,9 +9,8 @@
 
 Instead of a rigid static form or batch report generator, **NyayaMitra** acts like an empathetic legal companion:
 
-1. **🎙️ Pan-India Multilingual (Voice & Text):**
-   - Speak directly into your microphone or type in **11 Indian languages**:
-     - *Hindi (हिन्दी), Hinglish, Tamil (தமிழ்), Telugu (తెలుగు), Kannada (ಕನ್ನಡ), Bengali (বাংলা), Marathi (मराठी), Gujarati (ગુજરાતી), Malayalam (മലയാളം), Punjabi (ਪੰਜਾਬੀ), and English*.
+1. **🎙️ Multilingual Support (Voice & Text):**
+   - Speak directly into your microphone or type in **verified languages (English, Hindi, Marathi, Hinglish)**. *Other languages may work but are not verified.*
    - Voice audio is transcribed using Groq's **Whisper Large v3 Turbo** engine.
 2. **💬 Empathetic Legal Dialogue & Fact Intake:**
    - Listens to unstructured narratives, extracts chronological facts, and organizes claims.

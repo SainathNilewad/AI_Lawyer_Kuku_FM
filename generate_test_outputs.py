@@ -50,9 +50,9 @@ TEST_SCENARIOS = [
         "category": "Employment & Salary",
         "raw_story": (
             "I worked as a frontend developer at an IT consultancy firm in Cyber City, Gurugram for 18 months at Rs 70,000/month. "
-            "I submitted my resignation on 1st August 2024 and completed my full 60-day notice period till 30th September 2024. "
+            "I submitted my resignation on 1 June 2026 and completed my full 60-day notice period till my last working day on 31 July 2026. "
             "All project handovers and company assets (MacBook, ID card) were handed over and I received an asset clearance certificate from IT. "
-            "My August salary was delayed, and my September salary plus 15 days encashable leave (total Rs 1,65,000) has not been paid. "
+            "My June salary was delayed, and my July salary plus 15 days encashable leave (total Rs 1,65,000) has not been paid. "
             "It has been 50 days since my last working day. Whenever I email HR, they say 'finance team is facing client payment delays'. "
             "More importantly, they are withholding my Relieving Letter and Experience Certificate. My new employer is threatening to cancel my job offer if I don't submit my relieving letter by end of this week. "
             "I have my appointment letter, resignation acceptance email, and signed clearance form."

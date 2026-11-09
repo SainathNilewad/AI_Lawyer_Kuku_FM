@@ -40,7 +40,9 @@ try:
         check_immediate_advocate_escalation,
         VERIFIED_STATUTORY_DATABASE,
         is_case_law_request,
-        CASE_LAW_FIXED_REPLY
+        CASE_LAW_FIXED_REPLY,
+        build_safe_side_card_html,
+        build_safe_source_law_html
     )
 except ImportError:
     from .legal_kb import (
@@ -48,7 +50,9 @@ except ImportError:
         check_immediate_advocate_escalation,
         VERIFIED_STATUTORY_DATABASE,
         is_case_law_request,
-        CASE_LAW_FIXED_REPLY
+        CASE_LAW_FIXED_REPLY,
+        build_safe_side_card_html,
+        build_safe_source_law_html
     )
 
 try:
@@ -273,6 +277,7 @@ with st.sidebar:
         label_visibility="collapsed"
     )
     whisper_code = INDIAN_LANGUAGES[selected_lang]
+    st.caption("ℹ️ *Verified languages: English, Hindi, Marathi, Hinglish. Other languages may work but are not verified.*")
 
     # Resolve API keys
     groq_key = os.getenv("GROQ_API_KEY", "")
@@ -434,6 +439,7 @@ with col_chat:
 
     # Chat Input Box
     chat_text_input = st.chat_input("Type your dispute or question here...")
+    st.caption("Your messages and voice are processed by Google Gemini and Groq Whisper. Avoid unnecessary personal identifiers.")
 
     # Voice Recorder moved UNDER the chat input into a collapsed expander
     voice_transcribed_text = None
@@ -497,6 +503,23 @@ with col_chat:
 
         # Pre-flight Check 1: Immediate Advocate Escalation & Emergency check FIRST (No LLM call)
         esc_check = check_immediate_advocate_escalation(incoming_message)
+        if esc_check.get("is_past_incident", False):
+            clarification_reply = (
+                "Is this happening now, or did it happen in the past?\n\n"
+                "Please clarify the timeline so I can give you appropriate guidance (and direct you to emergency help or civil/legal aid at DLSA/NALSA 15100 as needed)."
+            )
+            st.session_state.model_provenance_log.append({
+                "turn": len(st.session_state.chat_history) + 1,
+                "provider": "Deterministic Guard",
+                "model": "Emergency Safety Rule (No LLM)"
+            })
+            st.session_state.chat_history.append({
+                "role": "assistant",
+                "content": clarification_reply,
+                "meta": {"provider": "Deterministic Guard", "model": "Emergency Safety Rule (No LLM)"}
+            })
+            st.rerun()
+
         if esc_check.get("requires_real_lawyer", False):
             reason = esc_check.get("reason", "High-risk matter")
             is_phys = esc_check.get("is_physical_danger", False)
@@ -712,22 +735,17 @@ with col_chat:
                         })
                         st.rerun()
                     else:
-                        # Dynamically check for newly mentioned evidence
+                        # Dynamically record newly mentioned evidence without marking as verified/available
                         msg_lower = incoming_message.lower()
                         evidence_keywords = ["bank statement", "receipt", "invoice", "photo", "video", "whatsapp", "email", "agreement", "job sheet", "bill"]
                         found_ev = [w for w in evidence_keywords if w in msg_lower]
-                        if found_ev and "evidence_held" in st.session_state.case_dossier:
+                        if found_ev:
+                            ev_list = st.session_state.case_dossier.setdefault("evidence_mentioned", [])
                             for ev in found_ev:
-                                entry_name = f"Additional proof: {ev.capitalize()}"
-                                if entry_name not in st.session_state.case_dossier["evidence_held"]:
-                                    st.session_state.case_dossier["evidence_held"].append(entry_name)
-                                    curr_score = st.session_state.case_dossier.get("evidence_strength_score", 7)
-                                    try:
-                                        curr_score = int(curr_score)
-                                    except Exception:
-                                        curr_score = 7
-                                    if curr_score < 10:
-                                        st.session_state.case_dossier["evidence_strength_score"] = curr_score + 1
+                                entry_name = f"Mentioned: {ev.capitalize()}"
+                                if entry_name not in ev_list:
+                                    ev_list.append(entry_name)
+                            st.session_state.case_dossier["evidence_held"] = ev_list
 
                         actual_p = getattr(engine, "last_used_provider", provider_choice)
                         actual_m = getattr(engine, "last_used_model", model_name)
@@ -753,27 +771,15 @@ with col_side:
         dossier = st.session_state.case_dossier
         rights = st.session_state.rights_advice or {}
 
-        # Dispute Card
-        st.markdown(f"""
-        <div class='side-card'>
-            <b>📌 Case:</b> {dossier.get('case_title', 'Everyday Dispute')}<br/>
-            <b>👤 Parties:</b> {dossier.get('complainant', 'You')} vs. {dossier.get('opposite_party', 'Opposing Party')}<br/>
-            <b>💰 Disputed Sum:</b> {dossier.get('disputed_amount', 'N/A')}<br/>
-            <b>📁 Category:</b> <span class='badge-statute'>{dossier.get('category', 'Civil')}</span>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # Evidence Strength Meter (Bounded 1-10)
-        raw_score = dossier.get("evidence_strength_score", 7)
-        try:
-            score = int(raw_score)
-        except Exception:
-            score = 7
-        score = max(1, min(10, score))
-
-        st.markdown(f"**🛡️ Evidence Strength (AI estimate): `{score}/10`**")
-        st.progress(float(score) / 10.0)
-        st.caption(dossier.get("evidence_strength_explanation", ""))
+        # Dispute Card (HTML-escaped)
+        side_card_html = build_safe_side_card_html(
+            dossier.get('case_title', 'Everyday Dispute'),
+            dossier.get('complainant', 'You'),
+            dossier.get('opposite_party', 'Opposing Party'),
+            dossier.get('disputed_amount', 'N/A'),
+            dossier.get('category', 'Civil')
+        )
+        st.markdown(side_card_html, unsafe_allow_html=True)
 
         # Tabs for Timeline, Proof Checklist, and Sources Used
         st_tab1, st_tab2, st_tab3 = st.tabs(["⏳ Timeline", "📜 Proof Checklist", "📚 Sources Used"])
@@ -790,19 +796,25 @@ with col_side:
                 st.caption("Timeline will appear here as dates are discussed.")
 
         with st_tab2:
-            st.markdown("**Proof You Have:**")
-            held = dossier.get("evidence_held", [])
-            if isinstance(held, str):
-                held = [held]
-            for h in held:
-                st.markdown(f"- ✅ {h}")
+            st.markdown("**Mentioned by you (from your story):**")
+            mentioned = dossier.get("evidence_mentioned") or dossier.get("evidence_held", [])
+            if isinstance(mentioned, str):
+                mentioned = [mentioned]
+            if mentioned:
+                for m in mentioned:
+                    st.markdown(f"- 📝 {m}")
+            else:
+                st.caption("No proof items mentioned yet.")
 
-            st.markdown("**Proof You Still Need:**")
+            st.markdown("**Still needed:**")
             needed = dossier.get("evidence_needed", [])
             if isinstance(needed, str):
                 needed = [needed]
-            for n in needed:
-                st.markdown(f"- ⚠️ {n}")
+            if needed:
+                for n in needed:
+                    st.markdown(f"- ⚠️ {n}")
+            else:
+                st.caption("No missing documents identified yet.")
 
         with st_tab3:
             st.markdown("**Statutory provisions referenced:**")
@@ -819,22 +831,16 @@ with col_side:
             if isinstance(laws, list) and laws:
                 for l in laws:
                     if isinstance(l, dict):
-                        act_name = l.get("act_name", "Statute")
-                        sec = l.get("section", "")
-                        status = l.get("status") or lookup_statutory_status(act_name, sec)
+                        raw_act = str(l.get("act_name", "Statute"))
+                        raw_sec = str(l.get("section", ""))
+                        raw_rel = str(l.get("relevance", ""))
+                        status = l.get("status") or lookup_statutory_status(raw_act, raw_sec)
                         is_verified = (status == "verified")
-
-                        if is_verified:
-                            badge_html = "<span class='badge-verified'>verified</span>"
-                        else:
-                            badge_html = "<span class='badge-unverified'>needs verification</span>"
-
-                        st.markdown(
-                            f"- **{act_name}** (`{sec}`) {badge_html}<br/><small style='color:#b0bec5;'>{l.get('relevance', '')}</small>",
-                            unsafe_allow_html=True
-                        )
+                        law_html = build_safe_source_law_html(raw_act, raw_sec, raw_rel, is_verified=is_verified)
+                        st.markdown(law_html, unsafe_allow_html=True)
                     else:
-                        st.markdown(f"- {l} <span class='badge-unverified'>needs verification</span>", unsafe_allow_html=True)
+                        safe_l = html.escape(str(l))
+                        st.markdown(f"- {safe_l} <span class='badge-unverified'>needs verification</span>", unsafe_allow_html=True)
             else:
                 st.caption("Statutory provisions will be listed here.")
 
@@ -918,7 +924,7 @@ with col_side:
         st.info("💡 **Your Case Intelligence will appear here** as soon as you speak or type your legal problem.")
         st.markdown("""
         **How NyayaMitra works:**
-        1. 🎧 **Listens to your story** by voice or text in 11 Indian languages.
+        1. 🎧 **Listens to your story** by voice or text in verified languages (English, Hindi, Marathi, Hinglish; other languages may work but are not verified).
         2. 📋 **Extracts facts & dates** into an organized case timeline.
         3. ⚖️ **Answers only from a small checked list of laws.** Anything not on the list is flagged.
         4. 📝 **Legal Notice Draft – Review Before Sending** (suggested 15-day pre-litigation practice).

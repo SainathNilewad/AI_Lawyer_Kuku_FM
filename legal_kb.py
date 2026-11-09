@@ -9,6 +9,8 @@ Authoritative knowledge base covering:
 
 from typing import List, Dict, Any, Set
 import re
+import datetime
+import html
 
 # Curated statutory entries for everyday Indian disputes
 # Every entry carries a source_url, verified_on date, and verification status.
@@ -120,9 +122,12 @@ VERIFIED_STATUTORY_DATABASE: List[Dict[str, Any]] = [
     },
 
     # ==================== EMPLOYMENT & SALARY DISPUTES ====================
+    # TODO: User to verify official source link for Code on Wages commencement notification S.O. 5322(E)
     {
         "domain": "Employment & Labor",
         "act": "Code on Wages, 2019",
+        "commencement": "21 November 2025 (S.O. 5322(E))",
+        "commencement_source_url": "TODO: User to verify official source link",
         "source_url": "https://www.indiacode.nic.in/",
         "verified_on": "2026-11-07",
         "status": "verified",
@@ -228,12 +233,17 @@ CRITICAL_ESCALATION_CRITERIA = [
     "pocso"
 ]
 
-# Physical danger emergency words: beating, hitting, attacked, stabbed, assault, kidnap, "kill me", "right now", "in danger"
+# Physical danger emergency words: beating, beat me, hitting, hit me, attacked, stabbed, assault, kidnap, "kill me", "right now", "in danger"
 PHYSICAL_DANGER_WORDS = [
     "beating",
+    "beat me",
+    "beat up",
     "hitting",
+    "hit me",
     "attacked",
+    "attack",
     "stabbed",
+    "stab",
     "assault",
     "kidnap",
     "kill me",
@@ -275,7 +285,8 @@ CONSUMER_KEYWORDS = [
     "रिफंड", "पैसे वापस", "खराब", "परतावा", "ग्राहक"
 ]
 EMPLOYMENT_KEYWORDS = [
-    "salary", "employer", "resignation", "relieving", "wages", "terminated", "fnf", "dues",
+    "salary", "employer", "resign", "resigned", "resignation", "relieving", "wages", "terminated", "termination",
+    "fnf", "f&f", "dues", "last working day", "final settlement", "notice period", "employment",
     "पगार", "वेतन", "सैलरी", "राजीनामा", "नौकरी", "कर्मचारी"
 ]
 
@@ -302,9 +313,20 @@ def _matches_word_beginning(pattern_phrase: str, text: str) -> bool:
     return bool(re.search(regex_str, text, re.IGNORECASE))
 
 # Provision Trigger Lists for Employment & Labor (Code on Wages, 2019)
+CODE_ON_WAGES_COMMENCEMENT = datetime.date(2025, 11, 21)
+PRE_COMMENCEMENT_WARNING = (
+    "The Code on Wages came into force on 21 November 2025. For earlier events, earlier law may apply, "
+    "with savings provisions. A lawyer should check the dates and the applicable law."
+)
+MISSING_YEAR_PROMPT = (
+    "Which year did your resignation or last working day occur in? The Code on Wages came into force on "
+    "21 November 2025, so the exact year is required to determine the applicable law."
+)
+
 SEC_17_2_TRIGGERS = [
     "resign", "resigned", "resignation", "relieving", "final settlement",
-    "f&f", "fnf", "notice period", "terminated", "termination", "dismissed", "retrenched"
+    "f&f", "fnf", "notice period", "terminated", "termination", "dismissed", "retrenched",
+    "राजीनामा"
 ]
 
 SEC_18_TRIGGERS = [
@@ -312,10 +334,103 @@ SEC_18_TRIGGERS = [
     "advance", "advances", "cut from salary", "salary cut", "salary deduction", "cuts"
 ]
 
+_MONTH_MAP = {
+    "january": 1, "february": 2, "march": 3, "april": 4, "may": 5, "june": 6,
+    "july": 7, "august": 8, "september": 9, "october": 10, "november": 11, "december": 12,
+    "jan": 1, "feb": 2, "mar": 3, "apr": 4, "jun": 6, "jul": 7, "aug": 8,
+    "sep": 9, "sept": 9, "oct": 10, "nov": 11, "dec": 12
+}
+
+def parse_employment_dates(text: str) -> Dict[str, Any]:
+    """
+    Extracts employment event dates (last working day, resignation date) and compares them
+    against Code on Wages, 2019 commencement date (21 November 2025, S.O. 5322(E)).
+    Returns status: 'pre_commencement', 'post_commencement', 'missing_year', or 'unknown'.
+    """
+    t = str(text or "")
+    t_lower = t.lower()
+
+    dates: List[datetime.date] = []
+    # e.g. 1 June 2026, 1st August 2024, 30th September 2024
+    for d, m, y in re.findall(r'\b(\d{1,2})(?:st|nd|rd|th)?\s+(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec)\s*,?\s*(20\d\d|19\d\d)\b', t_lower):
+        try:
+            dates.append(datetime.date(int(y), _MONTH_MAP[m], int(d)))
+        except ValueError:
+            pass
+
+    # e.g. June 1, 2026
+    for m, d, y in re.findall(r'\b(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec)\s+(\d{1,2})(?:st|nd|rd|th)?\s*,?\s*(20\d\d|19\d\d)\b', t_lower):
+        try:
+            dates.append(datetime.date(int(y), _MONTH_MAP[m], int(d)))
+        except ValueError:
+            pass
+
+    # YYYY-MM-DD / DD-MM-YYYY
+    for y, m, d in re.findall(r'\b(20\d\d|19\d\d)[-/](\d{1,2})[-/](\d{1,2})\b', t_lower):
+        try:
+            dates.append(datetime.date(int(y), int(m), int(d)))
+        except ValueError:
+            pass
+    for d, m, y in re.findall(r'\b(\d{1,2})[-/](\d{1,2})[-/](20\d\d|19\d\d)\b', t_lower):
+        try:
+            dates.append(datetime.date(int(y), int(m), int(d)))
+        except ValueError:
+            pass
+
+    # Month Year e.g. August 2024
+    for m, y in re.findall(r'\b(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec)\s+(20\d\d|19\d\d)\b', t_lower):
+        try:
+            dates.append(datetime.date(int(y), _MONTH_MAP[m], 15))
+        except ValueError:
+            pass
+
+    standalone_years = [int(y) for y in re.findall(r'\b(19\d\d|20\d\d)\b', t_lower)]
+    # Exclude statutory enactment years if they only appear inside the Act name "Code on Wages, 2019"
+    clean_for_years = re.sub(r'(?i)code\s+on\s+wages,\s*2019', '', t_lower)
+    clean_for_years = re.sub(r'(?i)payment\s+of\s+wages\s+act,\s*1936', '', clean_for_years)
+    event_years = [int(y) for y in re.findall(r'\b(19\d\d|20\d\d)\b', clean_for_years)]
+
+    has_month_day_no_year = bool(re.findall(r'\b(?:\d{1,2}(?:st|nd|rd|th)?\s+(?:january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec)|(?:january|february|march|april|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec)\s+\d{1,2}(?:st|nd|rd|th)?)\b', t_lower))
+    has_in_month_no_year = bool(re.findall(r'\bin\s+(?:january|february|march|april|june|july|august|september|october|november|december)\b', t_lower))
+    has_relative_recent = any(r in t_lower for r in ["yesterday", "today", "last month", "this month", "last week", "this week", "current wage laws", "current wage law"])
+    has_past_marker = any(r in t_lower for r in ["last year", "years ago", "year ago", "months ago"])
+
+    if dates:
+        if any(d < CODE_ON_WAGES_COMMENCEMENT for d in dates):
+            status = "pre_commencement"
+        else:
+            status = "post_commencement"
+    elif event_years:
+        if any(y < 2025 for y in event_years):
+            status = "pre_commencement"
+        elif any(y > 2025 for y in event_years):
+            status = "post_commencement"
+        else:
+            status = "missing_year"
+    elif has_past_marker:
+        status = "pre_commencement"
+    elif has_relative_recent:
+        status = "post_commencement"
+    elif has_month_day_no_year or has_in_month_no_year:
+        status = "missing_year"
+    else:
+        status = "missing_year"
+
+    return {
+        "dates": [d.isoformat() for d in dates],
+        "years": event_years,
+        "status": status,
+        "warning": PRE_COMMENCEMENT_WARNING if status == "pre_commencement" else "",
+        "ask_year": MISSING_YEAR_PROMPT if status == "missing_year" else ""
+    }
+
 def filter_employment_entry(entry: Dict[str, Any], query_text: str) -> Dict[str, Any]:
     """
     Filters employment provisions so only triggered provisions are included in the prompt and answer.
-    Section 17(2) triggers: resign, relieving, final settlement, F&F, notice period, terminated.
+    Date-aware:
+    - Before 21 Nov 2025: do NOT cite Section 17(2) as legal basis; include commencement warning & facts-only guidance.
+    - On/After 21 Nov 2025: cite Section 17(2) for removal/dismissal/retrenchment/resignation wage payment.
+    - Missing year: ask user for the year before citing Section 17(2) as settled basis.
     Section 18 triggers: deduct, deduction, fine, advance, cut from salary.
     """
     query_lower = (query_text or "").lower()
@@ -323,27 +438,57 @@ def filter_employment_entry(entry: Dict[str, Any], query_text: str) -> Dict[str,
     has_17_2 = any(t in query_lower for t in SEC_17_2_TRIGGERS)
     has_18 = any(t in query_lower for t in SEC_18_TRIGGERS)
     
+    date_info = parse_employment_dates(query_text)
+    date_status = date_info.get("status", "missing_year")
+
     filtered_sections = []
     filtered_provisions = []
+    remedy_steps = []
     
-    # 1. Section 17 provisions
+    # 1. Date-aware Section 17 provisions
     if has_17_2:
-        filtered_sections.append("Section 17(2)")
-        filtered_provisions.append(
-            "1. Payment on Removal, Dismissal or Resignation (Section 17(2)): Wages of an employee who is removed, dismissed, "
-            "retrenched or resigns must be paid within two working days of that event. "
-            "[Scope Rule: Describes strictly the time limit for paying WAGES only. Never cite Section 17(2) for relieving or experience letters. For letters: 'No fixed legal deadline is stated here; check your contract and company policy, or ask a lawyer.']"
-        )
+        if date_status == "pre_commencement":
+            # Do NOT cite Section 17(2) as legal basis
+            filtered_provisions.append(f"1. Commencement & Applicable Law Warning: {PRE_COMMENCEMENT_WARNING}")
+            filtered_provisions.append(
+                "2. Facts-Only Notice & Consultation: Do NOT cite Section 17(2) of the Code on Wages, 2019 as the legal basis "
+                "for events prior to 21 November 2025. Keep any demand notice strictly facts-only stating dates of employment, resignation, "
+                "last working day, and unpaid dues, and advise consulting a lawyer or DLSA 15100."
+            )
+            remedy_steps.append(PRE_COMMENCEMENT_WARNING)
+            remedy_steps.append("Send a facts-only written demand citing exact dates of resignation/last working day and unpaid wages without relying on Section 17(2).")
+        elif date_status == "missing_year":
+            filtered_provisions.append(f"1. Missing Year Clarification Required: {MISSING_YEAR_PROMPT}")
+            filtered_provisions.append(
+                "2. Conditional Statutory Context: Under the Code on Wages, 2019 (commencement 21 November 2025, S.O. 5322(E)), "
+                "Section 17(2) provides that wages upon removal, dismissal, retrenchment or resignation must be paid within two working days. "
+                "Ask the user for the exact year first to verify whether the Code on Wages applies or earlier law applies. "
+                "[Scope Rule: Describes strictly the time limit for paying WAGES only. Never cite Section 17(2) for relieving or experience letters. For letters: 'No fixed legal deadline is stated here; check your contract and company policy, or ask a lawyer.']"
+            )
+            remedy_steps.append(MISSING_YEAR_PROMPT)
+            remedy_steps.append("For relieving or experience letters: No fixed legal deadline is stated here; check your contract and company policy, or ask a lawyer.")
+        else:
+            # post_commencement (>= 21 Nov 2025)
+            filtered_sections.append("Section 17(2)")
+            filtered_provisions.append(
+                "1. Payment on Removal, Dismissal or Resignation (Section 17(2)): Wages of an employee who is removed, dismissed, "
+                "retrenched or resigns must be paid within two working days of that event. "
+                "[Scope Rule: Describes strictly the time limit for paying WAGES only. Never cite Section 17(2) for relieving or experience letters. For letters: 'No fixed legal deadline is stated here; check your contract and company policy, or ask a lawyer.']"
+            )
     else:
-        filtered_sections.append("Section 17(1)")
-        filtered_provisions.append(
-            "1. Time Limit for Wage Payment (Section 17(1)): Wages must be paid: daily (at the end of the shift), "
-            "weekly (on the last working day before the weekly holiday), fortnightly (before the end of the second day after the end of the fortnight), "
-            "or monthly (before the expiry of the seventh day of the succeeding month)."
-        )
+        if date_status == "pre_commencement":
+            filtered_provisions.append(f"1. Commencement & Applicable Law Warning: {PRE_COMMENCEMENT_WARNING}")
+            remedy_steps.append(PRE_COMMENCEMENT_WARNING)
+        else:
+            filtered_sections.append("Section 17(1)")
+            filtered_provisions.append(
+                "1. Time Limit for Wage Payment (Section 17(1)): Wages must be paid: daily (at the end of the shift), "
+                "weekly (on the last working day before the weekly holiday), fortnightly (before the end of the second day after the end of the fortnight), "
+                "or monthly (before the expiry of the seventh day of the succeeding month)."
+            )
         
-    # 2. Section 18 provisions - included ONLY if deduction triggers match
-    if has_18:
+    # 2. Section 18 provisions - included ONLY if deduction triggers match and NOT pre_commencement
+    if has_18 and date_status != "pre_commencement":
         filtered_sections.extend(["Section 18(1)", "Section 18(2)", "Section 18(3)"])
         filtered_provisions.append(
             "2. Authorised Deductions Only (Section 18(1), 18(2)): No deductions from wages except those authorised under Section 18(2) of the Code "
@@ -360,15 +505,15 @@ def filter_employment_entry(entry: Dict[str, Any], query_text: str) -> Dict[str,
         "The District Legal Services Authority (DLSA) / NALSA Helpline 15100 provides free legal aid and guidance only (it is not an adjudicating forum for proceedings against an employer)."
     )
 
-    remedy_steps = []
-    if has_17_2 and has_18:
-        remedy_steps.append("Send formal written demand email to employer citing Section 17(2) for release of unpaid wages within two working days, and Section 18(3) contesting unlawful deductions.")
-    elif has_17_2:
-        remedy_steps.append("Send formal written demand email to employer citing Section 17(2) requesting immediate release of unpaid wages within two working days.")
-    elif has_18:
-        remedy_steps.append("Send formal written demand email to employer citing Section 18(3) contesting unlawful deductions exceeding statutory 50% cap.")
-    else:
-        remedy_steps.append("Send formal written demand email to employer citing Section 17(1) requesting immediate release of unpaid wages.")
+    if not remedy_steps:
+        if has_17_2 and has_18 and date_status == "post_commencement":
+            remedy_steps.append("Send formal written demand email to employer citing Section 17(2) for release of unpaid wages within two working days, and Section 18(3) contesting unlawful deductions.")
+        elif has_17_2 and date_status == "post_commencement":
+            remedy_steps.append("Send formal written demand email to employer citing Section 17(2) requesting immediate release of unpaid wages within two working days.")
+        elif has_18:
+            remedy_steps.append("Send formal written demand email to employer citing Section 18(3) contesting unlawful deductions exceeding statutory 50% cap.")
+        else:
+            remedy_steps.append("Send formal written demand email to employer requesting immediate release of unpaid wages.")
 
     remedy_steps.append("For relieving or experience letters: No fixed legal deadline is stated here; check your contract and company policy, or ask a lawyer.")
     remedy_steps.append("For formal proceedings, approach the competent labour authority (confirm locally). The District Legal Services Authority (DLSA) / NALSA Helpline 15100 provides free legal aid and guidance only.")
@@ -377,6 +522,7 @@ def filter_employment_entry(entry: Dict[str, Any], query_text: str) -> Dict[str,
     filtered_entry["sections"] = filtered_sections
     filtered_entry["key_provisions"] = "\n".join(filtered_provisions)
     filtered_entry["remedy_steps"] = remedy_steps
+    filtered_entry["date_info"] = date_info
     return filtered_entry
 
 def retrieve_verified_legal_context(query: str, domain_filter: str = None, fallback_category: str = None) -> Dict[str, Any]:
@@ -459,6 +605,8 @@ def retrieve_verified_legal_context(query: str, domain_filter: str = None, fallb
         context_str += f"\n--- STATUTORY GROUNDING #{idx} ---\n"
         context_str += f"Domain: {e['domain']}\n"
         context_str += f"Statute: {e['act']}\n"
+        if e.get("commencement"):
+            context_str += f"Commencement: {e['commencement']}\n"
         context_str += f"Status: {e.get('status', 'needs_my_verification')}\n"
         context_str += f"Source URL: {e.get('source_url', 'https://www.indiacode.nic.in/')}\n"
         context_str += f"Verified On: {e.get('verified_on', '<unverified>')}\n"
@@ -493,17 +641,42 @@ def check_immediate_advocate_escalation(text: str) -> Dict[str, Any]:
 
     # 1. Physical danger & emergency check
     # Emergency words: beating, hitting, attacked, stabbed, assault, kidnap, "kill me", "right now", "in danger"
+    physical_danger_matched = False
     for w in PHYSICAL_DANGER_WORDS:
         if _matches_word_beginning(w, text_str) or w in text_lower:
-            is_physical_danger = True
+            physical_danger_matched = True
             escalation_reasons.append(f"Immediate physical danger ({w})")
 
     # If "right now" is present along with emergency/danger/violence/harm terms
     if "right now" in text_lower:
         if any(dw in text_lower for dw in ["danger", "threat", "kill", "beat", "hit", "attack", "stab", "assault", "kidnap", "neighbour", "neighbor", "violence", "harm"]):
-            is_physical_danger = True
+            physical_danger_matched = True
             if not any("Immediate physical danger" in r for r in escalation_reasons):
                 escalation_reasons.append("Immediate physical danger (emergency right now)")
+
+    # Past marker check: "years ago", "last year", "months ago", a past year
+    # If text has a past marker, do not show immediate danger; ask: "Is this happening now, or did it happen in the past?"
+    PAST_MARKER_PATTERNS = [
+        r'\byears?\s+ago\b',
+        r'\blast\s+year\b',
+        r'\bmonths?\s+ago\b',
+        r'\blast\s+month\b',
+        r'\bweeks?\s+ago\b',
+        r'\b\d{1,2}\s+years?\s+ago\b',
+        r'\b\d{1,2}\s+months?\s+ago\b',
+        r'\b(?:19\d\d|20[0-1]\d|202[0-5])\b'
+    ]
+    has_past_marker = any(re.search(pat, text_lower) for pat in PAST_MARKER_PATTERNS)
+    is_past_incident = False
+
+    if physical_danger_matched:
+        if has_past_marker and "right now" not in text_lower:
+            is_physical_danger = False
+            is_past_incident = True
+            # Strip immediate physical danger from escalation reasons so immediate 112 is not triggered
+            escalation_reasons = [r for r in escalation_reasons if not r.startswith("Immediate physical danger")]
+        else:
+            is_physical_danger = True
 
     # 2. Critical statutory escalation criteria (e.g. arrest, bail, domestic violence)
     for trigger in CRITICAL_ESCALATION_CRITERIA:
@@ -516,12 +689,17 @@ def check_immediate_advocate_escalation(text: str) -> Dict[str, Any]:
             continue  # Already checked in PHYSICAL_DANGER_WORDS
         if w == "threat":
             if _matches_word_beginning("threat", text_str):
-                # Do not escalate on "threat" alone when context is job, offer, salary or resignation
-                job_words = ["job", "offer", "salary", "resignation", "resign", "relieving", "termination", "terminate", "wages", "notice period", "settlement"]
-                has_job_ctx = any(jw in text_lower for jw in job_words)
+                # "legal action", "court", "notice", "lawyer" and "sue" threats are ordinary disputes
+                # Do not escalate on "threat" when context is job, offer, salary, resignation, legal action, court, notice, lawyer, or sue
+                ordinary_threat_words = [
+                    "job", "offer", "salary", "resignation", "resign", "relieving", "termination",
+                    "terminate", "wages", "notice period", "settlement", "legal action", "court",
+                    "notice", "lawyer", "sue", "suing", "advocate"
+                ]
+                has_ordinary_threat = any(ow in text_lower for ow in ordinary_threat_words)
                 has_police = any(pw in text_lower for pw in ["police", "fir", "arrest", "jail", "custody", "criminal"])
-                if has_job_ctx and not has_police:
-                    # Job/offer threat without police threat -> do NOT escalate
+                if has_ordinary_threat and not has_police:
+                    # Ordinary dispute threat without police threat -> do NOT escalate
                     pass
                 else:
                     escalation_reasons.append("High-severity issue (threat)")
@@ -529,7 +707,7 @@ def check_immediate_advocate_escalation(text: str) -> Dict[str, Any]:
             if _matches_word_beginning(w, text_str):
                 escalation_reasons.append(f"High-severity issue ({w})")
 
-    requires_real_lawyer = len(escalation_reasons) > 0 or is_physical_danger
+    requires_real_lawyer = (len(escalation_reasons) > 0 or is_physical_danger)
 
     contact = (
         "Emergency: Call 112 now, plus DLSA/NALSA Helpline 15100"
@@ -540,6 +718,8 @@ def check_immediate_advocate_escalation(text: str) -> Dict[str, Any]:
     return {
         "requires_real_lawyer": requires_real_lawyer,
         "is_physical_danger": is_physical_danger,
+        "is_past_incident": is_past_incident,
+        "clarification_question": "Is this happening now, or did it happen in the past?" if is_past_incident else "",
         "reasons": escalation_reasons,
         "reason": escalation_reasons[0] if escalation_reasons else "",
         "legal_aid_contact": contact
@@ -882,4 +1062,29 @@ def sanitize_unverified_sections(text: str, context_text: str = "") -> str:
         sanitized = pattern.sub("[unverified reference removed]", sanitized)
 
     return sanitized
+
+def build_safe_side_card_html(case_title: str, complainant: str, opposite_party: str, disputed_amount: str, category: str) -> str:
+    """Renders side-card HTML with all dynamic fields strictly escaped against HTML/XSS injection."""
+    safe_title = html.escape(str(case_title or "Everyday Dispute"))
+    safe_complainant = html.escape(str(complainant or "You"))
+    safe_opposite = html.escape(str(opposite_party or "Opposing Party"))
+    safe_amount = html.escape(str(disputed_amount or "N/A"))
+    safe_cat = html.escape(str(category or "Civil"))
+    return (
+        f"<div class='side-card'>\n"
+        f"    <b>📌 Case:</b> {safe_title}<br/>\n"
+        f"    <b>👤 Parties:</b> {safe_complainant} vs. {safe_opposite}<br/>\n"
+        f"    <b>💰 Disputed Sum:</b> {safe_amount}<br/>\n"
+        f"    <b>📁 Category:</b> <span class='badge-statute'>{safe_cat}</span>\n"
+        f"</div>"
+    )
+
+def build_safe_source_law_html(act_name: str, sec: str, relevance: str, is_verified: bool = True) -> str:
+    """Renders source law item HTML with act_name, section, and relevance text escaped."""
+    safe_act = html.escape(str(act_name or "Statute"))
+    safe_sec = html.escape(str(sec or ""))
+    safe_rel = html.escape(str(relevance or ""))
+    badge_html = "<span class='badge-verified'>verified</span>" if is_verified else "<span class='badge-unverified'>needs verification</span>"
+    return f"- **{safe_act}** (`{safe_sec}`) {badge_html}<br/><small style='color:#b0bec5;'>{safe_rel}</small>"
+
 

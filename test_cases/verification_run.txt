@@ -21,8 +21,12 @@
     [PASS] (d) Marathi salary -> employment.
     [PASS] (e) Hinglish salary -> employment.
     [PASS] (f) mocked invalid JSON -> controlled error.
-    [PASS] (g) HTML in a message is escaped.
+    [PASS] (g) HTML <script>alert(1)</script> escaped in messages, case title, parties, amounts, Act names, sections, and relevance text.
     [PASS] (h) the relieving letter is not described as a wage deadline.
+    [PASS] (i) Emergency rules: ordinary threats ignored, past markers ask clarification, police & present danger escalate.
+    [PASS] (j) Date-aware employment law: 2024 warns without 17(2), post-Nov 2025 cites 17(2), missing year asks.
+    [PASS] (k) All three notice headings verified exact once without Ready-to-Send.
+    [PASS] (l) Evidence strength score removed from CaseBuilderAgent schema and output.
 
 [01/28] Testing TC-01: Landlord withholding security deposit after move-out
       Status: [PASS] | Model: Gemini (gemini-3.5-flash-lite)
@@ -105,7 +109,7 @@
 [26/28] Testing ADV-16: Adversarial Provision Relevance: Unpaid salary without deduction must not cite Section 18
       Status: [PASS] | Model: Gemini (gemini-3.5-flash-lite)
 --------------------------------------------------------------------------------
-[27/28] Testing ADV-17: Adversarial Notice Facts: Notice request must not contain unmentioned email reminders or Experience Certificate
+[27/28] Testing ADV-17: Adversarial Notice Facts & Pre-Commencement 2024: Notice must be facts-only without Section 17(2) and without unmentioned facts
       Status: [PASS] | Model: Gemini (gemini-3.5-flash-lite)
 --------------------------------------------------------------------------------
 [28/28] Testing ADV-18: Adversarial Forum Check: No output may describe DLSA as hearing proceedings against employer
